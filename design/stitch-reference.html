@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stitch Reference Index — Abdullah Dilshad Portfolio</title>
+  <style>
+    :root {
+      --surface: #0e1511;
+      --surface-lowest: #09100c;
+      --surface-container: #1a211d;
+      --surface-high: #252c27;
+      --primary: #56e0a7;
+      --secondary: #a3c9ff;
+      --tertiary: #ffb8ab;
+      --on-surface: #dde4de;
+      --on-surface-variant: #bbcac0;
+      --outline-variant: #3d4a42;
+    }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: var(--surface);
+      color: var(--on-surface);
+      line-height: 1.5;
+      padding: 2rem;
+      max-width: 960px;
+    }
+    h1, h2, h3 { font-family: Geist, Inter, sans-serif; }
+    h1 { color: var(--primary); font-size: 1.75rem; }
+    h2 { margin-top: 2.5rem; border-top: 1px solid var(--outline-variant); padding-top: 1.5rem; }
+    code, pre { background: var(--surface-lowest); border: 1px solid var(--outline-variant); }
+    code { padding: 0.1rem 0.35rem; border-radius: 0.25rem; font-size: 0.875rem; }
+    pre { padding: 1rem; overflow: auto; border-radius: 0.5rem; font-size: 0.8rem; }
+    .meta { color: var(--on-surface-variant); font-size: 0.875rem; }
+    .swatch { display: inline-block; width: 1rem; height: 1rem; border-radius: 2px; vertical-align: middle; margin-right: 0.35rem; border: 1px solid var(--outline-variant); }
+    ul { padding-left: 1.25rem; }
+    .warn { color: var(--tertiary); }
+  </style>
+</head>
+<body>
+  <h1>Stitch Reference — Screen Audit Index</h1>
+  <p class="meta">
+    Visual authority for the Abdullah Dilshad portfolio. Full multi-document Stitch export was supplied in the project brief.
+    This index inventories every screen, tokens, and patterns. Factual content in Stitch is <strong class="warn">untrusted</strong> — see <code>CONTENT_TRUTH.md</code>.
+  </p>
+
+  <h2>1. Design System / Portfolio Home — Desktop</h2>
+  <p class="meta">Maps to <code>/</code>. Fixed top nav, hero with workflow nodes, case studies, experience timeline, capabilities, n8n work, about + portrait, contact form, footer.</p>
+  <ul>
+    <li>Nav: Work, Experience, Capabilities, About, Contact + Available for Work + Download CV</li>
+    <li>Hero workflow: Webhook → Enrichment → AI Analysis → Human Approval → Action</li>
+    <li>Proof strip (Stitch metrics — replace with verified proof)</li>
+    <li>Tokens: surface <span class="swatch" style="background:#0e1511"></span> primary <span class="swatch" style="background:#56e0a7"></span> secondary <span class="swatch" style="background:#a3c9ff"></span></li>
+  </ul>
+
+  <h2>2. Case Study — AI Lead Generation &amp; Outreach Engine</h2>
+  <p class="meta">Maps to <code>/work/[slug]</code>. Back nav, hero + metric cards (fabricated — remove), bottleneck vs legacy workflow, architecture node row, reliability bento, 4-step pipeline, CTA band.</p>
+
+  <h2>3. Portfolio Home — Mobile</h2>
+  <p class="meta">Maps to responsive <code>/</code>. Glass nav, hamburger drawer, vertical workflow reflow, stacked case cards, capabilities list, technical footer. Viewport hint 390px.</p>
+
+  <h2>4. Admin — Edit / Create Case Study</h2>
+  <p class="meta">Maps to <code>/admin/case-studies/new</code> and edit. Left sidebar, sticky draft/publish bar, general info, workflow rich-text shell, visual assets, KPI editor, SEO panel.</p>
+
+  <h2>5. Admin Portal — Login</h2>
+  <p class="meta">Maps to <code>/admin/login</code>. Centered auth card, technical grid, Operator ID / Access Key fields, secure disclaimer. No public registration.</p>
+
+  <h2>6. Admin Dashboard</h2>
+  <p class="meta">Maps to <code>/admin</code>. Sidebar, bento stats (cases/drafts/submissions/health), recent submissions table, quick actions, integration status (decorative — do not invent live connectivity).</p>
+
+  <h2>7. Project Detail — Template with n8n Nodes</h2>
+  <p class="meta">Enhances <code>/work/[slug]</code>. JSON editor + visual node preview split, challenge section, architecture strip, pipeline, CTA. Adopt layout patterns; strip fabricated metrics/tools.</p>
+
+  <h2>8. Portfolio Home — Projects Focus</h2>
+  <p class="meta">Homepage variant: unified Projects grid (case studies + public templates), GitHub/LinkedIn in nav. Prefer verified “Work” framing + separate Public n8n Work section per brief.</p>
+
+  <h2>9. Admin Dashboard — Projects / editor preview</h2>
+  <p class="meta">Admin variant with Projects nav, create-project JSON textarea + live preview shell, quick settings for social links. Informs Phase 6 editor UX.</p>
+
+  <h2>Shared design tokens</h2>
+  <pre>{
+  "surface": "#0e1511",
+  "surface-lowest": "#09100c",
+  "surface-low": "#161d19",
+  "surface-container": "#1a211d",
+  "surface-high": "#252c27",
+  "surface-highest": "#2f3632",
+  "primary": "#56e0a7",
+  "primary-container": "#31c48d",
+  "secondary": "#a3c9ff",
+  "tertiary": "#ffb8ab",
+  "on-surface": "#dde4de",
+  "on-surface-variant": "#bbcac0",
+  "outline": "#86948b",
+  "outline-variant": "#3d4a42",
+  "error": "#ffb4ab",
+  "container-max": "1200px",
+  "gutter": "24px",
+  "fonts": { "headline": "Geist", "body": "Inter" }
+}</pre>
+
+  <h2>Corrections required when implementing</h2>
+  <ul>
+    <li>Replace Material Symbols with Lucide</li>
+    <li>Remove Tailwind CDN and duplicated Google Font links</li>
+    <li>Remove fake portrait, fake metrics, fake templates, wrong email</li>
+    <li>Fix invalid <code>Active:scale-95</code> → <code>active:scale-95</code></li>
+    <li>No <code>href="#"</code>; respect <code>prefers-reduced-motion</code></li>
+    <li>Dynamic footer year; remove fake Documentation link unless page exists</li>
+  </ul>
+
+  <p class="meta">Full structural inventory: <code>design/STITCH_SCREEN_INVENTORY.md</code>. Content truth: <code>CONTENT_TRUTH.md</code>.</p>
+</body>
+</html>
