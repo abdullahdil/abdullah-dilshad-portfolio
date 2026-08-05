@@ -20,11 +20,13 @@ export function CaseStudyView({ study, previous, next }: CaseStudyViewProps) {
   return (
     <article className="pb-margin-desktop pt-32">
       <CaseStudyHero study={study} />
-      <ProblemSection study={study} />
       <ArchitectureDiagram
         nodes={study.architectureNodes}
         description={study.architectureDescription}
+        steps={study.steps}
+        tools={study.tools}
       />
+      <ProblemSection study={study} />
       <ToolsContribution study={study} />
       <ReliabilitySection study={study} />
       <PipelineSteps study={study} />

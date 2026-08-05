@@ -10,7 +10,7 @@ type CaseStudyHeroProps = {
 
 export function CaseStudyHero({ study }: CaseStudyHeroProps) {
   return (
-    <header className="mb-20 text-center md:mb-24">
+    <header className="mb-12 text-center md:mb-16">
       <Container>
         <Link
           href="/#work"
