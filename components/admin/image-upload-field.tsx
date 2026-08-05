@@ -58,12 +58,12 @@ export function ImageUploadField({
       </div>
 
       {url ? (
-        <div className="overflow-hidden rounded-lg border border-outline-variant/20 bg-surface-highest">
+        <div className="relative aspect-square max-w-xs overflow-hidden rounded-lg border border-outline-variant/20 bg-surface-highest">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={url}
             alt={`${label} preview`}
-            className="max-h-48 w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover object-center"
           />
         </div>
       ) : null}

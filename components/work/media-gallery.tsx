@@ -38,13 +38,13 @@ export function MediaGallery({ study }: MediaGalleryProps) {
                 key={`${item.url}-${item.caption}`}
                 className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container"
               >
-                <div className="relative aspect-video bg-surface-highest">
+                <div className="relative aspect-square bg-surface-highest">
                   <Image
                     src={item.url!}
                     alt={item.alt || item.caption}
                     fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover object-center"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
                 <p className="border-t border-outline-variant/20 px-4 py-3 text-sm text-on-surface-variant">
@@ -60,7 +60,7 @@ export function MediaGallery({ study }: MediaGalleryProps) {
                 key={caption}
                 className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container"
               >
-                <div className="flex aspect-video flex-col items-center justify-center gap-3 bg-surface-highest p-6">
+                <div className="flex aspect-square flex-col items-center justify-center gap-3 bg-surface-highest p-6">
                   <ImageIcon
                     className="h-8 w-8 text-on-surface-variant opacity-60"
                     aria-hidden

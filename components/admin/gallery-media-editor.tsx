@@ -118,12 +118,12 @@ export function GalleryMediaEditor({
             </div>
 
             {item.url ? (
-              <div className="overflow-hidden rounded-lg border border-outline-variant/20">
+              <div className="relative aspect-square max-w-xs overflow-hidden rounded-lg border border-outline-variant/20 bg-surface-highest">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={item.url}
                   alt={item.alt || item.caption}
-                  className="max-h-44 w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover object-center"
                 />
               </div>
             ) : null}

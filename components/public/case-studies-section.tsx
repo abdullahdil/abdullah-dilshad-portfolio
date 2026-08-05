@@ -41,40 +41,27 @@ export async function CaseStudiesSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {cards.map((study, index) => {
             const Icon = icons[index] ?? Network;
-            const isLarge = index === 0 || index === 2;
 
             return (
               <Link
                 key={study.slug}
                 href={`/work/${study.slug}`}
-                className={cn(
-                  "group relative overflow-hidden rounded-lg border border-outline-variant/10 bg-surface-low p-1 transition-colors",
-                  isLarge ? "md:col-span-8" : "md:col-span-4",
-                )}
+                className="group relative overflow-hidden rounded-lg border border-outline-variant/10 bg-surface-low p-1 transition-colors"
               >
-                <div
-                  className={cn(
-                    "relative overflow-hidden rounded-lg",
-                    isLarge ? "aspect-[16/9]" : "aspect-square",
-                  )}
-                >
+                <div className="relative aspect-square overflow-hidden rounded-lg bg-surface-highest">
                   {study.featuredImageUrl ? (
                     <Image
                       src={study.featuredImageUrl}
                       alt={study.title}
                       fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes={isLarge ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 100vw, 33vw"}
+                      className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
                     />
                   ) : (
                     <>
-                      <div
-                        className="absolute inset-0 bg-surface-highest"
-                        aria-hidden
-                      />
                       <div
                         className="absolute inset-0 opacity-30"
                         style={{
@@ -92,37 +79,30 @@ export async function CaseStudiesSection() {
                       </div>
                     </>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
 
-                  {isLarge ? (
-                    <div className="absolute bottom-0 left-0 space-y-2 p-6 md:p-8">
-                      <div className="mb-2 flex flex-wrap gap-2">
-                        {study.tools.slice(0, 2).map((tool) => (
-                          <Badge key={tool} tone="primary">
-                            {tool}
-                          </Badge>
-                        ))}
-                      </div>
-                      <h3 className="font-heading text-headline-md text-on-surface">
-                        {study.title}
-                      </h3>
-                      <p className="max-w-md text-body-md text-on-surface-variant">
-                        {study.summary}
-                      </p>
+                  <div
+                    className={cn(
+                      "absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent",
+                      study.featuredImageUrl ? "opacity-90" : "opacity-80",
+                    )}
+                  />
+
+                  <div className="absolute inset-x-0 bottom-0 space-y-2 p-5 md:p-6">
+                    <div className="mb-1 flex flex-wrap gap-2">
+                      {study.tools.slice(0, 2).map((tool) => (
+                        <Badge key={tool} tone="primary">
+                          {tool}
+                        </Badge>
+                      ))}
                     </div>
-                  ) : null}
-                </div>
-
-                {!isLarge ? (
-                  <div className="space-y-2 p-4">
-                    <p className="font-heading text-sm font-bold uppercase tracking-widest text-primary">
-                      {study.tools[0] ?? "Automation"}
-                    </p>
-                    <h3 className="font-heading text-xl text-on-surface">
+                    <h3 className="font-heading text-xl text-on-surface md:text-headline-md">
                       {study.title}
                     </h3>
+                    <p className="line-clamp-2 text-sm text-on-surface-variant md:text-body-md">
+                      {study.summary}
+                    </p>
                   </div>
-                ) : null}
+                </div>
               </Link>
             );
           })}

@@ -85,7 +85,7 @@ function FileList({
               <img
                 src={item.publicUrl}
                 alt={item.name}
-                className="mb-2 h-16 w-16 rounded object-cover"
+                className="mb-2 h-20 w-20 rounded object-cover object-center"
               />
             ) : null}
             <p className="truncate font-label text-sm text-on-surface">{item.name}</p>
