@@ -37,7 +37,7 @@ export function ArchitectureDiagram({
 
         <div className="relative hidden py-4 md:block">
           <div
-            className="absolute left-0 right-0 top-[2.75rem] h-px bg-[repeating-linear-gradient(90deg,#ff8c37_0,#ff8c37_4px,transparent_4px,transparent_8px)] opacity-30"
+            className="absolute left-0 right-0 top-[2.75rem] h-px bg-[repeating-linear-gradient(90deg,#2dd4bf_0,#2dd4bf_4px,transparent_4px,transparent_8px)] opacity-30"
             aria-hidden
           />
           <ol
@@ -57,7 +57,7 @@ export function ArchitectureDiagram({
                     className={cn(
                       "flex items-center justify-center rounded-lg border border-outline-variant/20 bg-surface-high transition-colors glow-hover",
                       isHub
-                        ? "h-20 w-20 border-primary bg-primary text-on-primary glow-orange"
+                        ? "h-20 w-20 border-primary bg-primary text-on-primary glow-accent"
                         : "h-16 w-16",
                     )}
                   >

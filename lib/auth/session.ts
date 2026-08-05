@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { isAuthorizedAdminUser } from "@/lib/auth/authorized-admin";
@@ -9,7 +10,8 @@ export type AdminSession = {
   email: string | null;
 };
 
-export async function getAuthUser(): Promise<User | null> {
+/** Per-request memoization so layout + pages don't re-hit Auth/DB. */
+export const getAuthUser = cache(async (): Promise<User | null> => {
   if (!isSupabaseConfigured()) return null;
   const supabase = await createServerSupabaseClient();
   if (!supabase) return null;
@@ -19,40 +21,42 @@ export async function getAuthUser(): Promise<User | null> {
   } = await supabase.auth.getUser();
 
   return user;
-}
+});
 
-export async function isCurrentUserAuthorizedAdmin(
-  userId: string,
-): Promise<boolean> {
-  const supabase = await createServerSupabaseClient();
-  if (!supabase) return false;
+export const isCurrentUserAuthorizedAdmin = cache(
+  async (userId: string): Promise<boolean> => {
+    const supabase = await createServerSupabaseClient();
+    if (!supabase) return false;
 
-  const { data, error } = await supabase
-    .from("authorized_admins")
-    .select("user_id")
-    .eq("user_id", userId)
-    .maybeSingle();
+    const { data, error } = await supabase
+      .from("authorized_admins")
+      .select("user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
 
-  if (error || !data) return false;
+    if (error || !data) return false;
 
-  return isAuthorizedAdminUser(
-    { userId, isAuthenticated: true },
-    [String(data.user_id)],
-  );
-}
+    return isAuthorizedAdminUser(
+      { userId, isAuthenticated: true },
+      [String(data.user_id)],
+    );
+  },
+);
 
-export async function getAuthorizedAdminSession(): Promise<AdminSession | null> {
-  const user = await getAuthUser();
-  if (!user) return null;
+export const getAuthorizedAdminSession = cache(
+  async (): Promise<AdminSession | null> => {
+    const user = await getAuthUser();
+    if (!user) return null;
 
-  const authorized = await isCurrentUserAuthorizedAdmin(user.id);
-  if (!authorized) return null;
+    const authorized = await isCurrentUserAuthorizedAdmin(user.id);
+    if (!authorized) return null;
 
-  return {
-    user,
-    email: user.email ?? null,
-  };
-}
+    return {
+      user,
+      email: user.email ?? null,
+    };
+  },
+);
 
 /**
  * Guard for protected admin routes.
@@ -65,18 +69,14 @@ export async function requireAuthorizedAdmin(): Promise<AdminSession> {
     redirect("/admin/login?error=not_configured");
   }
 
-  const user = await getAuthUser();
-  if (!user) {
-    redirect("/admin/login");
-  }
-
-  const authorized = await isCurrentUserAuthorizedAdmin(user.id);
-  if (!authorized) {
+  const session = await getAuthorizedAdminSession();
+  if (!session) {
+    const user = await getAuthUser();
+    if (!user) {
+      redirect("/admin/login");
+    }
     redirect("/admin/logout?error=unauthorized");
   }
 
-  return {
-    user,
-    email: user.email ?? null,
-  };
+  return session;
 }

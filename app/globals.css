@@ -12,16 +12,17 @@
   --surface-highest: #353534;
   --surface-variant: #353534;
 
-  --primary: #ff8c37;
-  --primary-container: #ff8c37;
-  --primary-fixed: #ff8c37;
-  --primary-fixed-dim: #ff8c37;
-  --on-primary: #512300;
-  --on-primary-container: #512300;
-  --on-primary-fixed: #512300;
-  --on-primary-fixed-variant: #733500;
-  --inverse-primary: #984800;
-  --surface-tint: #ff8c37;
+  /* Electric teal accent (replaces kinetic orange) */
+  --primary: #2dd4bf;
+  --primary-container: #2dd4bf;
+  --primary-fixed: #2dd4bf;
+  --primary-fixed-dim: #14b8a6;
+  --on-primary: #042f2e;
+  --on-primary-container: #042f2e;
+  --on-primary-fixed: #042f2e;
+  --on-primary-fixed-variant: #0f766e;
+  --inverse-primary: #14b8a6;
+  --surface-tint: #2dd4bf;
 
   --secondary: #c6c6c7;
   --secondary-container: #454747;
@@ -42,13 +43,13 @@
   --on-tertiary-fixed-variant: #474746;
 
   --on-surface: #e5e2e1;
-  --on-surface-variant: #ddc1b2;
+  --on-surface-variant: #a8b2bd;
   --on-background: #e5e2e1;
   --inverse-surface: #e5e2e1;
   --inverse-on-surface: #313030;
 
-  --outline: #a48c7e;
-  --outline-variant: #564337;
+  --outline: #7c8794;
+  --outline-variant: #3d4651;
 
   --error: #ffb4ab;
   --error-container: #93000a;
@@ -255,29 +256,30 @@
   }
 
   .kinetic-glow {
-    box-shadow: 0 0 40px -10px rgba(255, 140, 55, 0.45);
+    box-shadow: 0 0 36px -12px rgba(45, 212, 191, 0.4);
   }
 
+  .glow-accent,
+  .glow-teal,
   .glow-orange {
-    box-shadow: 0 0 40px -10px rgba(255, 140, 55, 0.35);
+    /* glow-orange kept as alias for teal accent */
+    box-shadow: 0 0 32px -12px rgba(45, 212, 191, 0.35);
   }
 
   .glass-card {
-    background: rgba(32, 31, 31, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(164, 140, 126, 0.1);
+    background: rgba(32, 31, 31, 0.72);
+    border: 1px solid rgba(124, 135, 148, 0.12);
   }
 
   .glass-panel {
-    backdrop-filter: blur(20px);
-    background: rgba(32, 31, 31, 0.6);
-    border: 1px solid rgba(164, 140, 126, 0.1);
+    background: rgba(32, 31, 31, 0.78);
+    border: 1px solid rgba(124, 135, 148, 0.12);
   }
 
   .kinetic-gradient {
     background: radial-gradient(
       circle at 50% 50%,
-      rgba(255, 140, 55, 0.12) 0%,
+      rgba(45, 212, 191, 0.12) 0%,
       transparent 70%
     );
   }
@@ -303,7 +305,7 @@
   }
 
   .glow-hover:hover {
-    box-shadow: 0 0 20px rgba(255, 140, 55, 0.25);
-    border-color: rgba(255, 140, 55, 0.45);
+    box-shadow: 0 0 18px rgba(45, 212, 191, 0.22);
+    border-color: rgba(45, 212, 191, 0.4);
   }
 }

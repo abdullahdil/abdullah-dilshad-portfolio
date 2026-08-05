@@ -68,7 +68,7 @@ export async function HeroSection() {
                 className="absolute -inset-4 rounded-full bg-primary/15 blur-2xl kinetic-glow"
                 aria-hidden
               />
-              <div className="relative aspect-square w-full overflow-hidden rounded-full border border-primary/40 bg-surface-low shadow-[0_0_60px_-12px_rgba(255,140,55,0.45)]">
+              <div className="relative aspect-square w-full overflow-hidden rounded-full border border-primary/40 bg-surface-low shadow-[0_0_60px_-12px_rgba(45,212,191,0.4)]">
                 {profile.portraitUrl ? (
                   <Image
                     src={profile.portraitUrl}
@@ -87,7 +87,7 @@ export async function HeroSection() {
                       className="pointer-events-none absolute inset-0 opacity-30"
                       style={{
                         backgroundImage:
-                          "radial-gradient(circle at 2px 2px, rgba(255,140,55,0.55) 1px, transparent 0)",
+                          "radial-gradient(circle at 2px 2px, rgba(45,212,191,0.55) 1px, transparent 0)",
                         backgroundSize: "18px 18px",
                       }}
                       aria-hidden

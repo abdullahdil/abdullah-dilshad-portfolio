@@ -29,7 +29,7 @@ export function WorkflowVisual({ className, compact = false }: WorkflowVisualPro
         className="pointer-events-none absolute inset-0 opacity-20"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 2px 2px, rgba(255,140,55,0.5) 1px, transparent 0)",
+            "radial-gradient(circle at 2px 2px, rgba(45,212,191,0.5) 1px, transparent 0)",
           backgroundSize: "24px 24px",
         }}
         aria-hidden
@@ -51,7 +51,7 @@ export function WorkflowVisual({ className, compact = false }: WorkflowVisualPro
                 >
                   <div
                     className={cn(
-                      "flex items-center justify-center rounded-full border border-primary/40 bg-surface-highest glow-orange",
+                      "flex items-center justify-center rounded-full border border-primary/40 bg-surface-highest glow-accent",
                       compact
                         ? "h-14 w-14 sm:h-16 sm:w-16"
                         : "h-16 w-16 sm:h-[4.5rem] sm:w-[4.5rem]",

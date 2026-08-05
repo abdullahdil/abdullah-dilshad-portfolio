@@ -14,12 +14,11 @@ import {
 } from "@/lib/validations/media";
 
 function revalidateMediaPaths() {
+  // Keep admin uploads snappy — only touch surfaces that display media.
   revalidatePath("/admin/media");
   revalidatePath("/admin/profile");
-  revalidatePath("/admin/case-studies");
   revalidatePath("/");
   revalidatePath("/resume");
-  revalidatePath("/work", "layout");
 }
 
 export async function uploadMediaAction(

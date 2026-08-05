@@ -76,7 +76,7 @@ export function AdminSidebar({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-r-full p-3 transition-all duration-300",
+                "flex items-center gap-3 rounded-r-full p-3 transition-colors duration-150",
                 active
                   ? "bg-primary-container text-on-primary-container"
                   : "text-on-surface-variant hover:bg-surface-variant",
@@ -93,7 +93,7 @@ export function AdminSidebar({
         <Button
           href="/admin/case-studies/new"
           onClick={onNavigate}
-          className="w-full glow-orange"
+          className="w-full glow-accent"
           size="sm"
         >
           <Plus className="h-4 w-4" aria-hidden />

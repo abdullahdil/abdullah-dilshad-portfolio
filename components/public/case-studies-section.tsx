@@ -66,7 +66,7 @@ export async function CaseStudiesSection() {
                         className="absolute inset-0 opacity-30"
                         style={{
                           backgroundImage:
-                            "radial-gradient(circle at 2px 2px, rgba(255,140,55,0.45) 1px, transparent 0)",
+                            "radial-gradient(circle at 2px 2px, rgba(45,212,191,0.45) 1px, transparent 0)",
                           backgroundSize: "20px 20px",
                         }}
                         aria-hidden

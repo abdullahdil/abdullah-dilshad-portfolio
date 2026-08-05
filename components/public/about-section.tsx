@@ -17,7 +17,7 @@ export async function AboutSection() {
                   className="pointer-events-none absolute inset-0 opacity-[0.15]"
                   style={{
                     backgroundImage:
-                      "radial-gradient(circle at 1px 1px, rgba(255,140,55,0.5) 1px, transparent 0)",
+                      "radial-gradient(circle at 1px 1px, rgba(45,212,191,0.5) 1px, transparent 0)",
                     backgroundSize: "22px 22px",
                   }}
                   aria-hidden

@@ -11,7 +11,7 @@ type AdminTopBarProps = {
 
 export function AdminTopBar({ title, description, onMenuClick }: AdminTopBarProps) {
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-outline-variant/10 bg-background/80 px-margin-mobile py-4 backdrop-blur-xl md:px-margin-desktop">
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-outline-variant/10 bg-background/90 px-margin-mobile py-4 backdrop-blur-sm md:px-margin-desktop">
       <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"

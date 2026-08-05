@@ -88,7 +88,7 @@ export default async function AdminDashboardPage() {
           return (
             <div
               key={stat.label}
-              className={`glass-panel rounded-lg p-6 transition-all duration-300 hover:border-primary/40 ${
+              className={`glass-panel rounded-lg p-6 transition-colors duration-150 hover:border-primary/40 ${
                 stat.accent === "urgent" ? "border-primary/20 bg-primary/5" : ""
               }`}
             >
@@ -209,7 +209,7 @@ export default async function AdminDashboardPage() {
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-high">
                     <div
-                      className="h-full rounded-full bg-primary shadow-[0_0_10px_rgba(255,140,55,0.5)]"
+                      className="h-full rounded-full bg-primary shadow-[0_0_10px_rgba(45,212,191,0.45)]"
                       style={{ width: item.width }}
                     />
                   </div>

@@ -18,7 +18,7 @@ export function CaseStudyCta() {
           <span className="text-primary">growth engine?</span>
         </h2>
         <div className="flex flex-col items-center justify-center gap-6 md:flex-row">
-          <Button href="/#contact" size="lg" variant="secondary" className="group glow-orange">
+          <Button href="/#contact" size="lg" variant="secondary" className="group glow-accent">
             Scale My Outreach
             <ArrowRight
               className="h-5 w-5 transition-transform group-hover:translate-x-2"
