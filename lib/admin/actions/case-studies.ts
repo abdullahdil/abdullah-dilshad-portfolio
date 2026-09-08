@@ -1,6 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import {
+  cleanUpRemovedImages,
+  listCaseStudyImageUrls,
+} from "@/lib/repositories/admin/media-cleanup";
 import { redirect } from "next/navigation";
 import {
   arrayToLines,
@@ -156,12 +160,25 @@ export async function updateCaseStudyAction(
   if (!parsed.ok) return parsed;
 
   try {
+    // Snapshot the current images so we can delete whatever this save drops.
+    let imagesBefore: string[] = [];
+    try {
+      imagesBefore = await listCaseStudyImageUrls(id);
+    } catch {
+      imagesBefore = [];
+    }
+
     await updateAdminCaseStudy(id, parsed.data, {
       displayOrder: parsed.displayOrder,
       isFeatured: parsed.isFeatured,
     });
+
+    const imagesAfter = await listCaseStudyImageUrls(id).catch(() => imagesBefore);
+    await cleanUpRemovedImages(imagesBefore, imagesAfter);
+
     revalidatePath("/");
     revalidatePath(`/work/${parsed.data.slug}`);
+    revalidatePath("/work/[slug]", "page");
     revalidatePath("/admin/case-studies");
     revalidatePath(`/admin/case-studies/${id}/edit`);
     return { ok: true, message: "Case study saved.", id };
@@ -179,6 +196,7 @@ export async function setCaseStudyStatusAction(formData: FormData): Promise<void
   const status = contentStatusSchema.parse(formString(formData, "status"));
   await updateAdminCaseStudyStatus(id, status);
   revalidatePath("/");
+  revalidatePath("/work/[slug]", "page");
   revalidatePath("/admin/case-studies");
   redirect("/admin/case-studies");
 }
@@ -186,8 +204,19 @@ export async function setCaseStudyStatusAction(formData: FormData): Promise<void
 export async function deleteCaseStudyAction(formData: FormData): Promise<void> {
   await requireAuthorizedAdmin();
   const id = formString(formData, "id");
+
+  let images: string[] = [];
+  try {
+    images = await listCaseStudyImageUrls(id);
+  } catch {
+    images = [];
+  }
+
   await deleteAdminCaseStudy(id);
+  await cleanUpRemovedImages(images, []);
+
   revalidatePath("/");
+  revalidatePath("/work/[slug]", "page");
   revalidatePath("/admin/case-studies");
   redirect("/admin/case-studies");
 }

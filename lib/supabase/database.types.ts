@@ -151,3 +151,61 @@ export type SiteSettingRow = {
   setting_value: Json;
   updated_at: string;
 };
+
+export type ProofPointRow = {
+  id: string;
+  value: string;
+  label: string;
+  is_featured: boolean;
+  display_order: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type HeroWorkflowStepRow = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  display_order: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type NavLinkRow = {
+  id: string;
+  href: string;
+  label: string;
+  display_order: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WorkflowGroupRow = {
+  id: string;
+  category: string;
+  description: string;
+  display_order: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WorkflowRow = {
+  id: string;
+  group_id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  image_url: string | null;
+  image_alt: string;
+  outcome_tags: string[];
+  is_active: boolean;
+  display_order: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+};

@@ -6,10 +6,22 @@ import { useEffect, useState } from "react";
 import { Download, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { navLinks, profileSeed } from "@/lib/content/seed";
+import type { PublicNavLink } from "@/lib/repositories/site-content";
 import { cn } from "@/lib/utils";
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  links: PublicNavLink[];
+  fullName: string;
+  availabilityLabel: string;
+  cvUrl: string;
+};
+
+export function SiteHeader({
+  links,
+  fullName,
+  availabilityLabel,
+  cvUrl,
+}: SiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -42,11 +54,11 @@ export function SiteHeader() {
             onClick={handleLogoClick}
             className="font-heading text-base font-semibold tracking-tight text-on-surface transition-colors hover:text-accent"
           >
-            {profileSeed.fullName}
+            {fullName}
           </Link>
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -59,10 +71,10 @@ export function SiteHeader() {
 
           <div className="flex items-center gap-3">
             <span className="hidden text-sm text-on-surface-variant lg:inline">
-              {profileSeed.availabilityLabel}
+              {availabilityLabel}
             </span>
             <Button
-              href={profileSeed.cvUrl}
+              href={cvUrl}
               download
               variant="outline"
               size="sm"
@@ -106,7 +118,7 @@ export function SiteHeader() {
             </button>
           </div>
           <nav className="flex flex-col gap-6" aria-label="Mobile">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -118,9 +130,9 @@ export function SiteHeader() {
             ))}
           </nav>
           <div className="mt-auto space-y-4 border-t border-outline-variant pt-6">
-            <p className="text-sm text-on-surface-variant">{profileSeed.availabilityLabel}</p>
+            <p className="text-sm text-on-surface-variant">{availabilityLabel}</p>
             <Button
-              href={profileSeed.cvUrl}
+              href={cvUrl}
               download
               className="w-full"
               onClick={() => setOpen(false)}

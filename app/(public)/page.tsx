@@ -6,13 +6,16 @@ import { ExperienceSection } from "@/components/public/experience-section";
 import { HeroSection } from "@/components/public/hero-section";
 import { TemplatesSection } from "@/components/public/templates-section";
 import { WorkflowsSection } from "@/components/public/workflows-section";
+import { listPublishedWorkflowGroups } from "@/lib/repositories/site-content";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const workflowGroups = await listPublishedWorkflowGroups();
+
   return (
     <main id="main-content">
       <HeroSection />
       <CaseStudiesSection />
-      <WorkflowsSection />
+      <WorkflowsSection groups={workflowGroups} />
       <ExperienceSection />
       <CapabilitiesSection />
       <TemplatesSection />

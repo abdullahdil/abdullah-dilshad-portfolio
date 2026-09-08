@@ -21,8 +21,21 @@ import { createClient } from "@supabase/supabase-js";
 config({ path: ".env.local" });
 config({ path: ".env" });
 
-const PROJECT_REF = "pcflwkmgfkgravdtmyvp";
-const ADMIN_EMAIL = "abdullahdilshad111@gmail.com";
+function deriveProjectRef(): string {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "";
+  const match = url.match(/^https?:\/\/([a-z0-9]+)\.supabase\.(?:co|in)/i);
+  if (!match) {
+    throw new Error(
+      `Cannot derive the project ref from NEXT_PUBLIC_SUPABASE_URL ("${url}"). ` +
+        "Expected https://<project-ref>.supabase.co",
+    );
+  }
+  return match[1];
+}
+
+const PROJECT_REF = deriveProjectRef();
+const ADMIN_EMAIL =
+  process.env.ADMIN_EMAIL?.trim() || "abdullahdilshad111@gmail.com";
 
 function required(name: string): string {
   const value = process.env[name]?.trim();
@@ -51,17 +64,27 @@ function getDatabaseUrlCandidates(): string[] {
   }
   const encoded = encodeURIComponent(password);
   const poolerRegions = [
+    "ap-northeast-1",
+    "ap-northeast-2",
     "ap-southeast-1",
+    "ap-southeast-2",
     "ap-south-1",
     "eu-central-1",
     "eu-west-1",
+    "eu-west-2",
     "us-east-1",
+    "us-east-2",
     "us-west-1",
+    "sa-east-1",
+    "ca-central-1",
   ];
   return [
     // Direct connection is most reliable for DDL.
     `postgresql://postgres:${encoded}@db.${PROJECT_REF}.supabase.co:5432/postgres`,
-    `postgresql://postgres.${PROJECT_REF}:${encoded}@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`,
+    ...poolerRegions.map(
+      (region) =>
+        `postgresql://postgres.${PROJECT_REF}:${encoded}@aws-0-${region}.pooler.supabase.com:5432/postgres`,
+    ),,
     ...poolerRegions.map(
       (region) =>
         `postgresql://postgres.${PROJECT_REF}:${encoded}@aws-0-${region}.pooler.supabase.com:6543/postgres`,
@@ -86,6 +109,37 @@ async function applyMigration(databaseUrl: string) {
   } finally {
     await client.end();
   }
+}
+
+/**
+ * Applies the migration through the Supabase Management API.
+ * Needs only SUPABASE_ACCESS_TOKEN (a personal access token), so it works
+ * when the Postgres password is unknown or the pooler host is unreachable.
+ */
+async function applyMigrationViaApi(accessToken: string) {
+  const sqlPath = resolve("supabase/migrations/20260803000000_init.sql");
+  const query = readFileSync(sqlPath, "utf8");
+
+  console.log("Applying init migration via Management API…");
+  const response = await fetch(
+    `https://api.supabase.com/v1/projects/${PROJECT_REF}/database/query`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query }),
+    },
+  );
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(
+      `Management API returned ${response.status}: ${body.slice(0, 500)}`,
+    );
+  }
+  console.log("Migration applied.");
 }
 
 // Script client is untyped against generated DB schema.
@@ -197,26 +251,46 @@ async function runSeed() {
 async function main() {
   const url = required("NEXT_PUBLIC_SUPABASE_URL");
   const serviceKey = required("SUPABASE_SERVICE_ROLE_KEY");
-  const candidates = getDatabaseUrlCandidates();
+  const accessToken = process.env.SUPABASE_ACCESS_TOKEN?.trim();
 
   let migrated = false;
   let lastError: unknown;
-  for (const candidate of candidates) {
+
+  // Management API first when a personal access token is available:
+  // it needs no DB password and no reachable pooler host.
+  if (accessToken) {
     try {
-      await applyMigration(candidate);
+      await applyMigrationViaApi(accessToken);
       migrated = true;
-      break;
     } catch (error) {
       lastError = error;
       console.warn(
-        `Migration attempt failed for one connection string: ${error instanceof Error ? error.message : error}`,
+        `Management API migration failed, falling back to direct Postgres: ${error instanceof Error ? error.message : error}`,
       );
     }
   }
+
+  if (!migrated) {
+    for (const candidate of getDatabaseUrlCandidates()) {
+      try {
+        await applyMigration(candidate);
+        migrated = true;
+        break;
+      } catch (error) {
+        lastError = error;
+        console.warn(
+          `Migration attempt failed for one connection string: ${error instanceof Error ? error.message : error}`,
+        );
+      }
+    }
+  }
+
   if (!migrated) {
     throw lastError instanceof Error
       ? lastError
-      : new Error("Unable to apply migration. Check SUPABASE_DB_PASSWORD.");
+      : new Error(
+          "Unable to apply migration. Set SUPABASE_ACCESS_TOKEN or SUPABASE_DB_PASSWORD.",
+        );
   }
 
   const supabase = createClient(url, serviceKey, {

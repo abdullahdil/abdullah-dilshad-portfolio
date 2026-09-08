@@ -1,20 +1,35 @@
 import {
+  Bot,
   Brain,
   Database,
+  Filter,
+  Mail,
+  Plug,
   Send,
+  ShieldCheck,
+  Terminal,
   UserCheck,
   Webhook,
+  Workflow,
   type LucideIcon,
 } from "lucide-react";
-import { heroWorkflowSeed } from "@/lib/content/seed";
+import { listPublishedHeroWorkflowSteps } from "@/lib/repositories/site-content";
+import type { PublicHeroWorkflowStep } from "@/lib/repositories/site-content";
 import { cn } from "@/lib/utils";
 
-const iconMap: Record<(typeof heroWorkflowSeed)[number]["icon"], LucideIcon> = {
+const iconMap: Record<PublicHeroWorkflowStep["icon"], LucideIcon> = {
   Webhook,
   Database,
   Brain,
   UserCheck,
   Send,
+  Workflow,
+  Plug,
+  Terminal,
+  Bot,
+  Filter,
+  Mail,
+  ShieldCheck,
 };
 
 type WorkflowVisualProps = {
@@ -22,7 +37,8 @@ type WorkflowVisualProps = {
   compact?: boolean;
 };
 
-export function WorkflowVisual({ className, compact = false }: WorkflowVisualProps) {
+export async function WorkflowVisual({ className, compact = false }: WorkflowVisualProps) {
+  const heroWorkflowSeed = await listPublishedHeroWorkflowSteps();
   return (
     <div className={cn("px-6 py-8 md:px-10", className)}>
       <ol className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-2">

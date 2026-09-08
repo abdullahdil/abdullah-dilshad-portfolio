@@ -229,11 +229,15 @@ export const templatesSeed = [
 export const adminNavItems = [
   { href: "/admin", label: "Dashboard", icon: "LayoutDashboard" },
   { href: "/admin/case-studies", label: "Case Studies", icon: "FolderKanban" },
+  { href: "/admin/workflows", label: "Workflows", icon: "Workflow" },
   { href: "/admin/media", label: "Media", icon: "Image" },
   { href: "/admin/messages", label: "Messages", icon: "Mail" },
   { href: "/admin/profile", label: "Profile", icon: "User" },
   { href: "/admin/experience", label: "Experience", icon: "Briefcase" },
   { href: "/admin/capabilities", label: "Capabilities", icon: "Puzzle" },
   { href: "/admin/templates", label: "Templates", icon: "Library" },
+  { href: "/admin/proof-points", label: "Proof Strip", icon: "BadgeCheck" },
+  { href: "/admin/hero-workflow", label: "Hero Diagram", icon: "GitBranch" },
+  { href: "/admin/navigation", label: "Navigation", icon: "Link2" },
   { href: "/admin/settings", label: "Settings", icon: "Settings" },
 ] as const;

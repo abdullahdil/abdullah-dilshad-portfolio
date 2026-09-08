@@ -1,11 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { cn } from "@/lib/utils";
-import { workflowGroups } from "@/lib/content/workflows";
+import type { PublicWorkflowGroup } from "@/lib/repositories/site-content";
 
 const CARD_PAGE_SIZE = 8;
 const GLYPH_WIDTH = 320;
@@ -110,17 +111,20 @@ function WorkflowGlyph({ seed }: { seed: string }) {
   );
 }
 
-export function WorkflowsSection() {
+export function WorkflowsSection({
+  groups,
+}: {
+  groups: PublicWorkflowGroup[];
+}) {
   const [activeCategory, setActiveCategory] = useState(
-    workflowGroups[0]?.category ?? "",
+    groups[0]?.category ?? "",
   );
   const [expanded, setExpanded] = useState(false);
 
   const activeGroup = useMemo(
     () =>
-      workflowGroups.find((group) => group.category === activeCategory) ??
-      workflowGroups[0],
-    [activeCategory],
+      groups.find((group) => group.category === activeCategory) ?? groups[0],
+    [groups, activeCategory],
   );
 
   if (!activeGroup) {
@@ -152,7 +156,7 @@ export function WorkflowsSection() {
         </div>
 
         <div className="mb-8 flex flex-wrap gap-3" aria-label="Workflow categories">
-          {workflowGroups.map((group) => {
+          {groups.map((group) => {
             const isActive = group.category === activeGroup.category;
             return (
               <button
@@ -188,7 +192,17 @@ export function WorkflowsSection() {
                   className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-accent/10 blur-2xl"
                   aria-hidden
                 />
-                <WorkflowGlyph seed={workflow.id} />
+                {workflow.imageUrl ? (
+                  <Image
+                    src={workflow.imageUrl}
+                    alt={workflow.imageAlt || workflow.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                    className="object-cover object-center"
+                  />
+                ) : (
+                  <WorkflowGlyph seed={workflow.id} />
+                )}
               </div>
               <div className="flex flex-1 flex-col p-5">
                 <h3 className="font-heading text-base font-medium text-on-surface">

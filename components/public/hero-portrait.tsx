@@ -1,17 +1,19 @@
 import Image from "next/image";
 
-const HERO_PORTRAIT = "/images/hero-portrait-v2.jpg";
+/** Used when the profile row has no portrait uploaded yet. */
+const FALLBACK_PORTRAIT = "/images/hero-portrait-v2.jpg";
 
 type HeroPortraitProps = {
   alt: string;
+  src?: string | null;
 };
 
-export function HeroPortrait({ alt }: HeroPortraitProps) {
+export function HeroPortrait({ alt, src }: HeroPortraitProps) {
   return (
     <div className="relative mx-auto w-full max-w-md lg:mx-0 lg:max-w-none">
       <div className="relative aspect-square overflow-hidden rounded-2xl border border-outline-variant bg-black">
         <Image
-          src={HERO_PORTRAIT}
+          src={src || FALLBACK_PORTRAIT}
           alt={alt}
           fill
           priority

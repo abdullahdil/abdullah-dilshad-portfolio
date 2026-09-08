@@ -19,6 +19,8 @@ function revalidateMediaPaths() {
   revalidatePath("/admin/profile");
   revalidatePath("/");
   revalidatePath("/resume");
+  // Case study pages embed featured + gallery images, so they must refresh too.
+  revalidatePath("/work/[slug]", "page");
 }
 
 export async function uploadMediaAction(

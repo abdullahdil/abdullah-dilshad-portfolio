@@ -45,7 +45,7 @@ export async function HeroSection() {
           </div>
 
           <div className="w-full shrink-0 lg:w-[22rem] xl:w-[26rem]">
-            <HeroPortrait alt={profile.fullName} />
+            <HeroPortrait alt={profile.fullName} src={profile.portraitUrl} />
           </div>
         </div>
 

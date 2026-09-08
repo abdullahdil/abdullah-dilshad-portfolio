@@ -3,17 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BadgeCheck,
   Briefcase,
   FolderKanban,
+  GitBranch,
   Image,
   LayoutDashboard,
   Library,
+  Link2,
   LogOut,
   Mail,
   Plus,
   Puzzle,
   Settings,
   User,
+  Workflow,
   type LucideIcon,
 } from "lucide-react";
 import { logoutAction } from "@/lib/auth/actions";
@@ -24,12 +28,16 @@ import { cn } from "@/lib/utils";
 const iconMap: Record<string, LucideIcon> = {
   LayoutDashboard,
   FolderKanban,
+  Workflow,
   Image,
   Mail,
   User,
   Briefcase,
   Puzzle,
   Library,
+  BadgeCheck,
+  GitBranch,
+  Link2,
   Settings,
 };
 
