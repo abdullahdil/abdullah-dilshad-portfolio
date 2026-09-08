@@ -7,10 +7,11 @@ import { getCaseStudyCards } from "@/lib/content/case-studies";
 
 export const profileSeed = {
   fullName: "Abdullah Dilshad",
-  professionalTitle: "AI Automation Engineer",
-  heroHeadline: "I build AI automation systems that replace manual work.",
+  professionalTitle: "AI Automation Engineer · n8n Specialist",
+  heroHeadline:
+    "I design n8n systems that turn manual business processes into reliable, monitored automation.",
   heroDescription:
-    "AI Automation Engineer specializing in n8n, LLM workflows, REST APIs, and production business systems across lead generation, internal operations, customer support, and data workflows.",
+    "n8n Level 2 Certified Developer and Verified Template Creator. I build production automation across lead generation, internal operations, and customer support — with error handling, duplicate guards, and human approval built in, not bolted on.",
   location: "Islamabad, Pakistan",
   availabilityLabel: "Available for Remote Work",
   availabilityStatus: "available" as const,
@@ -20,21 +21,38 @@ export const profileSeed = {
   n8nProfileUrl: "https://n8n.io/creators/abdullahmil/",
   credentialUrl:
     "https://community.n8n.io/badges/105/completed-n8n-course-level-2?username=abdullahmil",
-  cvUrl: "/resume",
+  cvUrl: "/Abdullah-Dilshad-CV.pdf",
   shortBio:
-    "AI Automation Engineer based in Islamabad, designing production workflows that connect AI models, APIs, and human approval processes.",
+    "n8n Level 2 Certified Developer based in Islamabad, building production automation that connects AI models, APIs, and human approval processes.",
   longBio: [
-    "I'm Abdullah Dilshad, an AI Automation Engineer based in Islamabad, Pakistan. I design production workflows that connect AI models, APIs, business tools, and human approval processes.",
-    "My work focuses on turning fragmented manual operations into reliable systems that teams can understand, monitor, and maintain. I have delivered paid workflows across lead generation, internal operations, inbox management, customer support, reporting, and content operations.",
-    "I hold a BS in Computer Science from FAST-NUCES and have completed n8n Course Level 2. I am currently open to international remote employment and long-term contract opportunities.",
+    "I'm Abdullah Dilshad, an AI Automation Engineer and n8n Level 2 Certified Developer based in Islamabad, Pakistan. I design production workflows that connect AI models, APIs, business tools, and human approval processes.",
+    "Most automation breaks quietly. My work focuses on the parts that keep it running: error handling, retry and fallback logic, duplicate prevention, and human-in-the-loop approval before anything irreversible happens. I have delivered 25+ paid production workflows across lead generation, internal operations, inbox management, customer support, reporting, and content operations.",
+    "I'm also a Verified Creator in the n8n official template library, with published templates deployed by developers worldwide. I hold a BS in Computer Science from FAST-NUCES, and I work with teams across European and US time zones on remote roles and long-term contracts.",
   ],
 };
 
 export const proofStripSeed = [
-  { value: "30", label: "Paid production workflows" },
-  { value: "3", label: "Public n8n templates" },
-  { value: "Lvl 2", label: "n8n Level 2 completed" },
-  { value: "BS CS", label: "FAST-NUCES Alumni" },
+  {
+    value: "BS Computer Science",
+    label: "FAST-NUCES · Graduated Sep 2025",
+  },
+  {
+    value: "AI Automation Engineer",
+    label: "AiMark Labs · Apr 2025–Present",
+  },
+  {
+    value: "25+ workflows",
+    label: "Paid production automations delivered",
+  },
+  {
+    value: "n8n Level 2",
+    label: "3+ public templates · Creator profile",
+  },
+  {
+    value: "Core stack",
+    label: "n8n · Claude / OpenAI APIs · REST APIs · Gmail · Slack · Google Sheets",
+    featured: true,
+  },
 ] as const;
 
 export const heroWorkflowSeed = [
@@ -75,6 +93,7 @@ export const contactOpportunityTypes = [
 
 export const navLinks = [
   { href: "/#work", label: "Work" },
+  { href: "/#workflows", label: "Workflows" },
   { href: "/#experience", label: "Experience" },
   { href: "/#capabilities", label: "Capabilities" },
   { href: "/#about", label: "About" },
@@ -88,7 +107,7 @@ export const experienceSeed = [
     organization: "AiMark Labs",
     role: "AI Automation Engineer",
     location: "Islamabad, Pakistan",
-    period: "August 2025–Present",
+    period: "April 2025–Present",
     isCurrent: true,
     description:
       "Designs and deploys AI-powered automation systems for lead generation, internal operations, content workflows, client reporting, and API-connected business processes.",

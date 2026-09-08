@@ -28,6 +28,7 @@ export async function generateMetadata({
   }
 
   const path = `/work/${study.slug}`;
+  const image = study.featuredImageUrl || "/og-image.png";
 
   return {
     title: study.title,
@@ -38,11 +39,13 @@ export async function generateMetadata({
       title: study.title,
       description: study.summary,
       url: path,
+      images: [{ url: image, alt: study.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: study.title,
       description: study.summary,
+      images: [image],
     },
   };
 }

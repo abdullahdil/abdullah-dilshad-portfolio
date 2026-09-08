@@ -40,6 +40,9 @@ yarn-error.log*
 # generated local admin credentials from db:setup
 .admin-credentials.local
 
+# n8n inventory dumps (structure/list-only today; full-mode re-fetch can embed API keys)
+/data/
+
 # vercel
 .vercel
 

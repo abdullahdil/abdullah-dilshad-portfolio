@@ -6,7 +6,7 @@ export function Label({ className, ...props }: LabelProps) {
   return (
     <label
       className={cn(
-        "block font-label text-xs uppercase tracking-widest text-on-surface-variant",
+        "block text-sm font-medium text-on-surface-variant",
         className,
       )}
       {...props}
@@ -15,7 +15,7 @@ export function Label({ className, ...props }: LabelProps) {
 }
 
 const controlBase =
-  "w-full rounded-md border border-outline-variant/20 bg-background px-4 py-4 text-on-surface placeholder:text-outline transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50";
+  "w-full rounded-md border border-outline-variant bg-surface-low px-4 py-3 text-on-surface placeholder:text-on-surface-variant/60 transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 

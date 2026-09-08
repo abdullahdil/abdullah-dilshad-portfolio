@@ -14,36 +14,37 @@ export async function CapabilitiesSection() {
   const capabilities = await listPublishedCapabilities();
 
   return (
-    <Section id="capabilities">
+    <Section id="capabilities" tone="lowest">
       <Container>
-        <h2 className="mb-4 font-heading text-headline-lg text-on-surface">
-          Core Capabilities
-        </h2>
-        <p className="mb-12 text-on-surface-variant">
-          The engine behind the automation.
-        </p>
+        <div className="mb-12 max-w-2xl">
+          <p className="section-eyebrow mb-3">Capabilities</p>
+          <h2 className="font-heading text-headline-lg text-on-surface">
+            What I work with
+          </h2>
+          <p className="mt-3 text-body-md text-on-surface-variant">
+            Tools and practices used across production automation projects.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {capabilities.map((group) => {
             const Icon = iconMap[group.icon];
             return (
               <div
                 key={group.category}
-                className="rounded-lg border border-outline-variant/10 bg-surface-container p-8 transition-all hover:bg-surface-bright"
+                className="rounded-lg border border-outline-variant bg-surface-low p-6 md:p-8"
               >
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" aria-hidden />
+                <div className="mb-5 flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-md border border-outline-variant bg-surface-high">
+                    <Icon className="h-4 w-4 text-accent" aria-hidden />
+                  </div>
+                  <h3 className="font-heading text-headline-md text-on-surface">
+                    {group.category}
+                  </h3>
                 </div>
-                <h3 className="mb-4 font-heading text-xl text-on-surface">
-                  {group.category}
-                </h3>
-                <ul className="space-y-3 text-body-md text-on-surface-variant">
-                  {group.items.slice(0, 6).map((item) => (
-                    <li key={item} className="flex items-center gap-2">
-                      <span
-                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
-                        aria-hidden
-                      />
+                <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {group.items.slice(0, 8).map((item) => (
+                    <li key={item} className="text-sm text-on-surface-variant">
                       {item}
                     </li>
                   ))}

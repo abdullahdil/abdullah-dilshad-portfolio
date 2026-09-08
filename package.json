@@ -26,6 +26,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.20.3",
@@ -35,10 +36,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
     "pg": "^8.22.0",
-    "@playwright/test": "^1.54.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.5",
     "typescript": "^5",
+    "vercel": "^58.4.4",
     "vitest": "^4.1.10"
   }
 }

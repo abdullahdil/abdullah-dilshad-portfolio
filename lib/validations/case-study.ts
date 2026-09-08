@@ -52,6 +52,7 @@ export const caseStudySchema = z.object({
   featuredImageUrl: z
     .string()
     .url()
+    .or(z.string().startsWith("/"))
     .or(z.literal(""))
     .nullable()
     .optional(),

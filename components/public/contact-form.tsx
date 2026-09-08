@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState } from "react";
-import { Rocket } from "lucide-react";
 import { submitContactAction } from "@/lib/contact/actions";
 import type { ActionResult } from "@/lib/admin/types";
 import { Button } from "@/components/ui/button";
@@ -127,8 +126,7 @@ export function ContactForm({ contactEmail }: ContactFormProps) {
 
       {state?.ok !== true ? (
         <Button type="submit" className="w-full" size="lg" disabled={pending}>
-          {pending ? "Sending…" : "Deploy Automation Request"}
-          <Rocket className="h-4 w-4" aria-hidden />
+          {pending ? "Sending…" : "Send message"}
         </Button>
       ) : null}
     </form>

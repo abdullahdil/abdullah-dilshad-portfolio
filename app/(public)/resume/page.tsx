@@ -14,7 +14,7 @@ export default async function ResumePage() {
   const cvIsFile =
     Boolean(profile.cvUrl) &&
     profile.cvUrl !== "/resume" &&
-    /^https?:\/\//i.test(profile.cvUrl ?? "");
+    (/^https?:\/\//i.test(profile.cvUrl ?? "") || profile.cvUrl!.startsWith("/"));
 
   return (
     <main id="main-content" className="pb-16 pt-28">
@@ -27,7 +27,7 @@ export default async function ResumePage() {
         </p>
         <div className="flex flex-wrap gap-4">
           {cvIsFile ? (
-            <Button href={profile.cvUrl!} target="_blank" rel="noopener noreferrer">
+            <Button href={profile.cvUrl!} download>
               Download CV
             </Button>
           ) : (

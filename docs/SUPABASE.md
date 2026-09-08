@@ -72,7 +72,7 @@ values ('00000000-0000-0000-0000-000000000000'); -- replace with auth.users.id
 
 Protection layers:
 
-- `middleware.ts` — session refresh + unauthenticated redirect for `/admin/*` (except login/logout)
+- `proxy.ts` — session refresh + unauthenticated redirect for `/admin/*` (except login/logout)
 - `requireAuthorizedAdmin()` in the protected layout — `authorized_admins` membership
 - Server Actions — `loginAction` / `logoutAction`
 

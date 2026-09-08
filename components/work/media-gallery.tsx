@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { ImageIcon } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import type { CaseStudy } from "@/lib/content/types";
 
@@ -9,12 +8,10 @@ type MediaGalleryProps = {
 
 export function MediaGallery({ study }: MediaGalleryProps) {
   const images = study.galleryImages.filter((item) => Boolean(item.url));
-  const placeholders =
-    images.length > 0
-      ? []
-      : study.galleryPlaceholders.length > 0
-        ? study.galleryPlaceholders
-        : ["Screenshot placeholder", "Workflow detail placeholder", "Outcome placeholder"];
+
+  if (images.length === 0 && !study.demoVideoUrl) {
+    return null;
+  }
 
   return (
     <section className="mb-20 md:mb-28" aria-labelledby="gallery-heading">
@@ -26,9 +23,7 @@ export function MediaGallery({ study }: MediaGalleryProps) {
           Screenshots &amp; Media
         </h2>
         <p className="mb-8 max-w-2xl text-body-md text-on-surface-variant">
-          {images.length > 0
-            ? "Selected production screenshots from this workflow."
-            : "Production screenshots will appear here after upload in the admin case study editor."}
+          Selected production screenshots from this workflow.
         </p>
 
         {images.length > 0 ? (
@@ -53,29 +48,7 @@ export function MediaGallery({ study }: MediaGalleryProps) {
               </li>
             ))}
           </ul>
-        ) : (
-          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {placeholders.map((caption) => (
-              <li
-                key={caption}
-                className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container"
-              >
-                <div className="flex aspect-square flex-col items-center justify-center gap-3 bg-surface-highest p-6">
-                  <ImageIcon
-                    className="h-8 w-8 text-on-surface-variant opacity-60"
-                    aria-hidden
-                  />
-                  <span className="font-label uppercase text-on-surface-variant">
-                    Screenshot placeholder
-                  </span>
-                </div>
-                <p className="border-t border-outline-variant/20 px-4 py-3 text-sm text-on-surface-variant">
-                  {caption}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
+        ) : null}
 
         {study.demoVideoUrl ? (
           <div className="mt-8">

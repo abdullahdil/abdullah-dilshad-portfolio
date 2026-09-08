@@ -6,21 +6,21 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="w-full border-t border-outline-variant/10 bg-background">
-      <Container className="flex flex-col items-center justify-between gap-8 py-12 md:flex-row">
-        <div className="space-y-2 text-center md:text-left">
-          <div className="font-heading text-headline-md font-bold tracking-tighter text-on-surface">
+    <footer className="border-t border-outline-variant bg-surface">
+      <Container className="flex flex-col items-start justify-between gap-8 py-12 md:flex-row md:items-center">
+        <div>
+          <p className="font-heading text-base font-semibold text-on-surface">
             {profileSeed.fullName}
-          </div>
-          <p className="text-body-md text-on-surface-variant">
-            © {year} {profileSeed.fullName}. Built with precision.
+          </p>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            © {year} {profileSeed.fullName}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-8 text-body-md">
+        <div className="flex flex-wrap gap-6 text-sm">
           <Link
             href={profileSeed.linkedinUrl}
-            className="text-on-surface-variant transition-colors hover:text-primary"
+            className="text-on-surface-variant transition-colors hover:text-on-surface"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -28,32 +28,24 @@ export function SiteFooter() {
           </Link>
           <Link
             href={profileSeed.n8nProfileUrl}
-            className="text-on-surface-variant transition-colors hover:text-primary"
+            className="text-on-surface-variant transition-colors hover:text-on-surface"
             target="_blank"
             rel="noopener noreferrer"
           >
-            n8n Cloud
+            n8n
           </Link>
           <Link
             href="/privacy"
-            className="text-on-surface-variant transition-colors hover:text-primary"
+            className="text-on-surface-variant transition-colors hover:text-on-surface"
           >
             Privacy
           </Link>
           <Link
             href={`mailto:${profileSeed.email}`}
-            className="text-on-surface-variant transition-colors hover:text-primary"
+            className="text-on-surface-variant transition-colors hover:text-on-surface"
           >
-            Email
+            {profileSeed.email}
           </Link>
-        </div>
-
-        <div className="flex items-center gap-2 font-label text-xs uppercase text-on-surface-variant">
-          Status:
-          <span className="flex items-center gap-2 text-primary">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-primary" aria-hidden />
-            All systems operational
-          </span>
         </div>
       </Container>
     </footer>

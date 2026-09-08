@@ -34,6 +34,7 @@ if (isProd) {
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
+    qualities: [75, 92],
     remotePatterns: [
       {
         protocol: "https",

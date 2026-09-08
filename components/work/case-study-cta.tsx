@@ -5,28 +5,27 @@ import { Container } from "@/components/ui/container";
 export function CaseStudyCta() {
   return (
     <section
-      className="border-t border-outline-variant/10 py-20 text-center md:py-24"
+      className="border-t border-outline-variant py-20 md:py-24"
       aria-labelledby="case-cta-heading"
     >
-      <Container>
+      <Container className="max-w-2xl text-center">
         <h2
           id="case-cta-heading"
-          className="mb-12 font-heading text-headline-lg text-on-surface md:text-display-lg"
+          className="font-heading text-headline-lg text-on-surface"
         >
-          Ready to automate your{" "}
-          <br className="hidden sm:block" />
-          <span className="text-primary">growth engine?</span>
+          Have a similar workflow to automate?
         </h2>
-        <div className="flex flex-col items-center justify-center gap-6 md:flex-row">
-          <Button href="/#contact" size="lg" variant="secondary" className="group glow-accent">
-            Scale My Outreach
-            <ArrowRight
-              className="h-5 w-5 transition-transform group-hover:translate-x-2"
-              aria-hidden
-            />
+        <p className="mt-4 text-body-md text-on-surface-variant">
+          I&apos;m open to remote roles, long-term contracts, and selected automation
+          projects.
+        </p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button href="/#contact" size="lg">
+            Get in touch
+            <ArrowRight className="h-4 w-4" aria-hidden />
           </Button>
           <Button href="/#work" variant="outline" size="lg">
-            View Other Projects
+            View other projects
           </Button>
         </div>
       </Container>

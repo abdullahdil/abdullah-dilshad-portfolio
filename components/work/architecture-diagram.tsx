@@ -74,56 +74,24 @@ export function ArchitectureDiagram({
   return (
     <section
       aria-labelledby="architecture-heading"
-      className="relative mb-20 overflow-hidden border-y border-outline-variant/10 bg-surface-lowest py-14 md:mb-28 md:py-20"
+      className="border-y border-outline-variant bg-surface-low py-16 md:py-20"
     >
-      <div
-        className="pointer-events-none absolute inset-0 kinetic-gradient opacity-80"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.14]"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1.5px 1.5px, rgba(45,212,191,0.55) 1px, transparent 0)",
-          backgroundSize: "28px 28px",
-        }}
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-primary/10 blur-[100px]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -right-16 top-10 h-56 w-56 rounded-full bg-primary/10 blur-[90px]"
-        aria-hidden
-      />
-
-      <div className="relative mx-auto w-full max-w-none px-margin-mobile md:px-margin-desktop xl:px-16">
-        <div className="mb-10 text-center md:mb-14">
-          <p className="mb-3 font-label text-[11px] uppercase tracking-[0.2em] text-primary">
-            Overall workflow
-          </p>
-          <h2
-            id="architecture-heading"
-            className="mb-4 font-heading text-headline-lg text-on-surface"
-          >
-            The big picture
+      <div className="mx-auto w-full max-w-none px-margin-mobile md:px-margin-desktop xl:px-16">
+        <div className="mb-10 max-w-2xl md:mb-12">
+          <p className="section-eyebrow mb-3">Architecture</p>
+          <h2 id="architecture-heading" className="font-heading text-headline-lg text-on-surface">
+            System overview
           </h2>
           {summary ? (
-            <p className="mx-auto max-w-2xl text-body-md text-on-surface-variant md:text-body-lg">
-              {summary}
-            </p>
+            <p className="mt-3 text-body-md text-on-surface-variant">{summary}</p>
           ) : null}
         </div>
 
-        {/* Desktop / tablet: horizontal big-picture flow */}
         <div className="relative hidden md:block">
           <div
-            className="absolute left-[3%] right-[3%] top-[2.75rem] h-px overflow-hidden opacity-50"
+            className="absolute left-[3%] right-[3%] top-8 h-px bg-outline-variant"
             aria-hidden
-          >
-            <div className="workflow-flow-line h-full w-full" />
-          </div>
+          />
 
           <ol
             className="relative z-10 grid items-start gap-3 lg:gap-4"
@@ -140,17 +108,16 @@ export function ArchitectureDiagram({
                 >
                   <div
                     className={cn(
-                      "workflow-node flex items-center justify-center rounded-2xl border transition-colors",
+                      "flex items-center justify-center rounded-md border",
                       isHub
-                        ? "h-[5.5rem] w-[5.5rem] border-primary bg-primary text-on-primary glow-accent"
-                        : "h-[4.5rem] w-[4.5rem] border-outline-variant/25 bg-surface-high/90 text-primary glow-hover backdrop-blur-sm",
+                        ? "h-16 w-16 border-accent bg-accent text-on-accent"
+                        : "h-14 w-14 border-outline-variant bg-surface-high text-on-surface",
                     )}
-                    style={{ animationDelay: `${index * 80}ms` }}
                   >
                     {isHub ? (
-                      <Workflow className="h-9 w-9" aria-hidden />
+                      <Workflow className="h-6 w-6" aria-hidden />
                     ) : (
-                      <span className="font-heading text-xl tabular-nums">
+                      <span className="font-heading text-lg tabular-nums">
                         {String(index + 1).padStart(2, "0")}
                       </span>
                     )}
@@ -158,13 +125,13 @@ export function ArchitectureDiagram({
                   <div className="max-w-[9.5rem]">
                     <p
                       className={cn(
-                        "font-heading text-base leading-snug text-on-surface",
-                        isHub && "font-semibold text-primary",
+                        "text-sm font-medium leading-snug text-on-surface",
+                        isHub && "text-accent",
                       )}
                     >
                       {node.label}
                     </p>
-                    <p className="mt-1.5 text-[11px] leading-snug text-on-surface-variant">
+                    <p className="mt-1 text-xs leading-snug text-on-surface-variant">
                       {node.detail}
                     </p>
                   </div>
@@ -174,10 +141,9 @@ export function ArchitectureDiagram({
           </ol>
         </div>
 
-        {/* Mobile: vertical big-picture spine */}
         <div className="relative md:hidden">
           <div
-            className="absolute bottom-3 left-[1.4rem] top-3 w-px bg-gradient-to-b from-primary/60 via-primary/35 to-primary/15"
+            className="absolute bottom-3 left-5 top-3 w-px bg-outline-variant"
             aria-hidden
           />
           <ol className="space-y-5">
@@ -190,42 +156,36 @@ export function ArchitectureDiagram({
                 >
                   <div
                     className={cn(
-                      "relative z-10 flex h-[2.85rem] w-[2.85rem] shrink-0 items-center justify-center rounded-xl border",
+                      "relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border",
                       isHub
-                        ? "border-primary bg-primary text-on-primary glow-accent"
-                        : "border-outline-variant/25 bg-surface-high text-primary",
+                        ? "border-accent bg-accent text-on-accent"
+                        : "border-outline-variant bg-surface-high text-on-surface",
                     )}
                   >
                     {isHub ? (
-                      <Workflow className="h-5 w-5" aria-hidden />
+                      <Workflow className="h-4 w-4" aria-hidden />
                     ) : (
-                      <span className="font-label text-xs tabular-nums">
+                      <span className="text-xs tabular-nums">
                         {String(index + 1).padStart(2, "0")}
                       </span>
                     )}
                   </div>
-                  <div className="min-w-0 flex-1 pt-1">
+                  <div className="min-w-0 flex-1 pt-0.5">
                     <p
                       className={cn(
-                        "font-heading text-lg leading-snug text-on-surface",
-                        isHub && "text-primary",
+                        "text-base font-medium leading-snug text-on-surface",
+                        isHub && "text-accent",
                       )}
                     >
                       {node.label}
                     </p>
-                    <p className="mt-1 text-sm text-on-surface-variant">
-                      {node.detail}
-                    </p>
+                    <p className="mt-1 text-sm text-on-surface-variant">{node.detail}</p>
                   </div>
                 </li>
               );
             })}
           </ol>
         </div>
-
-        <p className="mt-10 text-center font-label text-[11px] uppercase tracking-[0.18em] text-on-surface-variant md:mt-12">
-          {workflowNodes.length} stages · end-to-end system view
-        </p>
       </div>
     </section>
   );

@@ -5,12 +5,14 @@ import { ContactSection } from "@/components/public/contact-section";
 import { ExperienceSection } from "@/components/public/experience-section";
 import { HeroSection } from "@/components/public/hero-section";
 import { TemplatesSection } from "@/components/public/templates-section";
+import { WorkflowsSection } from "@/components/public/workflows-section";
 
 export default function HomePage() {
   return (
     <main id="main-content">
       <HeroSection />
       <CaseStudiesSection />
+      <WorkflowsSection />
       <ExperienceSection />
       <CapabilitiesSection />
       <TemplatesSection />

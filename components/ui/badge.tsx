@@ -7,17 +7,17 @@ type BadgeProps = {
 };
 
 const toneClasses = {
-  neutral: "bg-surface-variant text-on-surface border-outline-variant/20",
-  primary: "bg-primary/20 text-primary border-primary/20",
-  secondary: "bg-secondary-container/40 text-secondary border-outline-variant/20",
-  tertiary: "bg-surface-high text-on-surface-variant border-outline-variant/20",
+  neutral: "bg-surface-high text-on-surface-variant border-outline-variant",
+  primary: "bg-accent/10 text-accent border-accent/20",
+  secondary: "bg-surface-high text-on-surface-variant border-outline-variant",
+  tertiary: "bg-surface-container text-on-surface-variant border-outline-variant",
 } as const;
 
 export function Badge({ children, className, tone = "neutral" }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-3 py-1 font-label text-xs uppercase",
+        "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-medium",
         toneClasses[tone],
         className,
       )}

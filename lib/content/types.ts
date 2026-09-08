@@ -27,6 +27,11 @@ export type CaseStudyGalleryItem = {
   alt?: string;
 };
 
+export type CaseStudyMetric = {
+  value: string;
+  label: string;
+};
+
 export type CaseStudy = {
   slug: string;
   title: string;
@@ -43,6 +48,7 @@ export type CaseStudy = {
   contribution: string[];
   reliabilityControls: ReliabilityControl[];
   result: string;
+  resultMetrics?: CaseStudyMetric[];
   featuredImageUrl?: string | null;
   demoVideoUrl?: string | null;
   galleryImages: CaseStudyGalleryItem[];

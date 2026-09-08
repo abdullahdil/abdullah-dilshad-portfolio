@@ -168,7 +168,12 @@ export const caseStudies: CaseStudy[] = [
     ],
     result:
       "Replaced a fragmented manual process with a scheduled and traceable automation system that handles prospect data, personalization, outreach operations, and CRM updates with minimal manual intervention.",
-    featuredImageUrl: null,
+    resultMetrics: [
+      { value: "5×", label: "outbound volume, with no added headcount" },
+      { value: "100+", label: "qualified leads per day, on schedule" },
+      { value: "3 → 0", label: "people needed for manual prospecting" },
+    ],
+    featuredImageUrl: "/images/case-study-lead-gen-architecture.png",
     demoVideoUrl: null,
     galleryImages: [],
     galleryPlaceholders: [
@@ -325,6 +330,10 @@ export const caseStudies: CaseStudy[] = [
     ],
     result:
       "Converted disconnected team handoffs into a consistent event-driven process with clearer ownership, approval states, and faster system updates.",
+    resultMetrics: [
+      { value: "60%+", label: "reduction in cross-team coordination overhead" },
+      { value: "<30s", label: "CRM update lag, down from same-day manual entry" },
+    ],
     featuredImageUrl: null,
     demoVideoUrl: null,
     galleryImages: [],
@@ -470,6 +479,11 @@ export const caseStudies: CaseStudy[] = [
     ],
     result:
       "Created a repeatable support workflow that automates knowledge retrieval and response preparation while preserving human control for uncertain cases.",
+    resultMetrics: [
+      { value: "<5s", label: "tier-1 response time, down from hours" },
+      { value: "<15%", label: "of queries needing human escalation" },
+      { value: "100%", label: "of tier-1 queries routed automatically" },
+    ],
     featuredImageUrl: null,
     demoVideoUrl: null,
     galleryImages: [],

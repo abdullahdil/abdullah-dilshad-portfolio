@@ -17,6 +17,22 @@ export function ResultSection({ study }: ResultSectionProps) {
           >
             What changed
           </h2>
+
+          {study.resultMetrics && study.resultMetrics.length > 0 ? (
+            <dl className="mb-8 grid grid-cols-1 gap-6 border-b border-outline-variant pb-8 sm:grid-cols-3">
+              {study.resultMetrics.map((metric) => (
+                <div key={metric.label}>
+                  <dt className="font-heading text-[clamp(1.75rem,3vw,2.5rem)] font-semibold leading-none tracking-tight text-accent">
+                    {metric.value}
+                  </dt>
+                  <dd className="mt-2 text-sm leading-relaxed text-on-surface-variant">
+                    {metric.label}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+
           <p className="max-w-3xl text-body-lg text-on-surface-variant">
             {study.result}
           </p>
