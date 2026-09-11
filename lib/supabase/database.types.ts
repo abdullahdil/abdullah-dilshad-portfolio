@@ -209,3 +209,15 @@ export type WorkflowRow = {
   created_at: string;
   updated_at: string;
 };
+
+export type WorkflowAccessRequestRow = {
+  id: string;
+  workflow_id: string;
+  workflow_title: string;
+  name: string;
+  email: string;
+  company: string | null;
+  note: string | null;
+  status: "pending" | "sent" | "declined" | "archived";
+  created_at: string;
+};
