@@ -10,7 +10,7 @@ export const caseStudies: CaseStudy[] = [
     slug: "ai-lead-generation-outreach-engine",
     title: "AI Lead Generation and Outreach Engine",
     summary:
-      "An end-to-end workflow connecting prospect discovery, enrichment, LLM personalization, email delivery, reply detection, duplicate prevention, and structured CRM output.",
+      "An event-driven pipeline that carries a prospect from discovery through enrichment, LLM personalization, and Gmail delivery, with deduplication, reply detection, and a structured write-back to CRM or Google Sheets.",
     accent: "primary",
     previewLabel: "Lead Gen Architecture",
     businessProblem:
@@ -23,7 +23,7 @@ export const caseStudies: CaseStudy[] = [
       "Reply handling and CRM updates relied on ad hoc follow-up instead of a consistent process.",
     ],
     architectureDescription:
-      "A multi-stage n8n workflow that moves prospects from discovery through enrichment, AI-assisted qualification and personalization, optional human review, Gmail outreach, reply detection, and structured CRM or spreadsheet updates.",
+      "Prospects move through discovery, enrichment, normalization, AI-assisted qualification, personalization, optional human review, Gmail outreach, reply detection, and a write-back to CRM or Google Sheets. Each stage is a separate step with its own validation and bounded retries, orchestrated in n8n.",
     architectureNodes: [
       { label: "Trigger", detail: "Scheduled or manual start" },
       { label: "Apify", detail: "Prospect discovery" },
@@ -66,9 +66,9 @@ export const caseStudies: CaseStudy[] = [
       },
       {
         stepNumber: 6,
-        title: "Claude / OpenAI personalization",
+        title: "LLM personalization",
         description:
-          "Claude API or OpenAI API drafts personalized outreach copy from the validated prospect and company context.",
+          "Claude API or OpenAI API drafts outreach copy from the validated prospect and company context.",
       },
       {
         stepNumber: 7,
@@ -86,7 +86,7 @@ export const caseStudies: CaseStudy[] = [
         stepNumber: 9,
         title: "Reply detection",
         description:
-          "Inbound replies are detected so follow-up logic can stop, branch, or escalate appropriately.",
+          "Inbound replies are detected so follow-up logic stops, branches, or escalates.",
       },
       {
         stepNumber: 10,
@@ -168,11 +168,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     result:
       "Replaced a fragmented manual process with a scheduled and traceable automation system that handles prospect data, personalization, outreach operations, and CRM updates with minimal manual intervention.",
-    resultMetrics: [
-      { value: "5×", label: "outbound volume, with no added headcount" },
-      { value: "100+", label: "qualified leads per day, on schedule" },
-      { value: "3 → 0", label: "people needed for manual prospecting" },
-    ],
+    resultMetrics: [],
     featuredImageUrl: "/images/case-study-lead-gen-architecture.png",
     demoVideoUrl: null,
     galleryImages: [],
@@ -187,7 +183,7 @@ export const caseStudies: CaseStudy[] = [
     slug: "internal-operations-automation-system",
     title: "Internal Operations Automation System",
     summary:
-      "A cross-team automation system for task routing, Slack notifications, CRM updates, status reporting, content approvals, and operational coordination.",
+      "An event-driven system that validates and classifies incoming requests, assigns an owner, gates sensitive steps behind Slack approval, and keeps CRM and spreadsheet records in step with the current status.",
     accent: "secondary",
     previewLabel: "Ops Pipeline Visual",
     businessProblem:
@@ -200,7 +196,7 @@ export const caseStudies: CaseStudy[] = [
       "Status reporting and CRM updates required repeated manual chasing.",
     ],
     architectureDescription:
-      "An event-driven n8n system that validates incoming requests, classifies work, assigns owners, notifies teams in Slack, tracks approval and status, updates CRM or Google Sheets, and produces completion reports with error notifications.",
+      "Each request or status change is an event: it is validated, classified, assigned an owner, announced in Slack, tracked through approval states, synchronized into CRM or Google Sheets, and closed with a completion report. Failed branches raise operator alerts instead of stalling silently. n8n carries the orchestration.",
     architectureNodes: [
       { label: "Request", detail: "New work or status event" },
       { label: "Validate", detail: "Required-field checks" },
@@ -245,7 +241,7 @@ export const caseStudies: CaseStudy[] = [
         stepNumber: 6,
         title: "Status tracking",
         description:
-          "Progress states are recorded so the request remains visible as it moves through the process.",
+          "Each transition is recorded so the request's current state and owner stay visible while it moves through the process.",
       },
       {
         stepNumber: 7,
@@ -330,10 +326,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     result:
       "Converted disconnected team handoffs into a consistent event-driven process with clearer ownership, approval states, and faster system updates.",
-    resultMetrics: [
-      { value: "60%+", label: "reduction in cross-team coordination overhead" },
-      { value: "<30s", label: "CRM update lag, down from same-day manual entry" },
-    ],
+    resultMetrics: [],
     featuredImageUrl: null,
     demoVideoUrl: null,
     galleryImages: [],
@@ -348,7 +341,7 @@ export const caseStudies: CaseStudy[] = [
     slug: "rag-customer-support-workflow",
     title: "RAG Customer Support Workflow",
     summary:
-      "A knowledge-grounded support workflow that retrieves relevant context, generates responses, evaluates routing confidence, and escalates unresolved cases to humans.",
+      "A knowledge-grounded support workflow: retrieval from a vector knowledge base, answers constrained to the retrieved passages, a confidence check on every draft, and escalation to a person when that check fails.",
     accent: "tertiary",
     previewLabel: "RAG System Schematic",
     businessProblem:
@@ -361,7 +354,7 @@ export const caseStudies: CaseStudy[] = [
       "Escalation decisions were inconsistent when confidence was low.",
     ],
     architectureDescription:
-      "A knowledge-grounded support workflow that normalizes the customer query, retrieves relevant context from a vector knowledge base, assembles grounded prompts, generates a draft response, evaluates confidence, and either replies or escalates to a human with Slack or email notification and interaction logging.",
+      "An incoming support message is normalized, matched against a vector knowledge base, and answered only from the passages that come back. A confidence and rule check then decides whether the draft continues or is handed to a person over Slack or email, and every run is logged with its retrieved context, decision path, and outcome. n8n carries the orchestration.",
     architectureNodes: [
       { label: "Query", detail: "Customer message in" },
       { label: "Normalize", detail: "Clean and structure input" },
@@ -479,11 +472,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     result:
       "Created a repeatable support workflow that automates knowledge retrieval and response preparation while preserving human control for uncertain cases.",
-    resultMetrics: [
-      { value: "<5s", label: "tier-1 response time, down from hours" },
-      { value: "<15%", label: "of queries needing human escalation" },
-      { value: "100%", label: "of tier-1 queries routed automatically" },
-    ],
+    resultMetrics: [],
     featuredImageUrl: null,
     demoVideoUrl: null,
     galleryImages: [],

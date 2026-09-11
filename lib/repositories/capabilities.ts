@@ -15,6 +15,10 @@ const categoryMeta: Record<
   { icon: PublicCapabilityGroup["icon"]; accent: PublicCapabilityGroup["accent"] }
 > = {
   "Automation Engineering": { icon: "Workflow", accent: "primary" },
+  "AI and LLM Engineering": { icon: "Brain", accent: "secondary" },
+  "Integrations and APIs": { icon: "Plug", accent: "tertiary" },
+  "Engineering and Delivery": { icon: "Terminal", accent: "primary" },
+  // Legacy names: rows seeded before the 2026-09-11 regrouping.
   "AI and LLM Workflows": { icon: "Brain", accent: "secondary" },
   Integrations: { icon: "Plug", accent: "tertiary" },
   "Engineering Tools": { icon: "Terminal", accent: "primary" },

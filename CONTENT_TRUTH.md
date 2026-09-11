@@ -17,6 +17,7 @@ Stitch is **not** a factual content source.
 |-------|-------|
 | Name | Abdullah Dilshad |
 | Title | AI Automation Engineer |
+| Display title | AI Automation Engineer · Systems & Integrations |
 | Location | Islamabad, Pakistan |
 | Email | abdullahdilshad111@gmail.com |
 | LinkedIn | https://www.linkedin.com/in/abdullah-dilshad |
@@ -95,30 +96,63 @@ I hold a BS in Computer Science from FAST-NUCES and have completed n8n Course Le
 - Opportunity types: Full-time remote role | Long-term contract | Automation project | Collaboration | Other
 - Do **not** claim a 24-hour response time unless it becomes an editable admin setting.
 
+## Positioning rules
+
+Abdullah is an **AI automation engineer** — someone who automates business
+operations using AI, APIs and systems. He is **not** to be positioned as a
+single-platform specialist.
+
+- n8n is **one tool in the stack**, never the identity. It must not appear in the
+  display title, the hero headline, or the first sentence of any bio.
+- Lead with the outcome (manual work replaced, reliable systems) and the breadth
+  (AI models, APIs, business systems), not with a vendor name.
+- The n8n credentials (Level 2, Verified Template Creator, ~3,800 engagements)
+  remain valuable proof — keep them, but as **evidence**, not as the headline.
+- Do not describe him as "no-code" or "low-code". The verified stack includes
+  Python, JavaScript, Node.js, Docker and CI/CD.
+
 ## Capabilities (allowed)
+
+Owner-verified 2026-09-11. Items marked (new) were confirmed by Abdullah on that
+date and were previously on the unverified list.
 
 ### Automation Engineering
 
 n8n, Event-driven workflows, Webhooks, Scheduling, Error handling, Retry and fallback logic, Human-in-the-loop approval, Duplicate prevention
 
-### AI and LLM Workflows
+### AI and LLM Engineering
 
-Claude API, OpenAI API, RAG workflows, Structured outputs, Prompt design, Classification, Routing, LLM orchestration
+Claude API, OpenAI API, RAG workflows, Vector databases (new), Agent workflows and tool calling (new), MCP integrations (new), Structured outputs, Prompt design, Classification, Routing, LLM orchestration
 
-### Integrations
+### Integrations and APIs
 
 REST APIs, OAuth, Gmail API, Slack, Google Sheets, Meta Graph API, Apify, Hunter.io, CRM integrations, SaaS integrations
 
-### Engineering Tools
+### Engineering and Delivery
 
-JavaScript, Node.js, JSON transformation, Git, GitHub, Postman, Linux, Cloud-hosted automation
+Python (new), JavaScript, Node.js, Docker (new), CI/CD with GitHub Actions (new), Git, GitHub, JSON transformation, Postman, Linux, Cloud-hosted automation
 
-No percentage bars. No “expert” labels.
+No percentage bars. No “expert” labels. No years-of-experience per skill.
+
+### Still NOT verified — do not add
+
+SQL / Postgres, TypeScript, ETL / data-pipeline tooling, monitoring and alerting
+platforms, evals / prompt-testing frameworks, Kubernetes, Terraform, AWS / GCP /
+Azure service names. These were explicitly **not** confirmed by the owner and must
+stay off the site until they are.
+
+Generic terms only for the following: say "Vector databases", not Pinecone or
+Weaviate; say "Agent workflows and tool calling", not LangChain or LlamaIndex.
+The specific products remain unverified.
 
 ## Hero
 
+Wording below owner-verified 2026-09-11; derived from already-verified facts and
+capabilities, with no new factual claims.
+
 - Headline: I build AI automation systems that replace manual work.
-- Description: AI Automation Engineer specializing in n8n, LLM workflows, REST APIs, and production business systems across lead generation, internal operations, customer support, and data workflows.
+- Description: I build and run production automation that connects AI models, APIs, and business systems across lead generation, internal operations, inbox management, customer support, reporting, and content operations. Every workflow is engineered to keep running: validation before anything moves, error handling with bounded retries and fallbacks, duplicate prevention, and human approval before anything irreversible.
+- Short bio: AI Automation Engineer based in Islamabad, building production automation systems that connect AI models, APIs, and business tools — engineered for reliability and traceability, with human approval on the steps that matter.
 - CTAs: View Case Studies | Download CV
 - Metadata: Islamabad, Pakistan | Remote availability
 - Proof strip: 30 paid production workflows | 3 public n8n templates | n8n Level 2 completed | BS Computer Science, FAST-NUCES
@@ -154,11 +188,9 @@ Do not use the Stitch-generated person image. Until a genuine portrait is added 
 | Zapier | Not listed in verified capabilities |
 | Make.com | Not listed in verified capabilities |
 | Airtable | Not listed in verified capabilities |
-| Pinecone | Not verified for RAG case study |
-| LangChain | Not verified |
+| Pinecone (by name) | Vector databases verified 2026-09-11; this product is not — use the generic term |
+| LangChain (by name) | Agent workflows verified 2026-09-11; this framework is not — use the generic term |
 | GraphQL | Not listed in verified capabilities |
-| Python | Not listed in verified capabilities |
-| Docker | Not listed in verified capabilities |
 | SQL | Not listed in verified capabilities |
 | GPT-4o as fixed capability label | Prefer OpenAI API / verified template wording |
 | Claude 3.5 as fixed model version | Prefer Claude API |

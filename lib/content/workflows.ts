@@ -38,7 +38,7 @@ export const workflowGroups: WorkflowGroup[] = [
         id: "ai-lead-qualification",
         title: "AI Lead Qualification & Scoring",
         summary:
-          "Scores and filters inbound or discovered leads by fit so reps spend time on accounts most likely to convert.",
+          "Scores and filters inbound or discovered leads against defined fit criteria so reps work the accounts that match, not the whole list.",
         category: "Lead Generation & Outreach",
         outcomeTags: ["Qualification", "Focus"],
         active: true,
@@ -189,7 +189,7 @@ export const workflowGroups: WorkflowGroup[] = [
         id: "job-contact-enrichment",
         title: "Job Contact Enrichment",
         summary:
-          "Enriches job-related contacts with better reachability data to improve outbound hit rates and reduce bounced sends.",
+          "Enriches job-related contacts with reachability data so fewer outbound sends bounce.",
         category: "Revenue Ops & Employer Outreach",
         outcomeTags: ["Enrichment", "Deliverability"],
         active: false,
@@ -199,7 +199,7 @@ export const workflowGroups: WorkflowGroup[] = [
   {
     category: "Hiring & Talent Screening",
     description:
-      "Applicant intake and AI-assisted screening that cuts time-to-shortlist while keeping HR in control.",
+      "Applicant intake and AI-assisted screening that prioritizes candidates while keeping the hiring decision with HR.",
     items: [
       {
         id: "job-posting-creator",
@@ -216,7 +216,7 @@ export const workflowGroups: WorkflowGroup[] = [
         summary:
           "Captures applications and runs first-pass screening so recruiters see prioritized candidates instead of raw inbox volume.",
         category: "Hiring & Talent Screening",
-        outcomeTags: ["Screening", "Throughput"],
+        outcomeTags: ["Screening", "Consistency"],
         active: true,
       },
       {
@@ -266,7 +266,7 @@ export const workflowGroups: WorkflowGroup[] = [
         id: "design-approval-workflow",
         title: "Design Approval Workflow",
         summary:
-          "Routes creative for stakeholder approval so brand-safe content moves forward without endless chat threads.",
+          "Routes creative for stakeholder approval so brand-safe content moves forward without a chat thread standing in for a decision record.",
         category: "Content & Social Publishing",
         outcomeTags: ["Approvals", "Governance"],
         active: false,
@@ -275,7 +275,7 @@ export const workflowGroups: WorkflowGroup[] = [
         id: "approve-reject-gate",
         title: "Approve / Reject Publishing Gate",
         summary:
-          "Captures go/no-go decisions and continues only approved assets, protecting brand while keeping throughput high.",
+          "Captures go/no-go decisions and continues only approved assets, protecting brand while keeping publishing moving.",
         category: "Content & Social Publishing",
         outcomeTags: ["Control", "Reliability"],
         active: true,
@@ -293,7 +293,7 @@ export const workflowGroups: WorkflowGroup[] = [
         id: "scheduled-social-publishing",
         title: "Scheduled Multi-Channel Social Publishing",
         summary:
-          "Publishes approved posts to social channels on schedule so campaigns stay consistent without manual posting marathons. Production variants run across multiple brand accounts.",
+          "Publishes approved posts to social channels on schedule so campaigns stay consistent without manual posting. Production variants run across multiple brand accounts.",
         category: "Content & Social Publishing",
         outcomeTags: ["Publishing", "Consistency"],
         active: false,
@@ -349,7 +349,7 @@ export const workflowGroups: WorkflowGroup[] = [
         summary:
           "Moves blog ideas from brief to publishable draft so content teams ship articles with less coordination overhead.",
         category: "Content & Social Publishing",
-        outcomeTags: ["Content", "Throughput"],
+        outcomeTags: ["Content", "Delivery"],
         active: false,
       },
       {
@@ -451,7 +451,7 @@ export const workflowGroups: WorkflowGroup[] = [
         id: "demo-form-to-presentation",
         title: "Demo Form to Presentation Deck",
         summary:
-          "Turns a short intake form into a presentation-ready deck so demos and founder conversations start with polished materials, not blank slides.",
+          "Turns a short intake form into a presentation-ready deck so demos and founder conversations start from finished material rather than an empty file.",
         category: "Research & Analyst Deliverables",
         outcomeTags: ["Sales enablement", "Speed"],
         active: true,
@@ -513,7 +513,7 @@ export const workflowGroups: WorkflowGroup[] = [
   {
     category: "Education Content Systems",
     description:
-      "Document-to-question pipelines that expand study material coverage with measurable completeness.",
+      "Document-to-question pipelines that expand study material and report where coverage is still missing.",
     items: [
       {
         id: "source-doc-question-generation",
@@ -562,7 +562,7 @@ export const workflowGroups: WorkflowGroup[] = [
         id: "whatsapp-mini-crm-demo",
         title: "WhatsApp Mini-CRM Teaching Demo",
         summary:
-          "A beginner-friendly demo that cleans and organizes messaging leads so students see how inbox chaos becomes a usable mini-CRM.",
+          "A beginner-friendly demo that cleans and organizes messaging leads so students see how scattered message threads become a usable mini-CRM.",
         category: "Teaching & Training Demos",
         outcomeTags: ["Teaching", "CRM"],
         active: false,

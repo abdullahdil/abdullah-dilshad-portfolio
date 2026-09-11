@@ -47,7 +47,7 @@ export function SiteJsonLd() {
         ],
         hasCredential: {
           "@type": "EducationalOccupationalCredential",
-          name: "n8n Level 2 Certified Developer",
+          name: "n8n Course Level 2",
           credentialCategory: "certification",
           url: profileSeed.credentialUrl,
         },
