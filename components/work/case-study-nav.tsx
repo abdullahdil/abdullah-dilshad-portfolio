@@ -14,36 +14,44 @@ export function CaseStudyNav({ previous, next }: CaseStudyNavProps) {
   return (
     <nav
       aria-label="Case study pagination"
-      className="mb-16 border-y border-outline-variant/20 py-8"
+      className="border-t border-outline-variant py-12 md:py-16"
     >
-      <Container className="flex flex-col gap-6 sm:flex-row sm:items-stretch sm:justify-between">
+      <Container className="grid gap-10 sm:grid-cols-2 sm:gap-8">
         {previous ? (
           <Link
             href={`/work/${previous.slug}`}
-            className="group flex min-w-0 flex-1 flex-col gap-2 rounded-xl border border-outline-variant/30 bg-surface-container p-5 transition-colors hover:border-primary/40"
+            className="group flex min-w-0 flex-col gap-3 text-on-surface"
           >
-            <span className="inline-flex items-center gap-2 font-label uppercase text-on-surface-variant group-hover:text-primary">
-              <ArrowLeft className="h-4 w-4" aria-hidden />
+            <span className="inline-flex items-center gap-2 font-label text-on-surface-faint transition-colors group-hover:text-on-surface">
+              <ArrowLeft
+                className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5"
+                aria-hidden
+              />
               Previous
             </span>
-            <span className="font-heading text-lg text-on-surface">
+            <span className="font-heading text-headline-md text-balance text-on-surface">
               {previous.title}
             </span>
           </Link>
         ) : (
-          <div className="hidden flex-1 sm:block" />
+          <div className="hidden sm:block" aria-hidden />
         )}
 
         {next ? (
           <Link
             href={`/work/${next.slug}`}
-            className="group flex min-w-0 flex-1 flex-col gap-2 rounded-xl border border-outline-variant/30 bg-surface-container p-5 text-right transition-colors hover:border-primary/40 sm:items-end"
+            className="group flex min-w-0 flex-col gap-3 text-on-surface sm:items-end sm:text-right"
           >
-            <span className="inline-flex items-center gap-2 font-label uppercase text-on-surface-variant group-hover:text-primary">
+            <span className="inline-flex items-center gap-2 font-label text-on-surface-faint transition-colors group-hover:text-on-surface">
               Next
-              <ArrowRight className="h-4 w-4" aria-hidden />
+              <ArrowRight
+                className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                aria-hidden
+              />
             </span>
-            <span className="font-heading text-lg text-on-surface">{next.title}</span>
+            <span className="font-heading text-headline-md text-balance text-on-surface">
+              {next.title}
+            </span>
           </Link>
         ) : null}
       </Container>

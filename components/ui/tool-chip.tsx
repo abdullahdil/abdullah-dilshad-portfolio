@@ -9,7 +9,7 @@ export function ToolChip({ children, className }: ToolChipProps) {
   return (
     <span
       className={cn(
-        "rounded-full bg-surface-variant px-3 py-1 font-label text-[11px] text-on-surface",
+        "inline-flex items-center rounded-full border border-outline-variant bg-surface-high px-2.5 py-1 font-mono text-[0.6875rem] tracking-[0.02em] text-on-surface-variant",
         className,
       )}
     >

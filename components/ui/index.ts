@@ -11,6 +11,7 @@ export {
   Textarea,
 } from "@/components/ui/form-controls";
 export { Section } from "@/components/ui/section";
+export { ThemeToggle } from "@/components/public/theme-toggle";
 export { SectionHeading } from "@/components/ui/section-heading";
 export { Skeleton } from "@/components/ui/skeleton";
 export { StatusIndicator } from "@/components/ui/status-indicator";

@@ -5,7 +5,7 @@ test.describe("public critical flows", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.locator("#contact")).toBeVisible();
-    await expect(page.getByRole("button", { name: /deploy automation request/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /send message/i })).toBeVisible();
   });
 
   test("case study page loads from seed slug", async ({ page }) => {

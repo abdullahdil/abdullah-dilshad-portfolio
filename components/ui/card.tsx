@@ -10,8 +10,8 @@ export function Card({ children, className, interactive = false }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-outline-variant/10 bg-surface-container",
-        interactive && "glow-hover transition-all hover:bg-surface-bright",
+        "rounded-xl border border-outline-variant bg-surface-container",
+        interactive && "lift hover:bg-surface-high",
         className,
       )}
     >
@@ -30,7 +30,7 @@ export function CardHeader({
   return (
     <div
       className={cn(
-        "flex items-center justify-between border-b border-outline-variant/10 bg-surface-low px-6 py-4",
+        "flex items-center justify-between border-b border-outline-variant px-6 py-4",
         className,
       )}
     >

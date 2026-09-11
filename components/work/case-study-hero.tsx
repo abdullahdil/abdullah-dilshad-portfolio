@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import type { CaseStudy } from "@/lib/content/types";
 
@@ -25,55 +24,90 @@ function resolveCover(study: CaseStudy): { url: string; alt: string } | null {
   return null;
 }
 
+function stackLabel(study: CaseStudy): string | null {
+  if (study.tools.length === 0) return null;
+  const named = study.tools.slice(0, 4).map((tool) => tool.name);
+  const rest = study.tools.length - named.length;
+  return rest > 0 ? `${named.join(" · ")} +${rest}` : named.join(" · ");
+}
+
 export function CaseStudyHero({ study }: CaseStudyHeroProps) {
   const cover = resolveCover(study);
+  const stack = stackLabel(study);
+
+  const meta: { label: string; value: string }[] = [];
+  if (stack) meta.push({ label: "Stack", value: stack });
+  if (study.steps.length > 0) {
+    meta.push({
+      label: "Pipeline",
+      value: `${study.steps.length} steps`,
+    });
+  }
+  if (study.reliabilityControls.length > 0) {
+    meta.push({
+      label: "Controls",
+      value: `${study.reliabilityControls.length} reliability controls`,
+    });
+  }
 
   return (
-    <header className="border-b border-outline-variant pb-12 pt-28 md:pb-16 md:pt-32">
-      <Container>
+    <header className="hero-wash pb-14 pt-10 md:pb-20 md:pt-16">
+      <Container size="narrow">
         <Link
           href="/#work"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-on-surface-variant transition-colors hover:text-on-surface"
+          className="group inline-flex items-center gap-2 font-label text-on-surface-faint transition-colors hover:text-on-surface"
         >
-          <ArrowLeft className="h-4 w-4" aria-hidden />
+          <ArrowLeft
+            className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5"
+            aria-hidden
+          />
           Back to work
         </Link>
 
-        <p className="section-eyebrow mb-4">Case study</p>
+        <p className="section-eyebrow mt-10 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span>Case study</span>
+          {study.previewLabel ? (
+            <>
+              <span aria-hidden>/</span>
+              <span>{study.previewLabel}</span>
+            </>
+          ) : null}
+        </p>
 
-        <h1 className="max-w-4xl font-heading text-display-lg text-on-surface">
+        <h1 className="mt-4 font-heading text-display-lg text-balance text-on-surface">
           {study.title}
         </h1>
 
-        <p className="mt-6 max-w-2xl text-body-lg text-on-surface-variant">
-          {study.summary}
-        </p>
+        <p className="mt-6 text-lead text-pretty">{study.summary}</p>
 
-        <div className="mt-8 flex flex-wrap gap-2">
-          {study.tools.slice(0, 6).map((tool) => (
-            <Badge key={tool.name} tone="primary">
-              {tool.name}
-            </Badge>
-          ))}
-        </div>
+        {meta.length > 0 ? (
+          <dl className="mt-12 grid gap-x-8 gap-y-6 sm:grid-cols-3">
+            {meta.map((item) => (
+              <div key={item.label} className="hairline-t pt-4">
+                <dt className="font-label text-on-surface-faint">{item.label}</dt>
+                <dd className="mt-2 text-body-sm text-on-surface">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
       </Container>
 
       {cover ? (
-        <figure className="mt-12" aria-label={`${study.title} featured visual`}>
-          <div className="relative mx-auto h-[min(50vw,480px)] w-full max-w-none px-margin-mobile md:px-margin-desktop xl:px-16">
-            <div className="relative h-full w-full overflow-hidden rounded-lg border border-outline-variant bg-surface-highest">
+        <Container size="wide" className="mt-14 md:mt-16">
+          <figure>
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-outline-variant bg-surface-high">
               <Image
                 src={cover.url}
                 alt={cover.alt}
                 fill
                 priority
-                className="case-study-cover-media object-cover object-center"
-                sizes="(max-width: 1152px) 100vw, 1152px"
+                className="case-study-cover-media object-contain object-center"
+                sizes="(max-width: 1320px) 100vw, 1320px"
               />
             </div>
-          </div>
-          <figcaption className="sr-only">{cover.alt}</figcaption>
-        </figure>
+            <figcaption className="sr-only">{cover.alt}</figcaption>
+          </figure>
+        </Container>
       ) : null}
     </header>
   );

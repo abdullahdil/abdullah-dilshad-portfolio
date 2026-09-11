@@ -10,18 +10,21 @@ type HeroPortraitProps = {
 
 export function HeroPortrait({ alt, src }: HeroPortraitProps) {
   return (
-    <div className="relative mx-auto w-full max-w-md lg:mx-0 lg:max-w-none">
-      <div className="relative aspect-square overflow-hidden rounded-2xl border border-outline-variant bg-black">
-        <Image
-          src={src || FALLBACK_PORTRAIT}
-          alt={alt}
-          fill
-          priority
-          quality={92}
-          className="object-cover object-center"
-          sizes="(max-width: 1024px) 28rem, 26rem"
-        />
+    <figure className="relative mx-auto w-full max-w-xs sm:max-w-sm lg:mx-0 lg:max-w-none">
+      {/* Hairline frame, offset one pixel — no glow, no tilt. */}
+      <div className="relative overflow-hidden rounded-xl border border-outline-variant bg-surface-high">
+        <div className="relative aspect-[4/5]">
+          <Image
+            src={src || FALLBACK_PORTRAIT}
+            alt={alt}
+            fill
+            priority
+            quality={90}
+            className="object-cover object-center"
+            sizes="(max-width: 640px) 20rem, (max-width: 1024px) 24rem, 27rem"
+          />
+        </div>
       </div>
-    </div>
+    </figure>
   );
 }

@@ -8,6 +8,7 @@ import {
   FolderKanban,
   GitBranch,
   Image,
+  KeyRound,
   LayoutDashboard,
   Library,
   Link2,
@@ -31,6 +32,7 @@ const iconMap: Record<string, LucideIcon> = {
   Workflow,
   Image,
   Mail,
+  KeyRound,
   User,
   Briefcase,
   Puzzle,
@@ -57,15 +59,15 @@ export function AdminSidebar({
   return (
     <aside
       className={cn(
-        "flex h-full w-64 flex-col gap-4 border-r border-outline-variant/10 bg-surface-lowest py-8",
+        "shell-wash flex h-full w-64 flex-col gap-4 border-r border-outline-variant bg-surface-lowest py-8",
         className,
       )}
     >
       <div className="mb-4 px-6">
-        <h1 className="font-heading text-headline-md font-bold tracking-tighter text-primary">
-          Abdullah<span className="text-on-surface">.</span>
+        <h1 className="font-heading text-headline-md font-bold tracking-tighter text-on-surface">
+          Abdullah<span className="text-accent">.</span>
         </h1>
-        <p className="mt-1 font-label text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60">
+        <p className="mt-1 font-label text-[10px] uppercase tracking-widest text-on-surface-faint">
           Command Center v2.4
         </p>
       </div>
@@ -84,24 +86,27 @@ export function AdminSidebar({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-r-full p-3 transition-colors duration-150",
+                "flex items-center gap-3 rounded-r-full border border-transparent p-3 transition-colors duration-150",
                 active
-                  ? "bg-primary-container text-on-primary-container"
-                  : "text-on-surface-variant hover:bg-surface-variant",
+                  ? "border-outline-variant bg-surface-high text-on-surface"
+                  : "text-on-surface-variant hover:bg-surface-high/60 hover:text-on-surface",
               )}
             >
-              <Icon className="h-5 w-5" aria-hidden />
+              <Icon
+                className={cn("h-5 w-5", active ? "text-accent" : "")}
+                aria-hidden
+              />
               <span className="font-label">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="space-y-4 border-t border-outline-variant/10 px-6 pt-4">
+      <div className="space-y-4 border-t border-outline-variant px-6 pt-4">
         <Button
           href="/admin/case-studies/new"
           onClick={onNavigate}
-          className="w-full glow-accent"
+          className="w-full"
           size="sm"
         >
           <Plus className="h-4 w-4" aria-hidden />
@@ -109,14 +114,14 @@ export function AdminSidebar({
         </Button>
 
         <div className="flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-variant font-heading text-sm font-bold text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-surface-high font-heading text-sm font-semibold text-on-surface">
             AD
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate font-label text-[12px] text-on-surface">
               {profileSeed.fullName}
             </p>
-            <p className="truncate text-[10px] text-on-surface-variant">
+            <p className="truncate text-[10px] text-on-surface-faint">
               {userEmail ?? "Authorized admin"}
             </p>
           </div>

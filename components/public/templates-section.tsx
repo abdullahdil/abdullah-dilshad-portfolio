@@ -1,8 +1,8 @@
-import { ArrowUpRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { getPublicProfile } from "@/lib/repositories/profile";
 import { listPublishedTemplates } from "@/lib/repositories/templates";
 
@@ -13,62 +13,65 @@ export async function TemplatesSection() {
   ]);
 
   return (
-    <Section id="templates" tone="container">
+    <Section id="templates" divider>
       <Container>
-        <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
-            <p className="section-eyebrow mb-3">Open source</p>
-            <h2 className="font-heading text-headline-lg text-on-surface">
-              Public n8n templates
-            </h2>
-            <p className="mt-3 text-body-md text-on-surface-variant">
-              Reusable workflows published on the n8n creator profile.
-            </p>
-          </div>
-          {profile.n8nProfileUrl ? (
-            <Button
-              href={profile.n8nProfileUrl}
-              variant="outline"
-              size="sm"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View creator profile
-              <ArrowUpRight className="h-4 w-4" aria-hidden />
-            </Button>
-          ) : null}
-        </div>
+        <SectionHeading
+          eyebrow="Open source"
+          title="Public n8n templates"
+          description="Reusable workflows published on the n8n creator profile."
+          className="mb-12 md:mb-16"
+          action={
+            profile.n8nProfileUrl ? (
+              <Button
+                href={profile.n8nProfileUrl}
+                variant="outline"
+                size="sm"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View creator profile
+                <ArrowUpRight className="h-4 w-4" strokeWidth={2} aria-hidden />
+              </Button>
+            ) : null
+          }
+        />
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {templates.map((template) => (
-            <a
-              key={template.title}
-              href={template.externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex h-full flex-col rounded-lg border border-outline-variant bg-surface-low p-6 transition-colors hover:border-outline hover:bg-surface-high"
-            >
-              <Badge tone="primary" className="mb-4 w-fit">
-                Template
-              </Badge>
-              <h3 className="font-heading text-headline-md leading-snug text-on-surface">
-                {template.title}
-              </h3>
-              <p className="mt-2 flex-1 text-sm text-on-surface-variant">
-                {template.description}
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {template.tools.map((tool) => (
-                  <Badge key={tool}>{tool}</Badge>
-                ))}
-              </div>
-              <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-on-surface group-hover:text-accent">
-                View on n8n
-                <ArrowUpRight className="h-4 w-4" aria-hidden />
-              </span>
-            </a>
+        <ul className="mt-2 hairline-t">
+          {templates.map((template, index) => (
+            <li key={template.title} className="hairline-b">
+              <a
+                href={template.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group grid gap-3 py-7 md:grid-cols-[3rem_1fr_auto] md:items-baseline md:gap-8"
+              >
+                <span className="font-label tabular text-on-surface-faint">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+
+                <span className="block max-w-[68ch]">
+                  <span className="font-heading block text-headline-sm text-balance text-on-surface">
+                    {template.title}
+                  </span>
+                  <span className="mt-1.5 block text-body-sm text-pretty text-on-surface-variant">
+                    {template.description}
+                  </span>
+                  <span className="mt-3 block font-label tabular text-on-surface-faint">
+                    {template.tools.join(" · ")}
+                    {template.engagementCount
+                      ? ` · ${template.engagementCount} engagements`
+                      : ""}
+                  </span>
+                </span>
+
+                <span className="inline-flex items-center gap-1.5 text-body-sm text-on-surface-variant transition-colors group-hover:text-accent">
+                  <span className="link-underline">View on n8n</span>
+                  <ExternalLink className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                </span>
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </Container>
     </Section>
   );

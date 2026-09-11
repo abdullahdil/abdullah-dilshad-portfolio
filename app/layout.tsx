@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Inter } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { SiteJsonLd } from "@/components/seo/json-ld";
 import { profileSeed } from "@/lib/content/seed";
 import { getSiteUrl, siteConfig } from "@/lib/site";
@@ -7,6 +7,12 @@ import "./globals.css";
 
 const geist = Geist({
   variable: "--font-geist",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -76,8 +82,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geist.variable} ${inter.variable} dark h-full scroll-smooth antialiased`}
+      suppressHydrationWarning
+      className={`${geist.variable} ${geistMono.variable} ${inter.variable} h-full scroll-smooth antialiased`}
     >
+      <head>
+        {/* Resolve theme before first paint so there is no flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body className="min-h-full bg-surface font-sans text-on-surface">
         <SiteJsonLd />
         {children}

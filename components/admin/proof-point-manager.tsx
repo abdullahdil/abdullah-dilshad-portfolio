@@ -22,7 +22,7 @@ function ProofPointEditor({ item }: { item?: ProofPointRow }) {
   return (
     <form
       action={formAction}
-      className="space-y-3 rounded-lg border border-outline-variant/10 bg-surface-container p-4"
+      className="space-y-3 panel-depth rounded-lg border border-outline-variant/10 bg-surface-container p-4"
     >
       {item ? <input type="hidden" name="id" value={item.id} /> : null}
       <FormResult result={state} />
@@ -33,7 +33,7 @@ function ProofPointEditor({ item }: { item?: ProofPointRow }) {
             id={`value-${key}`}
             name="value"
             required
-            placeholder="25+ workflows"
+            placeholder="30 paid production workflows"
             defaultValue={item?.value ?? ""}
           />
         </div>

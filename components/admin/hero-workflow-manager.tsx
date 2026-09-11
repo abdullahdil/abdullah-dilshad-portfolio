@@ -23,7 +23,7 @@ function HeroWorkflowStepEditor({ item }: { item?: HeroWorkflowStepRow }) {
   return (
     <form
       action={formAction}
-      className="space-y-3 rounded-lg border border-outline-variant/10 bg-surface-container p-4"
+      className="space-y-3 panel-depth rounded-lg border border-outline-variant/10 bg-surface-container p-4"
     >
       {item ? <input type="hidden" name="id" value={item.id} /> : null}
       <FormResult result={state} />

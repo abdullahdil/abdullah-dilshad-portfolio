@@ -47,10 +47,6 @@ export function AdminShell({
       </div>
 
       <div className="relative lg:pl-64">
-        <div
-          className="pointer-events-none absolute right-0 top-0 -z-10 h-[280px] w-[280px] kinetic-gradient opacity-40"
-          aria-hidden
-        />
         <AdminTopBar
           title={title}
           description={description}
@@ -58,7 +54,7 @@ export function AdminShell({
         />
         <main
           id="main-content"
-          className="px-margin-mobile py-8 md:px-margin-desktop md:py-10"
+          className="section-veil px-margin-mobile py-8 md:px-margin-desktop md:py-10"
         >
           {children}
         </main>

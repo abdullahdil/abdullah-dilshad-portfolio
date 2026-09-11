@@ -16,20 +16,25 @@ type CaseStudyViewProps = {
   next: CaseStudy | null;
 };
 
+/**
+ * Reading order is a narrative: opener and featured visual, the problem, the
+ * system, how it runs, how it is kept safe, my role, media, the outcome.
+ * Prose sits in the narrow measure; diagrams, galleries and figures break out.
+ */
 export function CaseStudyView({ study, previous, next }: CaseStudyViewProps) {
   return (
-    <article className="pb-margin-desktop pt-32">
+    <article>
       <CaseStudyHero study={study} />
+      <ProblemSection study={study} />
       <ArchitectureDiagram
         nodes={study.architectureNodes}
         description={study.architectureDescription}
         steps={study.steps}
         tools={study.tools}
       />
-      <ProblemSection study={study} />
-      <ToolsContribution study={study} />
-      <ReliabilitySection study={study} />
       <PipelineSteps study={study} />
+      <ReliabilitySection study={study} />
+      <ToolsContribution study={study} />
       <MediaGallery study={study} />
       <ResultSection study={study} />
       <CaseStudyNav previous={previous} next={next} />

@@ -59,7 +59,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
   const { previous, next } = await getPublishedAdjacentCaseStudies(slug);
 
   return (
-    <main id="main-content" className="pb-16 pt-10 md:pt-14">
+    <main id="main-content">
       <CaseStudyView study={study} previous={previous} next={next} />
     </main>
   );

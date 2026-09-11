@@ -13,13 +13,13 @@ export function StatusIndicator({
 }: StatusIndicatorProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <span className="relative flex h-2 w-2">
+      <span className="relative flex h-2 w-2 shrink-0">
         {pulse ? (
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75 motion-reduce:animate-none" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60 motion-reduce:animate-none" />
         ) : null}
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
       </span>
-      <span className="font-label uppercase text-primary">{label}</span>
+      <span className="font-label text-on-surface-variant">{label}</span>
     </div>
   );
 }

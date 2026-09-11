@@ -1,26 +1,34 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "danger"
+  | "accent";
 type ButtonSize = "sm" | "md" | "lg";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-on-primary hover:bg-primary-fixed-dim border border-transparent",
+    "border border-transparent bg-primary text-on-primary shadow-xs hover:bg-primary-fixed-dim",
+  accent:
+    "border border-transparent bg-accent text-on-accent shadow-xs hover:bg-accent-hover",
   secondary:
-    "bg-surface-high text-on-surface hover:bg-surface-bright border border-outline-variant",
+    "border border-outline-variant bg-surface-container text-on-surface shadow-xs hover:border-outline-strong hover:bg-surface-high",
   outline:
-    "border border-outline-variant text-on-surface hover:bg-surface-high bg-transparent",
+    "border border-outline-strong bg-transparent text-on-surface hover:bg-surface-high",
   ghost:
-    "border border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-high",
+    "border border-transparent text-on-surface-variant hover:bg-surface-high hover:text-on-surface",
   danger:
-    "bg-error-container text-on-error-container hover:brightness-110 border border-transparent",
+    "border border-transparent bg-error-container text-on-error-container hover:brightness-110",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-4 py-2 text-sm",
-  md: "px-5 py-2.5 text-body-md",
-  lg: "px-6 py-3 text-body-md",
+  sm: "h-8 px-3.5 text-body-sm",
+  md: "h-10 px-4.5 text-body-md",
+  lg: "h-11 px-6 text-body-md",
 };
 
 type CommonProps = {
@@ -53,7 +61,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium tracking-[-0.01em] transition-[background-color,border-color,color,box-shadow,transform] duration-200 active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
     variantClasses[variant],
     sizeClasses[size],
     className,

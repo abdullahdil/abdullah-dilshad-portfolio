@@ -11,11 +11,11 @@ type AdminTopBarProps = {
 
 export function AdminTopBar({ title, description, onMenuClick }: AdminTopBarProps) {
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-outline-variant/10 bg-background/90 px-margin-mobile py-4 backdrop-blur-sm md:px-margin-desktop">
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-outline-variant bg-background/85 px-margin-mobile py-4 backdrop-blur-md md:px-margin-desktop">
       <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"
-          className="rounded-full border border-outline-variant/20 p-2 text-on-surface lg:hidden"
+          className="rounded-full border border-outline-variant bg-surface-container p-2 text-on-surface lg:hidden"
           onClick={onMenuClick}
           aria-label="Open admin navigation"
         >
@@ -26,7 +26,7 @@ export function AdminTopBar({ title, description, onMenuClick }: AdminTopBarProp
             {title}
           </h1>
           {description ? (
-            <p className="truncate text-xs text-on-surface-variant">{description}</p>
+            <p className="truncate text-xs text-on-surface-faint">{description}</p>
           ) : null}
         </div>
       </div>

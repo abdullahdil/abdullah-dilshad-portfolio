@@ -1,4 +1,5 @@
 import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 import type { CaseStudy } from "@/lib/content/types";
 
 type ResultSectionProps = {
@@ -6,38 +7,34 @@ type ResultSectionProps = {
 };
 
 export function ResultSection({ study }: ResultSectionProps) {
+  const metrics = study.resultMetrics ?? [];
+
   return (
-    <section className="mb-16 md:mb-20" aria-labelledby="result-heading">
-      <Container>
-        <div className="rounded-lg border border-outline-variant/10 bg-surface-container p-8 md:p-12">
-          <p className="mb-3 font-label uppercase text-primary">Result</p>
-          <h2
-            id="result-heading"
-            className="mb-4 font-heading text-headline-lg text-on-surface"
-          >
-            What changed
-          </h2>
-
-          {study.resultMetrics && study.resultMetrics.length > 0 ? (
-            <dl className="mb-8 grid grid-cols-1 gap-6 border-b border-outline-variant pb-8 sm:grid-cols-3">
-              {study.resultMetrics.map((metric) => (
-                <div key={metric.label}>
-                  <dt className="font-heading text-[clamp(1.75rem,3vw,2.5rem)] font-semibold leading-none tracking-tight text-accent">
-                    {metric.value}
-                  </dt>
-                  <dd className="mt-2 text-sm leading-relaxed text-on-surface-variant">
-                    {metric.label}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          ) : null}
-
-          <p className="max-w-3xl text-body-lg text-on-surface-variant">
-            {study.result}
-          </p>
-        </div>
+    <Section divider aria-labelledby="result-heading">
+      <Container size="narrow">
+        <p className="section-eyebrow">Result</p>
+        <h2 id="result-heading" className="mt-3 font-heading text-headline-lg text-balance text-on-surface">
+          What changed
+        </h2>
+        <p className="mt-6 text-lead text-pretty">{study.result}</p>
       </Container>
-    </section>
+
+      {metrics.length > 0 ? (
+        <Container className="mt-12 md:mt-16">
+          <dl className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            {metrics.map((metric) => (
+              <div key={metric.label} className="border-t border-outline-variant pt-6">
+                <dt className="font-heading text-display-lg tabular text-on-surface">
+                  {metric.value}
+                </dt>
+                <dd className="mt-3 max-w-[26ch] text-body-sm text-pretty text-on-surface-variant">
+                  {metric.label}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Container>
+      ) : null}
+    </Section>
   );
 }

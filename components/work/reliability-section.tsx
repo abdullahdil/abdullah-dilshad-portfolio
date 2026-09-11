@@ -1,5 +1,5 @@
-import { ShieldCheck } from "lucide-react";
 import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 import type { CaseStudy } from "@/lib/content/types";
 
 type ReliabilitySectionProps = {
@@ -7,41 +7,42 @@ type ReliabilitySectionProps = {
 };
 
 export function ReliabilitySection({ study }: ReliabilitySectionProps) {
+  if (study.reliabilityControls.length === 0) return null;
+
   return (
-    <section className="mb-24 md:mb-32" aria-labelledby="reliability-heading">
-      <Container>
-        <div className="glass-card relative overflow-hidden rounded-lg p-8 md:p-12">
-          <div
-            className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-primary-container/10 blur-[120px]"
-            aria-hidden
-          />
-          <div className="relative max-w-3xl">
-            <h2
-              id="reliability-heading"
-              className="mb-8 font-heading text-headline-lg text-on-surface"
+    <Section tone="low" className="section-veil" aria-labelledby="reliability-heading">
+      <Container size="narrow">
+        <p className="section-eyebrow">Reliability</p>
+        <h2 id="reliability-heading" className="mt-3 font-heading text-headline-lg text-balance text-on-surface">
+          Reliability and governance
+        </h2>
+        <p className="mt-6 text-lead text-pretty">
+          Each control below exists for a specific failure mode — invalid input,
+          a repeated trigger, a failing API call, or a case a person should
+          decide.
+        </p>
+
+        <dl className="mt-12">
+          {study.reliabilityControls.map((control, index) => (
+            <div
+              key={control.name}
+              className="grid grid-cols-[2.75rem_1fr] gap-x-4 border-t border-outline-variant py-7 last:border-b sm:grid-cols-[4rem_1fr] sm:gap-x-6 sm:py-8"
             >
-              Reliability &amp; Governance
-            </h2>
-            <div className="space-y-8">
-              {study.reliabilityControls.map((control) => (
-                <div key={control.name} className="flex gap-6">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/20">
-                    <ShieldCheck className="h-5 w-5 text-primary" aria-hidden />
-                  </div>
-                  <div>
-                    <h3 className="mb-2 font-label text-lg text-on-surface">
-                      {control.name}
-                    </h3>
-                    <p className="leading-relaxed text-on-surface-variant">
-                      {control.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+              <span className="font-label pt-1.5 text-on-surface-faint tabular">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <dt className="font-heading text-headline-md text-balance text-on-surface">
+                  {control.name}
+                </dt>
+                <dd className="mt-3 text-body-md text-pretty text-on-surface-variant">
+                  {control.description}
+                </dd>
+              </div>
             </div>
-          </div>
-        </div>
+          ))}
+        </dl>
       </Container>
-    </section>
+    </Section>
   );
 }

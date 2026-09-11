@@ -1,6 +1,7 @@
 import { Brain, Plug, Terminal, Workflow, type LucideIcon } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { listPublishedCapabilities } from "@/lib/repositories/capabilities";
 
 const iconMap: Record<"Workflow" | "Brain" | "Plug" | "Terminal", LucideIcon> = {
@@ -14,42 +15,52 @@ export async function CapabilitiesSection() {
   const capabilities = await listPublishedCapabilities();
 
   return (
-    <Section id="capabilities" tone="lowest">
+    <Section id="capabilities" tone="low" className="section-veil">
       <Container>
-        <div className="mb-12 max-w-2xl">
-          <p className="section-eyebrow mb-3">Capabilities</p>
-          <h2 className="font-heading text-headline-lg text-on-surface">
-            What I work with
-          </h2>
-          <p className="mt-3 text-body-md text-on-surface-variant">
-            Tools and practices used across production automation projects.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Capabilities"
+          title="What I work with"
+          description="The practices that keep a workflow running once it is live — validation, error handling, retry and fallback paths, approval gates, duplicate prevention — and the integration surface those workflows reach. Tools change per project; the engineering around them does not."
+          className="mb-14 md:mb-20"
+        />
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {capabilities.map((group) => {
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+          {capabilities.map((group, index) => {
             const Icon = iconMap[group.icon];
             return (
-              <div
+              <section
                 key={group.category}
-                className="rounded-lg border border-outline-variant bg-surface-low p-6 md:p-8"
+                className="panel panel-depth px-6 py-7 md:px-7 md:py-8"
+                aria-labelledby={`capability-${index}`}
               >
-                <div className="mb-5 flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-md border border-outline-variant bg-surface-high">
-                    <Icon className="h-4 w-4 text-accent" aria-hidden />
-                  </div>
-                  <h3 className="font-heading text-headline-md text-on-surface">
+                <div className="flex items-center gap-2.5">
+                  <Icon
+                    className="h-3.5 w-3.5 shrink-0 text-accent"
+                    strokeWidth={2}
+                    aria-hidden
+                  />
+                  <h3
+                    id={`capability-${index}`}
+                    className="font-label text-on-surface"
+                  >
                     {group.category}
                   </h3>
+                  <span className="font-label tabular ml-auto text-on-surface-faint">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                 </div>
-                <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {group.items.slice(0, 8).map((item) => (
-                    <li key={item} className="text-sm text-on-surface-variant">
+
+                <ul className="mt-5 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
+                  {group.items.map((item) => (
+                    <li
+                      key={item}
+                      className="text-body-sm text-on-surface-variant"
+                    >
                       {item}
                     </li>
                   ))}
                 </ul>
-              </div>
+              </section>
             );
           })}
         </div>

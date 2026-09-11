@@ -1,72 +1,276 @@
 @import "tailwindcss";
 
+/* ============================================================
+   DESIGN TOKENS — one set, two themes.
+   Light is the base on :root. Dark is redefined in two places:
+   system preference (guarded so an explicit light choice wins)
+   and explicit [data-theme="dark"].
+   Every legacy token name is preserved so admin UI keeps working.
+   ============================================================ */
+
 :root {
-  --background: #09090b;
-  --surface: #09090b;
-  --surface-dim: #09090b;
-  --surface-bright: #27272a;
-  --surface-lowest: #09090b;
-  --surface-low: #111113;
-  --surface-container: #141416;
-  --surface-high: #1c1c1f;
-  --surface-highest: #232326;
-  --surface-variant: #27272a;
+  /* --- surfaces: warm paper, layered upward --- */
+  --background: #fbfbfa;
+  --surface: #fbfbfa;
+  --surface-dim: #f2f2f0;
+  --surface-bright: #ffffff;
+  --surface-lowest: #ffffff;
+  --surface-low: #f7f7f5;
+  --surface-container: #ffffff;
+  --surface-high: #f2f2f0;
+  --surface-highest: #eaeae7;
+  --surface-variant: #efefec;
 
-  --primary: #fafafa;
-  --primary-container: #fafafa;
-  --primary-fixed: #fafafa;
-  --primary-fixed-dim: #e4e4e7;
-  --on-primary: #09090b;
-  --on-primary-container: #09090b;
-  --on-primary-fixed: #09090b;
-  --on-primary-fixed-variant: #18181b;
-  --inverse-primary: #e4e4e7;
-  --surface-tint: #fafafa;
+  /* --- primary = ink, for high-contrast solid actions --- */
+  --primary: #141416;
+  --primary-container: #141416;
+  --primary-fixed: #141416;
+  --primary-fixed-dim: #2b2b30;
+  --on-primary: #fbfbfa;
+  --on-primary-container: #fbfbfa;
+  --on-primary-fixed: #fbfbfa;
+  --on-primary-fixed-variant: #f2f2f0;
+  --inverse-primary: #fbfbfa;
+  --surface-tint: #141416;
 
-  --accent: #34d399;
-  --on-accent: #052e1f;
+  /* --- the single accent --- */
+  --accent: #047857;
+  --accent-soft: rgba(4, 120, 87, 0.09);
+  --accent-hover: #036348;
+  --on-accent: #ffffff;
 
-  --secondary: #a1a1aa;
-  --secondary-container: #27272a;
-  --secondary-fixed: #d4d4d8;
-  --secondary-fixed-dim: #a1a1aa;
-  --on-secondary: #18181b;
-  --on-secondary-container: #d4d4d8;
-  --on-secondary-fixed: #09090b;
-  --on-secondary-fixed-variant: #3f3f46;
+  --secondary: #52525b;
+  --secondary-container: #efefec;
+  --secondary-fixed: #3f3f46;
+  --secondary-fixed-dim: #52525b;
+  --on-secondary: #fbfbfa;
+  --on-secondary-container: #2b2b30;
+  --on-secondary-fixed: #fbfbfa;
+  --on-secondary-fixed-variant: #52525b;
 
   --tertiary: #71717a;
-  --tertiary-container: #27272a;
-  --tertiary-fixed: #d4d4d8;
-  --tertiary-fixed-dim: #a1a1aa;
-  --on-tertiary: #fafafa;
-  --on-tertiary-container: #d4d4d8;
-  --on-tertiary-fixed: #09090b;
+  --tertiary-container: #efefec;
+  --tertiary-fixed: #3f3f46;
+  --tertiary-fixed-dim: #52525b;
+  --on-tertiary: #fbfbfa;
+  --on-tertiary-container: #2b2b30;
+  --on-tertiary-fixed: #fbfbfa;
   --on-tertiary-fixed-variant: #52525b;
 
-  --on-surface: #fafafa;
-  --on-surface-variant: #a1a1aa;
-  --on-background: #fafafa;
-  --inverse-surface: #fafafa;
-  --inverse-on-surface: #09090b;
+  /* --- text --- */
+  --on-surface: #141416;
+  --on-surface-variant: #5c5c66;
+  --on-surface-faint: #8a8a94;
+  --on-background: #141416;
+  --inverse-surface: #141416;
+  --inverse-on-surface: #fbfbfa;
 
-  --outline: #52525b;
-  --outline-variant: rgba(255, 255, 255, 0.1);
+  /* --- hairlines --- */
+  --outline: #c9c9c4;
+  --outline-variant: rgba(20, 20, 22, 0.1);
+  --outline-strong: rgba(20, 20, 22, 0.16);
 
-  --error: #fca5a5;
-  --error-container: #7f1d1d;
-  --on-error: #450a0a;
-  --on-error-container: #fecaca;
+  --error: #b42318;
+  --error-container: #fee4e2;
+  --on-error: #ffffff;
+  --on-error-container: #912018;
+
+  --success: #047857;
+  --warning: #b54708;
 
   --foreground: var(--on-surface);
 
-  --container-max: 100%;
+  /* --- elevation: restrained, never showy --- */
+  --shadow-xs: 0 1px 2px rgba(20, 20, 22, 0.04);
+  --shadow-sm: 0 1px 3px rgba(20, 20, 22, 0.06), 0 1px 2px rgba(20, 20, 22, 0.04);
+  --shadow-md: 0 4px 16px -2px rgba(20, 20, 22, 0.08), 0 2px 6px -2px rgba(20, 20, 22, 0.05);
+  --shadow-lg: 0 16px 48px -12px rgba(20, 20, 22, 0.14);
+
+  --panel-bg: rgba(255, 255, 255, 0.72);
+
+  /* --- geometry: centered measure is the core sleekness lever --- */
+  --container-max: 1120px;
+  --container-narrow: 760px;
+  --container-wide: 1320px;
   --gutter: 24px;
   --margin-mobile: 20px;
-  --margin-desktop: 40px;
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  --margin-desktop: 32px;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+
+  /* --- ambient wash: depth only, never text or action colour --- */
+  --wash-accent: rgba(4, 120, 87, 0.05);
+  --wash-cool: rgba(30, 64, 90, 0.04);
+  --wash-deep: rgba(20, 20, 22, 0.045);
+  --wash-edge: rgba(20, 20, 22, 0.06);
+  --wash-panel-top: rgba(255, 255, 255, 0.6);
+}
+
+/* Dark via system preference — an explicit light choice overrides it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #07080c;
+    --surface: #07080c;
+    --surface-dim: #04050a;
+    --surface-bright: #252935;
+    --surface-lowest: #04050a;
+    --surface-low: #0c0e14;
+    --surface-container: #101219;
+    --surface-high: #15171f;
+    --surface-highest: #1c1f28;
+    --surface-variant: #212430;
+
+    --primary: #f7f7f8;
+    --primary-container: #f7f7f8;
+    --primary-fixed: #f7f7f8;
+    --primary-fixed-dim: #d8d8dc;
+    --on-primary: #07080c;
+    --on-primary-container: #07080c;
+    --on-primary-fixed: #07080c;
+    --on-primary-fixed-variant: #15171f;
+    --inverse-primary: #141416;
+    --surface-tint: #f7f7f8;
+
+    --accent: #34d399;
+    --accent-soft: rgba(52, 211, 153, 0.12);
+    --accent-hover: #5ee0ad;
+    --on-accent: #04231a;
+
+    --secondary: #a1a1aa;
+    --secondary-container: #212430;
+    --secondary-fixed: #d8d8dc;
+    --secondary-fixed-dim: #a1a1aa;
+    --on-secondary: #15171f;
+    --on-secondary-container: #d8d8dc;
+    --on-secondary-fixed: #07080c;
+    --on-secondary-fixed-variant: #3f3f46;
+
+    --tertiary: #71717a;
+    --tertiary-container: #212430;
+    --tertiary-fixed: #d8d8dc;
+    --tertiary-fixed-dim: #a1a1aa;
+    --on-tertiary: #f7f7f8;
+    --on-tertiary-container: #d8d8dc;
+    --on-tertiary-fixed: #07080c;
+    --on-tertiary-fixed-variant: #52525b;
+
+    --on-surface: #f7f7f8;
+    --on-surface-variant: #9d9da7;
+    --on-surface-faint: #6b6b76;
+    --on-background: #f7f7f8;
+    --inverse-surface: #f7f7f8;
+    --inverse-on-surface: #07080c;
+
+    --outline: #3f3f46;
+    --outline-variant: rgba(255, 255, 255, 0.09);
+    --outline-strong: rgba(255, 255, 255, 0.16);
+
+    --error: #fca5a5;
+    --error-container: #4c1513;
+    --on-error: #2d0908;
+    --on-error-container: #fecaca;
+
+    --success: #34d399;
+    --warning: #fbbf24;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 16px 48px -12px rgba(0, 0, 0, 0.7);
+
+    --panel-bg: rgba(16, 18, 25, 0.72);
+
+    /* --- ambient wash: depth only, never text or action colour --- */
+    --wash-accent: rgba(52, 211, 153, 0.07);
+    --wash-cool: rgba(34, 150, 170, 0.085);
+    --wash-deep: rgba(6, 12, 22, 0.7);
+    --wash-edge: rgba(255, 255, 255, 0.05);
+    --wash-panel-top: rgba(255, 255, 255, 0.028);
+  }
+}
+
+/* Dark via explicit choice — wins in both directions. */
+:root[data-theme="dark"] {
+  --background: #07080c;
+  --surface: #07080c;
+  --surface-dim: #04050a;
+  --surface-bright: #252935;
+  --surface-lowest: #04050a;
+  --surface-low: #0c0e14;
+  --surface-container: #101219;
+  --surface-high: #15171f;
+  --surface-highest: #1c1f28;
+  --surface-variant: #212430;
+
+  --primary: #f7f7f8;
+  --primary-container: #f7f7f8;
+  --primary-fixed: #f7f7f8;
+  --primary-fixed-dim: #d8d8dc;
+  --on-primary: #07080c;
+  --on-primary-container: #07080c;
+  --on-primary-fixed: #07080c;
+  --on-primary-fixed-variant: #15171f;
+  --inverse-primary: #141416;
+  --surface-tint: #f7f7f8;
+
+  --accent: #34d399;
+  --accent-soft: rgba(52, 211, 153, 0.12);
+  --accent-hover: #5ee0ad;
+  --on-accent: #04231a;
+
+  --secondary: #a1a1aa;
+  --secondary-container: #212430;
+  --secondary-fixed: #d8d8dc;
+  --secondary-fixed-dim: #a1a1aa;
+  --on-secondary: #15171f;
+  --on-secondary-container: #d8d8dc;
+  --on-secondary-fixed: #07080c;
+  --on-secondary-fixed-variant: #3f3f46;
+
+  --tertiary: #71717a;
+  --tertiary-container: #212430;
+  --tertiary-fixed: #d8d8dc;
+  --tertiary-fixed-dim: #a1a1aa;
+  --on-tertiary: #f7f7f8;
+  --on-tertiary-container: #d8d8dc;
+  --on-tertiary-fixed: #07080c;
+  --on-tertiary-fixed-variant: #52525b;
+
+  --on-surface: #f7f7f8;
+  --on-surface-variant: #9d9da7;
+  --on-surface-faint: #6b6b76;
+  --on-background: #f7f7f8;
+  --inverse-surface: #f7f7f8;
+  --inverse-on-surface: #07080c;
+
+  --outline: #3f3f46;
+  --outline-variant: rgba(255, 255, 255, 0.09);
+  --outline-strong: rgba(255, 255, 255, 0.16);
+
+  --error: #fca5a5;
+  --error-container: #4c1513;
+  --on-error: #2d0908;
+  --on-error-container: #fecaca;
+
+  --success: #34d399;
+  --warning: #fbbf24;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 16px 48px -12px rgba(0, 0, 0, 0.7);
+
+  --panel-bg: rgba(16, 18, 25, 0.72);
+
+    /* --- ambient wash: depth only, never text or action colour --- */
+    --wash-accent: rgba(52, 211, 153, 0.07);
+    --wash-cool: rgba(34, 150, 170, 0.085);
+    --wash-deep: rgba(6, 12, 22, 0.7);
+    --wash-edge: rgba(255, 255, 255, 0.05);
+    --wash-panel-top: rgba(255, 255, 255, 0.028);
 }
 
 @theme inline {
@@ -95,6 +299,8 @@
   --color-surface-tint: var(--surface-tint);
 
   --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-hover: var(--accent-hover);
   --color-on-accent: var(--on-accent);
 
   --color-secondary: var(--secondary);
@@ -117,71 +323,115 @@
 
   --color-on-surface: var(--on-surface);
   --color-on-surface-variant: var(--on-surface-variant);
+  --color-on-surface-faint: var(--on-surface-faint);
   --color-on-background: var(--on-background);
   --color-inverse-surface: var(--inverse-surface);
   --color-inverse-on-surface: var(--inverse-on-surface);
 
   --color-outline: var(--outline);
   --color-outline-variant: var(--outline-variant);
+  --color-outline-strong: var(--outline-strong);
 
   --color-error: var(--error);
   --color-error-container: var(--error-container);
   --color-on-error: var(--on-error);
   --color-on-error-container: var(--on-error-container);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
 
   --font-sans: var(--font-inter);
   --font-heading: var(--font-geist);
-  --font-mono: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
 
   --radius-DEFAULT: var(--radius-sm);
+  --radius-md: var(--radius-md);
   --radius-lg: var(--radius-md);
   --radius-xl: var(--radius-lg);
-  --radius-2xl: var(--radius-lg);
+  --radius-2xl: var(--radius-xl);
   --radius-full: 9999px;
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
 
   --spacing-gutter: var(--gutter);
   --spacing-container-max: var(--container-max);
+  --spacing-container-narrow: var(--container-narrow);
+  --spacing-container-wide: var(--container-wide);
   --spacing-margin-mobile: var(--margin-mobile);
   --spacing-margin-desktop: var(--margin-desktop);
 }
 
 @layer base {
   html {
-    color-scheme: dark;
+    color-scheme: light;
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) {
+      color-scheme: dark;
     }
+  }
+
+  html[data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  html[data-theme="light"] {
+    color-scheme: light;
   }
 
   body {
     background: var(--background);
     color: var(--on-surface);
     font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  /* Theme swap should feel instant, not animated. */
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: none !important;
   }
 
   section[id],
   header[id] {
-    scroll-margin-top: 5rem;
+    scroll-margin-top: 6rem;
   }
 
   ::selection {
-    background: rgba(52, 211, 153, 0.25);
+    background: var(--accent-soft);
     color: var(--on-surface);
   }
 
   :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Tabular numerals wherever figures are compared. */
+  .tabular,
+  time,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
   }
 
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
     *,
     *::before,
     *::after {
@@ -194,79 +444,219 @@
 }
 
 @layer utilities {
+  /* ---------- type scale: tight, editorial ---------- */
   .font-heading {
     font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   }
 
+  .font-mono {
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  }
+
+  /* Mono micro-label — the recurring "engineer" detail. */
   .font-label {
-    font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.8125rem;
-    line-height: 1.25rem;
-    letter-spacing: 0.02em;
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.08em;
     font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  .text-display-xl {
+    font-size: clamp(2.75rem, 7vw, 5.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.042em;
+    font-weight: 560;
   }
 
   .text-display-lg {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    line-height: 1.08;
-    letter-spacing: -0.03em;
-    font-weight: 600;
+    font-size: clamp(2.25rem, 5.5vw, 3.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.038em;
+    font-weight: 560;
   }
 
   .text-headline-xl {
-    font-size: clamp(2rem, 4vw, 3rem);
-    line-height: 1.12;
-    letter-spacing: -0.02em;
-    font-weight: 600;
+    font-size: clamp(1.875rem, 4vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.032em;
+    font-weight: 560;
   }
 
   .text-headline-lg {
-    font-size: clamp(1.75rem, 3vw, 2.25rem);
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-    font-weight: 600;
+    font-size: clamp(1.625rem, 3vw, 2.125rem);
+    line-height: 1.14;
+    letter-spacing: -0.028em;
+    font-weight: 560;
   }
 
   .text-headline-md {
-    font-size: clamp(1.25rem, 2vw, 1.5rem);
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-    font-weight: 600;
+    font-size: clamp(1.1875rem, 2vw, 1.375rem);
+    line-height: 1.26;
+    letter-spacing: -0.02em;
+    font-weight: 560;
+  }
+
+  .text-headline-sm {
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    letter-spacing: -0.014em;
+    font-weight: 560;
   }
 
   .text-body-lg {
-    font-size: 1.125rem;
-    line-height: 1.7;
+    font-size: 1.0625rem;
+    line-height: 1.68;
+    letter-spacing: -0.005em;
     font-weight: 400;
   }
 
   .text-body-md {
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: 0.9375rem;
+    line-height: 1.62;
     font-weight: 400;
   }
 
-  .section-eyebrow {
-    font-size: 0.8125rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--accent);
+  .text-body-sm {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    font-weight: 400;
   }
 
+  /* Lead paragraph under a display headline. */
+  .text-lead {
+    font-size: clamp(1.0625rem, 1.6vw, 1.1875rem);
+    line-height: 1.62;
+    letter-spacing: -0.008em;
+    color: var(--on-surface-variant);
+  }
+
+  .section-eyebrow {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--on-surface-faint);
+  }
+
+  /* ---------- surface treatments: hairline over glass ---------- */
   .border-subtle {
     border-color: var(--outline-variant);
   }
 
+  .hairline {
+    border: 1px solid var(--outline-variant);
+  }
+
+  .hairline-t {
+    border-top: 1px solid var(--outline-variant);
+  }
+
+  .hairline-b {
+    border-bottom: 1px solid var(--outline-variant);
+  }
+
+  /* Full-bleed divider rule used between sections. */
+  .rule {
+    height: 1px;
+    width: 100%;
+    background: var(--outline-variant);
+  }
+
+  .panel {
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Retained: referenced by admin pages. Now actually defined. */
+  .glass-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--outline-variant);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    backdrop-filter: saturate(180%) blur(16px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Restrained lift — 1px translate, no scale, no glow. */
+  .lift {
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 220ms ease,
+      background-color 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .lift:hover {
+    transform: translateY(-1px);
+    border-color: var(--outline-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lift:hover {
+      transform: none;
+    }
+  }
+
+  /* Underline that draws in on hover — used on text links. */
+  .link-underline {
+    position: relative;
+    text-decoration: none;
+  }
+
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /* Grain/mesh-free ambient wash for the hero only. */
+  .hero-wash {
+    background:
+      radial-gradient(
+        90ch 60ch at 12% -10%,
+        var(--accent-soft),
+        transparent 60%
+      ),
+      radial-gradient(
+        70ch 50ch at 92% 4%,
+        color-mix(in oklab, var(--surface-highest) 70%, transparent),
+        transparent 62%
+      );
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
   .case-study-cover-media {
-    animation: case-study-cover-in 500ms ease-out both;
+    animation: case-study-cover-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   @keyframes case-study-cover-in {
     from {
       opacity: 0;
-      transform: scale(1.02);
+      transform: scale(1.015);
     }
     to {
       opacity: 1;
@@ -278,5 +668,49 @@
     .case-study-cover-media {
       animation: none;
     }
+  }
+
+  /* ============================================================
+     AMBIENT DEPTH — gradients that encode structure, not decoration.
+     Rules: no gradient text, no gradient buttons, no glow, no
+     multi-stop rainbows. Each one answers "where am I on the page".
+     ============================================================ */
+
+  /* End-of-document wash. Sits behind the closing region so the page
+     resolves instead of stopping at a hard edge. */
+  .page-end-wash {
+    background-image:
+      radial-gradient(120ch 46ch at 50% 116%, var(--wash-accent), transparent 66%),
+      radial-gradient(88ch 38ch at 10% 106%, var(--wash-cool), transparent 62%);
+    background-repeat: no-repeat;
+  }
+
+  /* Soft top falloff — a gentler alternative to a hairline divider
+     where a hard rule would chop the reading flow. */
+  .section-veil {
+    background-image: linear-gradient(
+      to bottom,
+      var(--wash-edge) 0%,
+      transparent 7rem
+    );
+  }
+
+  /* Layered depth for panels and cards: light catches the top edge.
+     Pairs with .panel, which supplies the background colour. */
+  .panel-depth {
+    background-image: linear-gradient(
+      to bottom,
+      var(--wash-panel-top) 0%,
+      transparent 58%
+    );
+  }
+
+  /* Admin shell depth — sidebar and dashboard surfaces read as one
+     lit volume rather than a stack of flat rectangles. */
+  .shell-wash {
+    background-image:
+      linear-gradient(to bottom, var(--wash-panel-top) 0%, transparent 30%),
+      radial-gradient(56ch 38ch at 0% 0%, var(--wash-accent), transparent 70%);
+    background-repeat: no-repeat;
   }
 }

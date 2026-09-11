@@ -36,21 +36,21 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
         : null;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background p-gutter">
+    <main className="shell-wash flex min-h-screen items-center justify-center bg-background p-gutter">
       <div className="w-full max-w-[440px]">
         <div className="mb-8 text-center">
-          <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container">
-            <Terminal className="h-5 w-5 text-primary" aria-hidden />
+          <div className="panel panel-depth mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full">
+            <Terminal className="h-5 w-5 text-accent" aria-hidden />
           </div>
           <h1 className="font-heading text-headline-md tracking-tighter text-on-surface">
-            Abdullah<span className="text-primary">.</span>
+            Abdullah<span className="text-accent">.</span>
           </h1>
-          <p className="mt-2 font-label uppercase tracking-widest text-outline">
+          <p className="mt-2 font-label uppercase tracking-widest text-on-surface-faint">
             Command Center // Authorized access only
           </p>
         </div>
 
-        <div className="glass-panel relative overflow-hidden rounded-lg p-8">
+        <div className="panel panel-depth relative overflow-hidden p-8 shadow-md">
           <div className="space-y-6">
             <div>
               <h2 className="font-heading font-semibold text-on-surface">
@@ -63,14 +63,14 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
 
             <LoginForm configured={configured} bannerError={bannerError} />
 
-            <p className="border-t border-outline-variant/10 pt-4 text-xs text-on-surface-variant">
+            <p className="border-t border-outline-variant pt-4 text-xs text-on-surface-faint">
               Authorized personnel only. See docs/SUPABASE.md for admin setup.
             </p>
           </div>
         </div>
 
         <p className="mt-8 text-center text-sm text-on-surface-variant">
-          <Link href="/" className="text-primary hover:underline">
+          <Link href="/" className="link-underline text-on-surface">
             Return to public site
           </Link>
         </p>

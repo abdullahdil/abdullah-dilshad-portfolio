@@ -14,7 +14,7 @@ export default async function PublicLayout({
   ]);
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex min-h-dvh flex-col bg-surface text-on-surface">
       <SiteHeader
         links={links}
         fullName={profile.fullName}

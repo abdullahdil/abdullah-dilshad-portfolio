@@ -19,7 +19,7 @@ function ExperienceEditor({ item }: { item?: ExperienceRow }) {
   );
 
   return (
-    <form action={formAction} className="space-y-4 rounded-lg border border-outline-variant/10 bg-surface-container p-4">
+    <form action={formAction} className="space-y-4 panel-depth rounded-lg border border-outline-variant/10 bg-surface-container p-4">
       {item ? <input type="hidden" name="id" value={item.id} /> : null}
       <h3 className="font-heading text-lg text-on-surface">
         {item ? "Edit experience" : "Add experience"}
