@@ -36,6 +36,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the template must be committed: docs/DEPLOYMENT.md references it.
+!.env.example
 
 # generated local admin credentials from db:setup
 .admin-credentials.local
