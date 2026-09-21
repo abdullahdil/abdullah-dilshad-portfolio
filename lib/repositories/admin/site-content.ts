@@ -1,5 +1,5 @@
 import type {
-  HeroWorkflowStepRow,
+  Json,
   NavLinkRow,
   ProofPointRow,
   WorkflowGroupRow,
@@ -7,12 +7,12 @@ import type {
 } from "@/lib/supabase/database.types";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type {
-  HeroWorkflowStepInput,
   NavLinkInput,
   ProofPointInput,
   WorkflowGroupInput,
   WorkflowInput,
 } from "@/lib/validations/site-content";
+import type { WorkflowCanvas } from "@/lib/workflow-canvas/types";
 
 async function requireClient() {
   const supabase = await createServerSupabaseClient();
@@ -72,66 +72,6 @@ export async function updateAdminProofPoint(
 export async function deleteAdminProofPoint(id: string): Promise<void> {
   const supabase = await requireClient();
   const { error } = await supabase.from("proof_points").delete().eq("id", id);
-  if (error) throw error;
-}
-
-// ---------------------------------------------------------------------------
-// Hero workflow steps
-// ---------------------------------------------------------------------------
-
-function heroStepColumns(input: HeroWorkflowStepInput) {
-  return {
-    title: input.title,
-    description: input.description,
-    icon: input.icon,
-    display_order: input.displayOrder,
-    is_published: input.isPublished,
-  };
-}
-
-export async function listAdminHeroWorkflowSteps(): Promise<
-  HeroWorkflowStepRow[]
-> {
-  const supabase = await requireClient();
-  const { data, error } = await supabase
-    .from("hero_workflow_steps")
-    .select("*")
-    .order("display_order", { ascending: true });
-  if (error) throw error;
-  return (data ?? []) as HeroWorkflowStepRow[];
-}
-
-export async function createAdminHeroWorkflowStep(
-  input: HeroWorkflowStepInput,
-): Promise<string> {
-  const supabase = await requireClient();
-  const { data, error } = await supabase
-    .from("hero_workflow_steps")
-    .insert(heroStepColumns(input))
-    .select("id")
-    .single();
-  if (error) throw error;
-  return data.id as string;
-}
-
-export async function updateAdminHeroWorkflowStep(
-  id: string,
-  input: HeroWorkflowStepInput,
-): Promise<void> {
-  const supabase = await requireClient();
-  const { error } = await supabase
-    .from("hero_workflow_steps")
-    .update(heroStepColumns(input))
-    .eq("id", id);
-  if (error) throw error;
-}
-
-export async function deleteAdminHeroWorkflowStep(id: string): Promise<void> {
-  const supabase = await requireClient();
-  const { error } = await supabase
-    .from("hero_workflow_steps")
-    .delete()
-    .eq("id", id);
   if (error) throw error;
 }
 
@@ -299,6 +239,50 @@ export async function updateAdminWorkflow(
 export async function deleteAdminWorkflow(id: string): Promise<void> {
   const supabase = await requireClient();
   const { error } = await supabase.from("workflows").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/**
+ * The pasted n8n JSON plus its parsed canvas, as stored on the row. Kept
+ * separate from `WorkflowInput` because the canvas is saved by its own action:
+ * a normal workflow save must not touch (or wipe) what was pasted.
+ */
+export type AdminWorkflowCanvas = {
+  /** Parsed, render-ready canvas; null removes the canvas from the row. */
+  canvas: WorkflowCanvas | null;
+  /** The original paste, kept verbatim so the editor can re-open it. */
+  source: string | null;
+};
+
+/** Reads the stored canvas for editor prefill. */
+export async function getAdminWorkflowCanvas(
+  id: string,
+): Promise<{ canvas: Json | null; source: string | null }> {
+  const supabase = await requireClient();
+  const { data, error } = await supabase
+    .from("workflows")
+    .select("canvas_json, canvas_source")
+    .eq("id", id)
+    .single();
+  if (error) throw error;
+  return {
+    canvas: (data?.canvas_json as Json | null) ?? null,
+    source: (data?.canvas_source as string | null) ?? null,
+  };
+}
+
+export async function updateAdminWorkflowCanvas(
+  id: string,
+  input: AdminWorkflowCanvas,
+): Promise<void> {
+  const supabase = await requireClient();
+  const { error } = await supabase
+    .from("workflows")
+    .update({
+      canvas_json: (input.canvas as Json | null) ?? null,
+      canvas_source: input.source || null,
+    })
+    .eq("id", id);
   if (error) throw error;
 }
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import {
   firstZodError,
   formBool,
@@ -11,31 +12,35 @@ import type { ActionResult } from "@/lib/admin/types";
 import { requireAuthorizedAdmin } from "@/lib/auth/session";
 import {
   clearAdminWorkflowImage,
-  createAdminHeroWorkflowStep,
   createAdminNavLink,
   createAdminProofPoint,
   createAdminWorkflow,
   createAdminWorkflowGroup,
-  deleteAdminHeroWorkflowStep,
   deleteAdminNavLink,
   deleteAdminProofPoint,
   deleteAdminWorkflow,
   deleteAdminWorkflowGroup,
   getAdminWorkflowImageUrl,
-  updateAdminHeroWorkflowStep,
   updateAdminNavLink,
   updateAdminProofPoint,
   updateAdminWorkflow,
+  updateAdminWorkflowCanvas,
   updateAdminWorkflowGroup,
 } from "@/lib/repositories/admin/site-content";
 import { deleteUnreferencedStorageObject } from "@/lib/repositories/admin/media-cleanup";
 import {
-  heroWorkflowStepSchema,
   navLinkSchema,
   proofPointSchema,
   workflowGroupSchema,
   workflowSchema,
 } from "@/lib/validations/site-content";
+import {
+  MAX_WORKFLOW_CANVAS_CHARS,
+  TOO_LARGE_MESSAGE,
+  workflowCanvasInputSchema,
+  workflowCanvasSchema,
+} from "@/lib/validations/workflow-canvas";
+import { prepareWorkflowCanvas } from "@/lib/workflow-canvas/prepare";
 
 function errorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
@@ -89,48 +94,6 @@ export async function deleteProofPointAction(formData: FormData): Promise<void> 
   await deleteAdminProofPoint(formString(formData, "id"));
   revalidatePath("/");
   revalidatePath("/admin/proof-points");
-}
-
-// ---------------------------------------------------------------------------
-// Hero workflow steps
-// ---------------------------------------------------------------------------
-
-export async function saveHeroWorkflowStepAction(
-  _prev: ActionResult | null,
-  formData: FormData,
-): Promise<ActionResult> {
-  await requireAuthorizedAdmin();
-  const id = formString(formData, "id");
-  const parsed = heroWorkflowStepSchema.safeParse({
-    title: formString(formData, "title"),
-    description: formString(formData, "description"),
-    icon: formString(formData, "icon"),
-    displayOrder: formInt(formData, "displayOrder", 0),
-    isPublished: formBool(formData, "isPublished"),
-  });
-  if (!parsed.success) return { ok: false, error: firstZodError(parsed.error) };
-
-  try {
-    if (id) {
-      await updateAdminHeroWorkflowStep(id, parsed.data);
-    } else {
-      await createAdminHeroWorkflowStep(parsed.data);
-    }
-    revalidatePath("/");
-    revalidatePath("/admin/hero-workflow");
-    return { ok: true, message: id ? "Step updated." : "Step created." };
-  } catch (error) {
-    return { ok: false, error: errorMessage(error, "Failed to save step.") };
-  }
-}
-
-export async function deleteHeroWorkflowStepAction(
-  formData: FormData,
-): Promise<void> {
-  await requireAuthorizedAdmin();
-  await deleteAdminHeroWorkflowStep(formString(formData, "id"));
-  revalidatePath("/");
-  revalidatePath("/admin/hero-workflow");
 }
 
 // ---------------------------------------------------------------------------
@@ -302,5 +265,178 @@ export async function deleteWorkflowImageAction(
     return { ok: true, message };
   } catch (error) {
     return { ok: false, error: errorMessage(error, "Failed to remove image.") };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Workflow canvas (pasted n8n JSON)
+// ---------------------------------------------------------------------------
+
+/**
+ * The admin form for the canvas: the workflow it belongs to plus the raw paste.
+ * `workflowCanvasInputSchema` owns the size cap and the parseability check, so
+ * the limit lives in exactly one place.
+ */
+const workflowCanvasFormSchema = z.object({
+  workflowId: z.string().min(1, "Missing workflow id."),
+  source: workflowCanvasInputSchema,
+  /** The portfolio title, used when sanitising empties the export's own name. */
+  fallbackName: z.string().max(300).default(""),
+});
+
+/**
+ * Turns a failed canvas write into something the admin can act on.
+ *
+ * Supabase hands back a plain PostgrestError object rather than an `Error`,
+ * so the shared `errorMessage` helper would flatten every failure to the same
+ * sentence. The one case worth naming is the canvas migration not having been
+ * applied yet: the columns simply do not exist, which is a deploy step and not
+ * a bad paste.
+ *
+ * The pasted export is never echoed. Only the curated sentences below are
+ * returned, plus a database message that is first checked for any of the
+ * paste's own text.
+ */
+function canvasErrorMessage(
+  error: unknown,
+  fallback: string,
+  source: string,
+): string {
+  const asRecord =
+    typeof error === "object" && error !== null
+      ? (error as { message?: unknown; code?: unknown })
+      : null;
+  const raw =
+    error instanceof Error
+      ? error.message
+      : typeof asRecord?.message === "string"
+        ? asRecord.message
+        : "";
+  const code = typeof asRecord?.code === "string" ? asRecord.code : "";
+
+  // 42703 = undefined_column, PGRST204 = column missing from the schema cache.
+  const missingColumn =
+    code === "42703" ||
+    code === "PGRST204" ||
+    (/canvas_(json|source)/.test(raw) &&
+      /does not exist|schema cache|could not find/i.test(raw));
+  if (missingColumn) {
+    return "The canvas columns are not in the database yet — apply the workflow_canvas migration, then save again. Nothing was changed.";
+  }
+
+  if (!raw) return fallback;
+  const sample = source.trim().slice(0, 40);
+  if (sample && raw.includes(sample)) return fallback;
+  return `${fallback} ${raw.slice(0, 300)}`;
+}
+
+/**
+ * Saves a workflow's interactive canvas. An empty paste clears both columns.
+ *
+ * The admin editor parses the paste client-side for instant feedback, but that
+ * result is never trusted: this action re-does the work server-side and only
+ * what it produces here is persisted.
+ *
+ * The paste itself is never stored. Both canvas columns are readable with the
+ * anon key, and a real n8n export carries client namespaces, colleagues' names
+ * and the odd inbox or webhook URL, so `prepareWorkflowCanvas` sanitises first,
+ * parses the sanitised object, and gates on a re-read of the exact strings
+ * about to be written. `canvas_source` holds the sanitised export.
+ */
+export async function saveWorkflowCanvasAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  await requireAuthorizedAdmin();
+
+  const rawSource = formString(formData, "canvasSource");
+  // `workflowCanvasInputSchema` parses the paste as part of validating it, so an
+  // oversized payload has to be turned away before it reaches the schema rather
+  // than after — the client already short-circuits the same way.
+  if (rawSource.length > MAX_WORKFLOW_CANVAS_CHARS) {
+    return { ok: false, error: TOO_LARGE_MESSAGE };
+  }
+
+  const parsedForm = workflowCanvasFormSchema.safeParse({
+    workflowId: formString(formData, "id"),
+    source: rawSource,
+    fallbackName: formString(formData, "canvasFallbackName"),
+  });
+  if (!parsedForm.success) {
+    return { ok: false, error: firstZodError(parsedForm.error) };
+  }
+
+  const { workflowId, source, fallbackName } = parsedForm.data;
+  const trimmed = source.trim();
+
+  if (!trimmed) {
+    try {
+      await updateAdminWorkflowCanvas(workflowId, { canvas: null, source: null });
+      revalidatePath("/");
+      revalidatePath("/admin/workflows");
+      return { ok: true, message: "Workflow canvas removed." };
+    } catch (error) {
+      return {
+        ok: false,
+        error: canvasErrorMessage(
+          error,
+          "Failed to remove the workflow canvas.",
+          "",
+        ),
+      };
+    }
+  }
+
+  // Authoritative run. The schema above only proved the text parses; this is the
+  // sanitise → parse → leak-gate sequence whose output is stored.
+  const prepared = prepareWorkflowCanvas(trimmed, { fallbackName });
+  if (!prepared.ok) return { ok: false, error: prepared.error };
+
+  const canvas = workflowCanvasSchema.safeParse(prepared.canvas);
+  if (!canvas.success) return { ok: false, error: firstZodError(canvas.error) };
+
+  // A payload with an empty `nodes` array parses successfully. Storing it would
+  // leave the row reading as "has a canvas" while rendering nothing, so refuse
+  // it here rather than writing an empty graph.
+  if (canvas.data.nodes.length === 0) {
+    return {
+      ok: false,
+      error: "That export parsed, but it has no nodes — there is nothing to show.",
+    };
+  }
+
+  try {
+    await updateAdminWorkflowCanvas(workflowId, {
+      canvas: canvas.data,
+      // The sanitised export, never the paste. Re-opening the editor prefills
+      // from this column, so the admin sees exactly what is published.
+      source: prepared.source,
+    });
+    revalidatePath("/");
+    revalidatePath("/admin/workflows");
+    return {
+      ok: true,
+      source: prepared.source,
+      message: `Canvas saved — ${canvas.data.nodes.length} node${
+        canvas.data.nodes.length === 1 ? "" : "s"
+      }, ${canvas.data.edges.length} connection${
+        canvas.data.edges.length === 1 ? "" : "s"
+      }${
+        prepared.replacements.length > 0
+          ? `, ${prepared.replacements.length} identifying detail${
+              prepared.replacements.length === 1 ? "" : "s"
+            } removed before storing`
+          : ""
+      }.`,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: canvasErrorMessage(
+        error,
+        "Failed to save the workflow canvas.",
+        prepared.source,
+      ),
+    };
   }
 }

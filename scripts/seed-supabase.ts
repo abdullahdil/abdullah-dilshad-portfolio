@@ -12,7 +12,6 @@ import { caseStudies } from "../lib/content/case-studies";
 import {
   capabilitiesSeed,
   experienceSeed,
-  heroWorkflowSeed,
   navLinks,
   profileSeed,
   proofStripSeed,
@@ -70,6 +69,8 @@ async function main() {
       availability_label: profileSeed.availabilityLabel,
       email: profileSeed.email,
       linkedin_url: profileSeed.linkedinUrl,
+      instagram_url: profileSeed.instagramUrl,
+      x_url: profileSeed.xUrl,
       github_url: profileSeed.githubUrl,
       n8n_profile_url: profileSeed.n8nProfileUrl,
       credential_url: profileSeed.credentialUrl,
@@ -205,7 +206,7 @@ async function main() {
   }
 
   // ---------------------------------------------------------------------------
-  // Editable site content: proof strip, hero diagram, navigation, workflows.
+  // Editable site content: proof strip, navigation, workflows.
   // Each set is replaced wholesale so the seed stays the source of truth until
   // it is edited in the admin panel.
   // ---------------------------------------------------------------------------
@@ -221,20 +222,6 @@ async function main() {
     })),
   );
   if (proofError) throw proofError;
-
-  await supabase.from("hero_workflow_steps").delete().neq("title", "__never__");
-  const { error: heroStepsError } = await supabase
-    .from("hero_workflow_steps")
-    .insert(
-      heroWorkflowSeed.map((step, index) => ({
-        title: step.title,
-        description: step.description,
-        icon: step.icon,
-        display_order: index,
-        is_published: true,
-      })),
-    );
-  if (heroStepsError) throw heroStepsError;
 
   await supabase.from("nav_links").delete().neq("href", "__never__");
   const { error: navError } = await supabase.from("nav_links").insert(

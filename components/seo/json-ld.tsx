@@ -53,6 +53,8 @@ export function SiteJsonLd() {
         },
         sameAs: [
           profileSeed.linkedinUrl,
+          profileSeed.instagramUrl,
+          profileSeed.xUrl,
           profileSeed.n8nProfileUrl,
           profileSeed.credentialUrl,
         ].filter(Boolean),

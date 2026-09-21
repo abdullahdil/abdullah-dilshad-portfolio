@@ -1,11 +1,8 @@
 import { ArrowRight, Download } from "lucide-react";
 import { HeroPortrait } from "@/components/public/hero-portrait";
 import { ProofStrip } from "@/components/public/proof-strip";
-import { WorkflowVisual } from "@/components/public/workflow-visual";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
-import { SectionHeading } from "@/components/ui/section-heading";
 import { StatusIndicator } from "@/components/ui/status-indicator";
 import { getPublicProfile } from "@/lib/repositories/profile";
 
@@ -63,19 +60,6 @@ export async function HeroSection() {
       </section>
 
       <ProofStrip />
-
-      {/* Its own full-width band, deliberately outside the hero's 7/5 grid so
-          it never competes with the headline. */}
-      <Section id="how-it-runs" tone="default" space="tight" divider>
-        <Container>
-          <SectionHeading
-            eyebrow="How it runs"
-            title="Run the workflow. It stops and asks you before anything irreversible."
-            description="Step a record through the pipeline. It pauses at the approval gate and waits for your decision. Switch on failure injection to watch a step fail, retry, and recover."
-          />
-          <WorkflowVisual className="mt-10" />
-        </Container>
-      </Section>
     </>
   );
 }

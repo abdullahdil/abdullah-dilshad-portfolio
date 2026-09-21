@@ -4,6 +4,8 @@
  * credentials, webhook URLs, or implementation dumps.
  */
 
+import type { WorkflowCanvas } from "@/lib/workflow-canvas/types";
+
 export type WorkflowListing = {
   id: string;
   title: string;
@@ -11,6 +13,11 @@ export type WorkflowListing = {
   category: string;
   outcomeTags?: string[];
   active?: boolean;
+  /**
+   * Parsed n8n canvas, when one has been pasted in the CMS. Optional so the
+   * seed catalog below (and the no-Supabase fallback path) stays valid as-is.
+   */
+  canvas?: WorkflowCanvas | null;
 };
 
 export type WorkflowGroup = {

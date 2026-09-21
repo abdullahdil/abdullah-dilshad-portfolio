@@ -38,7 +38,7 @@ export async function AboutSection() {
           <div className="lg:col-span-8">
             <p className="section-eyebrow mb-3">About</p>
             <h2 className="font-heading text-headline-xl text-balance text-on-surface">
-              Reliable automation for fragmented operations
+              I build automations that know when to stop and ask
             </h2>
 
             <div className="mt-8 max-w-[68ch] space-y-6 text-body-lg text-pretty text-on-surface-variant">

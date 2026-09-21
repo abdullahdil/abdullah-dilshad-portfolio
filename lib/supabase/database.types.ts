@@ -24,6 +24,8 @@ export type CaseStudyRow = {
   before_issues: Json;
   architecture_description: string;
   architecture_nodes: Json;
+  /** CaseStudyNarrativeSection[] — see 20260920000000_case_study_narrative.sql. */
+  narrative: Json | null;
   contribution: Json;
   result: string;
   accent: AccentTone;
@@ -77,6 +79,26 @@ export type CaseStudyMediaRow = {
   created_at: string;
 };
 
+export type CaseStudyWorkflowRow = {
+  id: string;
+  case_study_id: string;
+  workflow_id: string;
+  display_order: number;
+  created_at: string;
+};
+
+/** Insert shape for a link row; the database fills id and created_at. */
+export type CaseStudyWorkflowInsert = {
+  case_study_id: string;
+  workflow_id: string;
+  display_order: number;
+};
+
+/** Only display_order is ever re-written in place; the pair identifies the row. */
+export type CaseStudyWorkflowUpdate = {
+  display_order?: number;
+};
+
 export type ProfileRow = {
   id: string;
   full_name: string;
@@ -90,6 +112,10 @@ export type ProfileRow = {
   availability_label: string;
   email: string;
   linkedin_url: string | null;
+  // Optional because 20260921000000_profile_social_links.sql may not have been
+  // applied yet: select("*") then returns a row with these keys absent.
+  instagram_url?: string | null;
+  x_url?: string | null;
   github_url: string | null;
   n8n_profile_url: string | null;
   credential_url: string | null;
@@ -163,17 +189,6 @@ export type ProofPointRow = {
   updated_at: string;
 };
 
-export type HeroWorkflowStepRow = {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  display_order: number;
-  is_published: boolean;
-  created_at: string;
-  updated_at: string;
-};
-
 export type NavLinkRow = {
   id: string;
   href: string;
@@ -202,6 +217,10 @@ export type WorkflowRow = {
   summary: string;
   image_url: string | null;
   image_alt: string;
+  /** Parsed, render-ready `WorkflowCanvas`; null when no canvas was pasted. */
+  canvas_json: Json | null;
+  /** The original n8n JSON paste, kept verbatim so the editor can re-open it. */
+  canvas_source: string | null;
   outcome_tags: string[];
   is_active: boolean;
   display_order: number;

@@ -192,6 +192,9 @@ function toCaseStudyRow(
     before_issues: input.beforeIssues,
     architecture_description: input.architectureDescription,
     architecture_nodes: input.architectureNodes,
+    // Null rather than [] when empty, so "no narrative yet" is one value the
+    // read path can test, and the page's prose fallback engages.
+    narrative: input.narrative.length > 0 ? input.narrative : null,
     contribution: input.contribution,
     result: input.result,
     accent: input.accent,
@@ -270,4 +273,137 @@ export async function deleteAdminCaseStudy(id: string): Promise<void> {
   const supabase = await requireClient();
   const { error } = await supabase.from("case_studies").delete().eq("id", id);
   if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Related workflows
+// ---------------------------------------------------------------------------
+
+/** One workflow offered in the case-study picker. */
+export type AdminWorkflowOption = {
+  /** `public.workflows.id` — the uuid the link table stores. */
+  id: string;
+  /** `public.workflows.slug` — how the public site addresses the workflow. */
+  slug: string;
+  title: string;
+  category: string;
+  isPublished: boolean;
+  /** True when a canvas is stored, so the picker can flag links that render nothing. */
+  hasCanvas: boolean;
+};
+
+/** A workflow currently linked to a case study, in its authored order. */
+export type AdminCaseStudyWorkflowLink = {
+  workflowId: string;
+  slug: string;
+  title: string;
+  displayOrder: number;
+};
+
+type WorkflowOptionRow = {
+  id: string;
+  slug: string;
+  title: string;
+  canvas_json: unknown;
+  is_published: boolean;
+  display_order: number;
+  workflow_groups: { category: string; display_order: number } | null;
+};
+
+type CaseStudyWorkflowLinkRow = {
+  workflow_id: string;
+  display_order: number;
+  workflows: { slug: string; title: string } | null;
+};
+
+/**
+ * Every workflow an admin may link, published or not, grouped-order first so
+ * the picker reads like the public catalog. Unpublished ones are included
+ * deliberately: an admin can stage a link before publishing the workflow, and
+ * the public read simply hides it until then.
+ */
+export async function listAdminWorkflowOptions(): Promise<AdminWorkflowOption[]> {
+  const supabase = await requireClient();
+  const { data, error } = await supabase
+    .from("workflows")
+    .select(
+      "id, slug, title, canvas_json, is_published, display_order, workflow_groups (category, display_order)",
+    )
+    .order("display_order", { ascending: true });
+
+  if (error) throw error;
+
+  const groupOrder = (row: WorkflowOptionRow) =>
+    row.workflow_groups?.display_order ?? Number.MAX_SAFE_INTEGER;
+
+  return ((data ?? []) as unknown as WorkflowOptionRow[])
+    .slice()
+    .sort(
+      (a, b) => groupOrder(a) - groupOrder(b) || a.display_order - b.display_order,
+    )
+    .map((row) => ({
+      id: row.id,
+      slug: row.slug,
+      title: row.title,
+      category: row.workflow_groups?.category ?? "",
+      isPublished: row.is_published,
+      hasCanvas: row.canvas_json !== null && row.canvas_json !== undefined,
+    }));
+}
+
+/** The picker's initial state: what this case study links today, in order. */
+export async function listAdminCaseStudyWorkflows(
+  caseStudyId: string,
+): Promise<AdminCaseStudyWorkflowLink[]> {
+  const supabase = await requireClient();
+  const { data, error } = await supabase
+    .from("case_study_workflows")
+    .select("workflow_id, display_order, workflows (slug, title)")
+    .eq("case_study_id", caseStudyId)
+    .order("display_order", { ascending: true });
+
+  if (error) throw error;
+
+  return ((data ?? []) as unknown as CaseStudyWorkflowLinkRow[]).map((row) => ({
+    workflowId: row.workflow_id,
+    slug: row.workflows?.slug ?? "",
+    title: row.workflows?.title ?? "",
+    displayOrder: row.display_order,
+  }));
+}
+
+/**
+ * Replaces a case study's workflow links with the submitted list, using array
+ * position as display_order.
+ *
+ * Delete-then-insert rather than a diff: the set is small, the picker always
+ * submits the complete list, and PostgREST gives no transaction across two
+ * statements. The delete is therefore issued first and its error is fatal, so a
+ * failed insert leaves the case study with no links rather than with a stale
+ * set silently merged into the new one.
+ */
+export async function replaceAdminCaseStudyWorkflows(
+  caseStudyId: string,
+  workflowIds: string[],
+): Promise<void> {
+  const supabase = await requireClient();
+
+  const { error: deleteError } = await supabase
+    .from("case_study_workflows")
+    .delete()
+    .eq("case_study_id", caseStudyId);
+  if (deleteError) throw deleteError;
+
+  if (workflowIds.length === 0) return;
+
+  const { error: insertError } = await supabase
+    .from("case_study_workflows")
+    .insert(
+      workflowIds.map((workflowId, index) => ({
+        case_study_id: caseStudyId,
+        workflow_id: workflowId,
+        display_order: index,
+      })),
+    );
+  if (insertError) throw insertError;
 }

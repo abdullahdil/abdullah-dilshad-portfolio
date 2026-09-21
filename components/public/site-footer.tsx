@@ -39,6 +39,26 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link
+                  href={profileSeed.instagramUrl}
+                  className={linkClass}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Instagram
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={profileSeed.xUrl}
+                  className={linkClass}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  X
+                </Link>
+              </li>
+              <li>
+                <Link
                   href={profileSeed.n8nProfileUrl}
                   className={linkClass}
                   target="_blank"

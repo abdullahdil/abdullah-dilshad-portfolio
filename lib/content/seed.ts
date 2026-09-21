@@ -10,12 +10,14 @@ export const profileSeed = {
   professionalTitle: "AI Automation Engineer · Systems & Integrations",
   heroHeadline: "I build AI automation systems that replace manual work.",
   heroDescription:
-    "I build and run production automation that connects AI models, APIs, and business systems across lead generation, internal operations, inbox management, customer support, reporting, and content operations. Every workflow is engineered to keep running: validation before anything moves, error handling with bounded retries and fallbacks, duplicate prevention, and human approval before anything irreversible.",
+    "I build and run production automation that connects AI models, APIs, and business systems across lead generation, internal operations, inbox management, customer support, reporting, and content operations. Every workflow is engineered to keep running: validation before anything moves, guard conditions and coded fallback paths when a step fails, duplicate prevention, and human approval before anything irreversible.",
   location: "Islamabad, Pakistan",
   availabilityLabel: "Available for Remote Work",
   availabilityStatus: "available" as const,
   email: "abdullahdilshad111@gmail.com",
   linkedinUrl: "https://www.linkedin.com/in/abdullah-dilshad",
+  instagramUrl: "https://www.instagram.com/abdullahdilshaad",
+  xUrl: "https://x.com/Abdullahdilsha7",
   githubUrl: null as string | null,
   n8nProfileUrl: "https://n8n.io/creators/abdullahmil/",
   credentialUrl:
@@ -25,7 +27,7 @@ export const profileSeed = {
     "AI Automation Engineer based in Islamabad, building production automation systems that connect AI models, APIs, and business tools — engineered for reliability and traceability, with human approval on the steps that matter.",
   longBio: [
     "I'm Abdullah Dilshad, an AI Automation Engineer based in Islamabad, Pakistan. I build production automation systems that connect AI models, APIs, business tools, and the people who need to approve what those systems do.",
-    "Getting a workflow to production is the whole job. A demo runs once; a production system has to keep running, so I engineer for the parts that decide whether it does: validation before anything moves, error handling with bounded retries and fallbacks, idempotent steps and duplicate prevention, status guards so work cannot skip a stage, and human-in-the-loop approval before anything irreversible. Every run leaves a traceable record, so a failure can be found and explained rather than guessed at.",
+    "Getting a workflow to production is the whole job. A demo runs once; a production system has to keep running, so I engineer for the parts that decide whether it does: validation before anything moves, guard conditions and coded fallback paths when a step fails, idempotent steps and duplicate prevention, status guards so work cannot skip a stage, and human-in-the-loop approval before anything irreversible. Every run leaves a traceable record, so a failure can be found and explained rather than guessed at.",
     "That work covers approximately 30 paid production workflows across lead generation, internal operations, inbox management, customer support, reporting, and content operations — scheduled and event-driven systems integrated with REST APIs, OAuth-connected SaaS tools, CRMs, Gmail, Slack, and Google Sheets.",
     "I work in Python, JavaScript, and Node.js, run automation in Docker, and ship with CI/CD on GitHub Actions. n8n is the orchestration layer on many of those builds: I completed n8n Course Level 2 and publish as a Verified Creator in the official template library.",
     "I hold a BS in Computer Science from FAST-NUCES and I'm open to international remote roles and long-term contracts.",
@@ -53,34 +55,6 @@ export const proofStripSeed = [
     value: "Core stack",
     label: "Claude / OpenAI APIs · RAG · Vector DBs · Agent workflows · MCP · Python · REST APIs · n8n",
     featured: true,
-  },
-] as const;
-
-export const heroWorkflowSeed = [
-  {
-    title: "Business Trigger",
-    description: "Scheduled or event-driven start",
-    icon: "Webhook" as const,
-  },
-  {
-    title: "Data Enrichment",
-    description: "Normalize and enrich records",
-    icon: "Database" as const,
-  },
-  {
-    title: "AI-Assisted Decision",
-    description: "Qualify, classify, or draft",
-    icon: "Brain" as const,
-  },
-  {
-    title: "Human Approval",
-    description: "Review before critical actions",
-    icon: "UserCheck" as const,
-  },
-  {
-    title: "Business Action",
-    description: "Notify, send, or update systems",
-    icon: "Send" as const,
   },
 ] as const;
 
@@ -245,7 +219,6 @@ export const adminNavItems = [
   { href: "/admin/capabilities", label: "Capabilities", icon: "Puzzle" },
   { href: "/admin/templates", label: "Templates", icon: "Library" },
   { href: "/admin/proof-points", label: "Proof Strip", icon: "BadgeCheck" },
-  { href: "/admin/hero-workflow", label: "Hero Diagram", icon: "GitBranch" },
   { href: "/admin/navigation", label: "Navigation", icon: "Link2" },
   { href: "/admin/settings", label: "Settings", icon: "Settings" },
 ] as const;

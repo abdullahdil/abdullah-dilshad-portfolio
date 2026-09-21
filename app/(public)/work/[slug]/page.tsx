@@ -5,6 +5,7 @@ import { caseStudies } from "@/lib/content/case-studies";
 import {
   getPublishedAdjacentCaseStudies,
   getPublishedCaseStudyBySlug,
+  getPublishedCaseStudyWorkflows,
 } from "@/lib/repositories/case-studies";
 
 type WorkPageProps = {
@@ -56,11 +57,19 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
   if (!study) notFound();
 
-  const { previous, next } = await getPublishedAdjacentCaseStudies(slug);
+  const [{ previous, next }, relatedWorkflows] = await Promise.all([
+    getPublishedAdjacentCaseStudies(slug),
+    getPublishedCaseStudyWorkflows(slug),
+  ]);
 
   return (
     <main id="main-content">
-      <CaseStudyView study={study} previous={previous} next={next} />
+      <CaseStudyView
+        study={study}
+        previous={previous}
+        next={next}
+        relatedWorkflows={relatedWorkflows}
+      />
     </main>
   );
 }

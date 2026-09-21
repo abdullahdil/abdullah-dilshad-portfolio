@@ -15,6 +15,8 @@ export type PublicProfile = {
   availabilityLabel: string;
   email: string;
   linkedinUrl: string | null;
+  instagramUrl: string | null;
+  xUrl: string | null;
   githubUrl: string | null;
   n8nProfileUrl: string | null;
   credentialUrl: string | null;
@@ -35,6 +37,14 @@ function mapProfile(row: ProfileRow): PublicProfile {
     availabilityLabel: row.availability_label,
     email: row.email,
     linkedinUrl: row.linkedin_url,
+    // instagram_url / x_url arrive as undefined (not null) from a database
+    // that has not run 20260921000000_profile_social_links.sql yet, because
+    // select("*") cannot return a column that does not exist. Undefined means
+    // "no column" and falls back to the verified seed so the links still
+    // render; an explicit null means an admin cleared the field and is kept.
+    instagramUrl:
+      row.instagram_url === undefined ? profileSeed.instagramUrl : row.instagram_url,
+    xUrl: row.x_url === undefined ? profileSeed.xUrl : row.x_url,
     githubUrl: row.github_url,
     n8nProfileUrl: row.n8n_profile_url,
     credentialUrl: row.credential_url,
@@ -56,6 +66,8 @@ function seedProfile(): PublicProfile {
     availabilityLabel: profileSeed.availabilityLabel,
     email: profileSeed.email,
     linkedinUrl: profileSeed.linkedinUrl,
+    instagramUrl: profileSeed.instagramUrl,
+    xUrl: profileSeed.xUrl,
     githubUrl: profileSeed.githubUrl,
     n8nProfileUrl: profileSeed.n8nProfileUrl,
     credentialUrl: profileSeed.credentialUrl,

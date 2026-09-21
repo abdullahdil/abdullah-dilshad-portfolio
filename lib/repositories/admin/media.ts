@@ -107,6 +107,8 @@ export async function setProfileAssetUrl(
     availabilityLabel: profile.availability_label,
     email: profile.email,
     linkedinUrl: profile.linkedin_url ?? "",
+    instagramUrl: profile.instagram_url ?? "",
+    xUrl: profile.x_url ?? "",
     githubUrl: profile.github_url ?? "",
     n8nProfileUrl: profile.n8n_profile_url ?? "",
     credentialUrl: profile.credential_url ?? "",

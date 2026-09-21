@@ -7,12 +7,28 @@ import {
 } from "@/lib/admin/actions/case-studies";
 import { arrayToLines } from "@/lib/admin/form-utils";
 import type { ActionResult } from "@/lib/admin/types";
+import type { AdminWorkflowOption } from "@/lib/repositories/admin/case-studies";
 import type { CaseStudyInput } from "@/lib/validations/case-study";
 import { FormResult } from "@/components/admin/form-result";
 import { GalleryMediaEditor } from "@/components/admin/gallery-media-editor";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
+import { RelatedWorkflowsPicker } from "@/components/admin/related-workflows-picker";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/form-controls";
+
+/** Shape hint only — no copy, so nothing here can be saved by accident. */
+const NARRATIVE_PLACEHOLDER = `[
+  {
+    "id": "the-problem",
+    "heading": "…",
+    "body": ["…", "…"]
+  },
+  {
+    "heading": "…",
+    "body": ["…"],
+    "showWorkflowsAfter": true
+  }
+]`;
 
 type CaseStudyFormProps = {
   mode: "create" | "edit";
@@ -21,9 +37,25 @@ type CaseStudyFormProps = {
     displayOrder?: number;
     isFeatured?: boolean;
   };
+  /** Every linkable workflow, already grouped-ordered by the admin repository. */
+  workflowOptions?: AdminWorkflowOption[];
+  /** Currently linked workflow ids, in display order. */
+  initialWorkflowIds?: string[];
+  /** Populated when the workflow options could not be read. */
+  workflowOptionsError?: string | null;
+  /** False when the picker's data could not be read; the action then skips the write. */
+  workflowOptionsLoaded?: boolean;
 };
 
-export function CaseStudyForm({ mode, id, initial }: CaseStudyFormProps) {
+export function CaseStudyForm({
+  mode,
+  id,
+  initial,
+  workflowOptions = [],
+  initialWorkflowIds = [],
+  workflowOptionsError = null,
+  workflowOptionsLoaded = true,
+}: CaseStudyFormProps) {
   const action = mode === "create" ? createCaseStudyAction : updateCaseStudyAction;
   const [state, formAction, pending] = useActionState<ActionResult | null, FormData>(
     action,
@@ -195,9 +227,47 @@ export function CaseStudyForm({ mode, id, initial }: CaseStudyFormProps) {
       </section>
 
       <section className="space-y-4">
+        <RelatedWorkflowsPicker
+          options={workflowOptions}
+          initialSelectedIds={initialWorkflowIds}
+          loadError={workflowOptionsError}
+          loaded={workflowOptionsLoaded}
+        />
+      </section>
+
+      <section className="space-y-4">
         <p className="font-label text-xs uppercase tracking-widest text-on-surface-variant">
           Nested JSON fields
         </p>
+        <div className="space-y-1.5">
+          <Label htmlFor="narrativeJson">
+            Narrative JSON — the story rendered on the public page
+          </Label>
+          <Textarea
+            id="narrativeJson"
+            name="narrativeJson"
+            rows={14}
+            className="font-mono text-xs"
+            defaultValue={
+              initial.narrative.length > 0
+                ? JSON.stringify(initial.narrative, null, 2)
+                : ""
+            }
+            placeholder={NARRATIVE_PLACEHOLDER}
+          />
+          <p className="text-xs text-on-surface-variant">
+            An ordered list of{" "}
+            <code className="font-mono">
+              {"{ id?, heading?, body: string[], showWorkflowsAfter? }"}
+            </code>
+            . <span className="font-mono">body</span> is paragraphs of prose —
+            not bullets. Set{" "}
+            <span className="font-mono">showWorkflowsAfter</span> on one section
+            to place the workflow canvases directly after it. Leave the box
+            empty and the page falls back to the Business problem, Before state,
+            Architecture description and Result fields above.
+          </p>
+        </div>
         <div className="space-y-1.5">
           <Label htmlFor="architectureNodesJson">Architecture nodes JSON</Label>
           <Textarea

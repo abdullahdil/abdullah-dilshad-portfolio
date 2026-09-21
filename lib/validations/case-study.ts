@@ -26,6 +26,31 @@ export const reliabilityControlSchema = z.object({
   description: z.string().trim().min(1).max(2000),
 });
 
+/**
+ * One movement of the long-form story. `body` is paragraphs of prose; there is
+ * deliberately no list shape here — the case-study page is a narrative, not a
+ * point structure.
+ */
+export const caseStudyNarrativeSectionSchema = z.object({
+  id: z
+    .string()
+    .trim()
+    .max(80)
+    .regex(/^[a-z0-9-]*$/, "Section id may only contain a-z, 0-9 and hyphens.")
+    .optional(),
+  heading: z.string().trim().max(160).optional(),
+  body: z.array(z.string().trim().min(1).max(4000)).min(1),
+  showWorkflowsAfter: z.boolean().optional(),
+});
+
+/**
+ * The whole narrative, in reading order. Empty is legal and means "no
+ * narrative yet" — the page then falls back to the prose fields it already has.
+ */
+export const caseStudyNarrativeSchema = z
+  .array(caseStudyNarrativeSectionSchema)
+  .max(20);
+
 export const galleryImageSchema = z.object({
   url: z.string().url().or(z.literal("")).optional(),
   caption: z.string().trim().min(1).max(160),
@@ -36,6 +61,7 @@ export const caseStudySchema = z.object({
   title: z.string().trim().min(1).max(160),
   slug: slugSchema,
   summary: z.string().trim().min(1).max(600),
+  narrative: caseStudyNarrativeSchema.default([]),
   businessProblem: z.string().trim().min(1).max(2000),
   beforeState: z.string().trim().min(1).max(2000),
   beforeIssues: z.array(z.string().trim().min(1).max(400)).min(1),
@@ -63,3 +89,31 @@ export const caseStudySchema = z.object({
 });
 
 export type CaseStudyInput = z.infer<typeof caseStudySchema>;
+
+/**
+ * Upper bound on how many workflow canvases one case study may embed. The page
+ * renders a thumbnail per link, so the cap is about page weight, not schema.
+ */
+export const MAX_CASE_STUDY_WORKFLOW_LINKS = 12;
+
+/**
+ * Admin picker input: the workflow rows a case study should preview, in the
+ * order they will be displayed. Array position IS the display order — the form
+ * submits an ordered list rather than per-row order numbers, so there is no way
+ * to submit a contradictory ordering. Ids are `public.workflows.id` uuids, not
+ * slugs, because the link table is a real foreign key.
+ */
+export const caseStudyWorkflowLinksSchema = z.object({
+  workflowIds: z
+    .array(z.uuid())
+    .max(MAX_CASE_STUDY_WORKFLOW_LINKS)
+    .refine(
+      (ids) => new Set(ids).size === ids.length,
+      "The same workflow cannot be linked twice.",
+    )
+    .default([]),
+});
+
+export type CaseStudyWorkflowLinksInput = z.infer<
+  typeof caseStudyWorkflowLinksSchema
+>;

@@ -1,4 +1,6 @@
 import type { CaseStudy } from "@/lib/content/types";
+import { workflowGroups } from "@/lib/content/workflows";
+import type { PublicWorkflowListing } from "@/lib/repositories/site-content";
 
 /**
  * Verified case-study narratives only.
@@ -23,7 +25,7 @@ export const caseStudies: CaseStudy[] = [
       "Reply handling and CRM updates relied on ad hoc follow-up instead of a consistent process.",
     ],
     architectureDescription:
-      "Prospects move through discovery, enrichment, normalization, AI-assisted qualification, personalization, optional human review, Gmail outreach, reply detection, and a write-back to CRM or Google Sheets. Each stage is a separate step with its own validation and bounded retries, orchestrated in n8n.",
+      "Prospects move through discovery, enrichment, normalization, AI-assisted qualification, personalization, optional human review, Gmail outreach, reply detection, and a write-back to CRM or Google Sheets. Each stage is a separate step with its own validation and guard conditions, orchestrated in n8n.",
     architectureNodes: [
       { label: "Trigger", detail: "Scheduled or manual start" },
       { label: "Apify", detail: "Prospect discovery" },
@@ -518,4 +520,38 @@ export function getCaseStudyCards() {
     previewLabel: study.previewLabel,
     featuredImageUrl: study.featuredImageUrl ?? null,
   }));
+}
+
+/**
+ * Resolves a case study's `relatedWorkflowIds` against the seed workflow
+ * catalog, preserving the authored order and dropping ids that no longer
+ * exist. This is the no-Supabase fallback for the related-workflows section:
+ * the public repository uses it whenever the database is unavailable.
+ */
+export function getSeedRelatedWorkflows(
+  study: Pick<CaseStudy, "relatedWorkflowIds">,
+): PublicWorkflowListing[] {
+  const ids = study.relatedWorkflowIds ?? [];
+  if (ids.length === 0) return [];
+
+  const byId = new Map<string, PublicWorkflowListing>();
+  for (const group of workflowGroups) {
+    for (const item of group.items) {
+      byId.set(item.id, {
+        id: item.id,
+        title: item.title,
+        summary: item.summary,
+        category: item.category,
+        imageUrl: null,
+        imageAlt: "",
+        canvas: item.canvas ?? null,
+        outcomeTags: [...(item.outcomeTags ?? [])],
+        active: item.active ?? true,
+      });
+    }
+  }
+
+  return ids
+    .map((id) => byId.get(id))
+    .filter((item): item is PublicWorkflowListing => item !== undefined);
 }

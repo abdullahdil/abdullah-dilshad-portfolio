@@ -7,6 +7,7 @@ import { Download, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { StatusIndicator } from "@/components/ui/status-indicator";
+import { SocialLinks } from "@/components/public/social-links";
 import { ThemeToggle } from "@/components/public/theme-toggle";
 import type { PublicNavLink } from "@/lib/repositories/site-content";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,9 @@ type SiteHeaderProps = {
   fullName: string;
   availabilityLabel: string;
   cvUrl: string;
+  linkedinUrl: string | null;
+  instagramUrl: string | null;
+  xUrl: string | null;
 };
 
 export function SiteHeader({
@@ -23,6 +27,9 @@ export function SiteHeader({
   fullName,
   availabilityLabel,
   cvUrl,
+  linkedinUrl,
+  instagramUrl,
+  xUrl,
 }: SiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -106,6 +113,13 @@ export function SiteHeader({
           </nav>
 
           <div className="ml-auto flex items-center gap-2 md:ml-6 md:gap-3">
+            <SocialLinks
+              linkedinUrl={linkedinUrl}
+              instagramUrl={instagramUrl}
+              xUrl={xUrl}
+              className="hidden sm:flex sm:-mr-1"
+            />
+            <span className="hidden sm:flex sm:h-5 sm:w-px sm:bg-outline-variant" aria-hidden />
             <span className="hidden sm:flex">
               <ThemeToggle />
             </span>
@@ -185,6 +199,17 @@ export function SiteHeader({
                 Download CV
                 <Download className="h-4 w-4" aria-hidden strokeWidth={2} />
               </Button>
+              <div className="flex items-center justify-between border-t border-outline-variant pt-5">
+                <span className="font-label text-on-surface-faint">Elsewhere</span>
+                <SocialLinks
+                  linkedinUrl={linkedinUrl}
+                  instagramUrl={instagramUrl}
+                  xUrl={xUrl}
+                  size="md"
+                  className="-mr-2 gap-1.5"
+                  onNavigate={closeMenu}
+                />
+              </div>
               <div className="flex items-center justify-between border-t border-outline-variant pt-5">
                 <span className="font-label text-on-surface-faint">Theme</span>
                 <ThemeToggle />

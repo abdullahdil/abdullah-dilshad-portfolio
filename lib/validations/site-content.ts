@@ -1,33 +1,9 @@
 import { z } from "zod";
 
-/** Icon names accepted by the hero workflow visual (lucide-react). */
-export const heroWorkflowIcons = [
-  "Webhook",
-  "Database",
-  "Brain",
-  "UserCheck",
-  "Send",
-  "Workflow",
-  "Plug",
-  "Terminal",
-  "Bot",
-  "Filter",
-  "Mail",
-  "ShieldCheck",
-] as const;
-
 export const proofPointSchema = z.object({
   value: z.string().trim().min(1).max(120),
   label: z.string().trim().min(1).max(300),
   isFeatured: z.boolean(),
-  displayOrder: z.number().int().min(0).max(9999),
-  isPublished: z.boolean(),
-});
-
-export const heroWorkflowStepSchema = z.object({
-  title: z.string().trim().min(1).max(120),
-  description: z.string().trim().max(300).default(""),
-  icon: z.enum(heroWorkflowIcons),
   displayOrder: z.number().int().min(0).max(9999),
   isPublished: z.boolean(),
 });
@@ -87,7 +63,6 @@ export const workflowSchema = z.object({
 });
 
 export type ProofPointInput = z.infer<typeof proofPointSchema>;
-export type HeroWorkflowStepInput = z.infer<typeof heroWorkflowStepSchema>;
 export type NavLinkInput = z.infer<typeof navLinkSchema>;
 export type WorkflowGroupInput = z.infer<typeof workflowGroupSchema>;
 export type WorkflowInput = z.infer<typeof workflowSchema>;

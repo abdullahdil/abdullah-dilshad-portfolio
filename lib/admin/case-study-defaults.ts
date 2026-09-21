@@ -4,6 +4,7 @@ export const emptyCaseStudyInput: CaseStudyInput = {
   title: "",
   slug: "",
   summary: "",
+  narrative: [],
   businessProblem: "",
   beforeState: "",
   beforeIssues: ["Issue one"],
