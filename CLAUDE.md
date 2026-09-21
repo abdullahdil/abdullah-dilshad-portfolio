@@ -88,7 +88,7 @@ project. Never break this path — it is how local UI work happens. Env gating l
 - `app/(public)/` — `/`, `/resume`, `/privacy`, `/work/[slug]`
 - `app/admin/login` + `app/admin/logout` — public admin routes
 - `app/admin/(protected)/` — case-studies, profile, experience, capabilities, proof-points,
-  workflows, hero-workflow, navigation, templates, media, messages, settings
+  workflows, navigation, templates, media, messages, settings
 - **There is no `/work` index page by design** — only `/work/[slug]`. `/work` returning 404 is
   expected, not a regression.
 
@@ -155,3 +155,116 @@ never claim a check passed that was not run.
 - `docs/SUPABASE.md` — schema, admin provisioning, auth behavior table, security model
 - `docs/DEPLOYMENT.md` — Vercel env vars and smoke checklist
 - `IMPLEMENTATION_PLAN.md`, `PROJECT_PROGRESS.md` — phase history (tests are named by phase)
+
+---
+
+## 9. Repo map — read this instead of exploring
+
+**This section exists so no agent has to grep the tree to find its bearings.** It is the
+authoritative orientation map. Trust it, go straight to the named file, and spend your context
+on the task instead of rediscovery. If something here is wrong or stale, fix this section in the
+same change — a wrong map costs more than no map.
+
+### Token discipline for every agent on this project
+
+- **Do not survey the directory before starting.** The map below plus §3–§4 is the survey.
+- **Open files, not trees.** Prefer `sed -n 'A,Bp' <file>` over reading whole files, and a
+  targeted `grep -n` over a recursive sweep.
+- **Never read these** (huge, low value, or generated): `node_modules/**` (except a specific
+  doc page under `node_modules/next/dist/docs/`), `.next/**`, `package-lock.json`,
+  `data/n8n-workflows-raw.json`, `design/stitch-reference.html`, any `*.png`.
+- **Orchestrator:** give each worker the file paths and exported symbols it needs, taken from
+  this map. A worker that has to search for its own entry point is a prompt failure, not a
+  worker failure.
+- **Workers:** report file:line and exported signatures back, so the orchestrator can route
+  one worker's output into the next worker's input without re-deriving it.
+
+### Where things live
+
+| Need | Path |
+|------|------|
+| Public pages | `app/(public)/` → `/`, `/resume`, `/privacy`, `/work/[slug]` |
+| Admin pages | `app/admin/(protected)/` + `app/admin/login`, `app/admin/logout` |
+| Middleware | `proxy.ts` (repo root) — **not** `middleware.ts` |
+| Public reads | `lib/repositories/*.ts` |
+| Admin reads/writes | `lib/repositories/admin/*.ts` |
+| Row → domain mapping | `lib/repositories/mappers.ts` |
+| Server actions (all mutations) | `lib/admin/actions/*.ts`, `lib/auth/actions.ts`, `lib/contact/actions.ts` |
+| Zod schemas | `lib/validations/*.ts` |
+| Seed / no-Supabase fallback content | `lib/content/*.ts` |
+| Public components | `components/public/`, `components/work/` |
+| Admin components | `components/admin/` |
+| Generated DB types | `lib/supabase/database.types.ts` |
+| Migrations | `supabase/migrations/` |
+| Local scratch (gitignored, excluded from tsconfig) | `local/`, `import-canvases.tmp.ts` |
+
+### Database tables
+
+`authorized_admins` · `capabilities` · `case_studies` · `case_study_media` · `case_study_steps`
+· `case_study_tools` · `case_study_workflows` · `contact_submissions` · `experience`
+· `nav_links` · `profile` · `proof_points` · `public_templates`
+· `reliability_controls` · `site_settings` · `workflow_access_requests` · `workflow_groups`
+· `workflows`
+
+### Public repository API (`lib/repositories/`)
+
+- `case-studies.ts` — `listPublishedCaseStudies`, `getPublishedCaseStudyBySlug`,
+  `getPublishedCaseStudyCards`, `getPublishedAdjacentCaseStudies`,
+  `getPublishedCaseStudyWorkflows`
+- `site-content.ts` — types `PublicProofPoint`, `PublicNavLink`,
+  `PublicWorkflowListing`, `PublicWorkflowGroup`; fns `listPublishedProofPoints`,
+  `listPublishedNavLinks`, `listPublishedWorkflowGroups`
+- `mappers.ts` — `mapCaseStudyRowsToDomain`, `coerceWorkflowCanvas`,
+  `mapWorkflowRowToPublicListing`, type `PublicWorkflowRowFields`
+- `capabilities.ts` · `experience.ts` · `profile.ts` · `templates.ts` · `db-health.ts` — one
+  `listPublished*` / `get*` each, plus its `Public*` type
+
+### Admin repository API (`lib/repositories/admin/`)
+
+Naming is uniform: `listAdminX` / `getAdminX` / `createAdminX` / `updateAdminX` / `deleteAdminX`.
+Non-obvious extras worth knowing before you go looking:
+
+- `case-studies.ts` — also `listAdminWorkflowOptions`, `listAdminCaseStudyWorkflows`,
+  `replaceAdminCaseStudyWorkflows` (the case-study ↔ workflow join)
+- `site-content.ts` — also `getAdminWorkflowCanvas`, `updateAdminWorkflowCanvas`,
+  `getAdminWorkflowImageUrl`, `clearAdminWorkflowImage`
+- `media.ts` / `media-cleanup.ts` — storage objects, `parseStorageUrl`, `cleanUpRemovedImages`
+- `messages.ts`, `workflow-access.ts` — inbox reads plus status/delete
+
+### Server actions (`lib/admin/actions/`)
+
+Uniform `saveXAction` / `deleteXAction`. Notable: `site-content.ts` carries the whole workflow
+surface including `saveWorkflowCanvasAction`; `case-studies.ts` has
+`createCaseStudyAction` / `updateCaseStudyAction` / `setCaseStudyStatusAction` /
+`deleteCaseStudyAction`; `media.ts` has the upload/portrait/CV actions.
+
+**Every new mutation must** `revalidatePath()` both the public route and the admin route (§4).
+
+### Workflow canvas subsystem
+
+An admin pastes raw n8n JSON in the CMS; it is sanitized, parsed, stored, and rendered.
+
+- `lib/workflow-canvas/` — `types.ts`, `parse.ts`, `sanitize.ts`, `icons.ts`,
+  `prepare.ts` (**the save-path helper — always go through it**)
+- `lib/validations/workflow-canvas.ts` — `MAX_WORKFLOW_CANVAS_CHARS` (900_000, deliberately
+  under Next 16's 1 MB server-action body limit), `TOO_LARGE_MESSAGE`, `workflowCanvasSchema`
+- Public render: `components/public/workflow-card.tsx` → `workflow-canvas-thumbnail.tsx` →
+  `workflow-canvas-dialog.tsx` → `workflow-canvas.tsx` (+ `-geometry`, `-markdown`,
+  `workflow-tool-icons.tsx`)
+- Admin edit: `components/admin/workflow-manager.tsx`
+
+**Invariant — do not regress this.** `canvas_source` and `canvas_json` are readable by `anon`
+on published rows (row-scoped RLS, no column scoping). Everything written to either column must
+pass `sanitizeN8nExport` first and be gated by `findLeakedIdentifiers`; `prepareWorkflowCanvas`
+does both. A save path that stores a verbatim paste publishes client names, inboxes and webhook
+URLs. `tests/workflow-canvas-prepare.test.ts` fails if this is unwired — keep it passing.
+
+### Known traps already paid for
+
+- Moving or deleting a route leaves stale `.next/types` — `typecheck` fails with
+  `Cannot find module '../../app/.../page.js'` until `npm run build` regenerates them.
+- `vitest.config.ts` warns under Vite's future `configLoader: 'native'` (ESM in a CJS-loaded
+  file). Pre-existing, harmless; fix by renaming to `.mts` if it ever becomes an error.
+- The dev server's first request after a change takes ~10s while Turbopack compiles. Not a bug.
+- `z.string().max(n).superRefine(...)` in Zod 4 still runs the refinement after `max` fails —
+  guard length explicitly before expensive parsing.

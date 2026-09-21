@@ -63,3 +63,31 @@ export const caseStudySchema = z.object({
 });
 
 export type CaseStudyInput = z.infer<typeof caseStudySchema>;
+
+/**
+ * Upper bound on how many workflow canvases one case study may embed. The page
+ * renders a thumbnail per link, so the cap is about page weight, not schema.
+ */
+export const MAX_CASE_STUDY_WORKFLOW_LINKS = 12;
+
+/**
+ * Admin picker input: the workflow rows a case study should preview, in the
+ * order they will be displayed. Array position IS the display order — the form
+ * submits an ordered list rather than per-row order numbers, so there is no way
+ * to submit a contradictory ordering. Ids are `public.workflows.id` uuids, not
+ * slugs, because the link table is a real foreign key.
+ */
+export const caseStudyWorkflowLinksSchema = z.object({
+  workflowIds: z
+    .array(z.uuid())
+    .max(MAX_CASE_STUDY_WORKFLOW_LINKS)
+    .refine(
+      (ids) => new Set(ids).size === ids.length,
+      "The same workflow cannot be linked twice.",
+    )
+    .default([]),
+});
+
+export type CaseStudyWorkflowLinksInput = z.infer<
+  typeof caseStudyWorkflowLinksSchema
+>;

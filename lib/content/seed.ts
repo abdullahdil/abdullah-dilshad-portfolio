@@ -56,34 +56,6 @@ export const proofStripSeed = [
   },
 ] as const;
 
-export const heroWorkflowSeed = [
-  {
-    title: "Business Trigger",
-    description: "Scheduled or event-driven start",
-    icon: "Webhook" as const,
-  },
-  {
-    title: "Data Enrichment",
-    description: "Normalize and enrich records",
-    icon: "Database" as const,
-  },
-  {
-    title: "AI-Assisted Decision",
-    description: "Qualify, classify, or draft",
-    icon: "Brain" as const,
-  },
-  {
-    title: "Human Approval",
-    description: "Review before critical actions",
-    icon: "UserCheck" as const,
-  },
-  {
-    title: "Business Action",
-    description: "Notify, send, or update systems",
-    icon: "Send" as const,
-  },
-] as const;
-
 export const contactOpportunityTypes = [
   "Full-time remote role",
   "Long-term contract",
@@ -245,7 +217,6 @@ export const adminNavItems = [
   { href: "/admin/capabilities", label: "Capabilities", icon: "Puzzle" },
   { href: "/admin/templates", label: "Templates", icon: "Library" },
   { href: "/admin/proof-points", label: "Proof Strip", icon: "BadgeCheck" },
-  { href: "/admin/hero-workflow", label: "Hero Diagram", icon: "GitBranch" },
   { href: "/admin/navigation", label: "Navigation", icon: "Link2" },
   { href: "/admin/settings", label: "Settings", icon: "Settings" },
 ] as const;

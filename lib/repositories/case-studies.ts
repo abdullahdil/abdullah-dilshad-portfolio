@@ -3,9 +3,15 @@ import {
   getAdjacentCaseStudies as getAdjacentSeed,
   getCaseStudyBySlug as getSeedBySlug,
   getCaseStudyCards as getSeedCards,
+  getSeedRelatedWorkflows,
 } from "@/lib/content/case-studies";
 import type { CaseStudy } from "@/lib/content/types";
-import { mapCaseStudyRowsToDomain } from "@/lib/repositories/mappers";
+import {
+  mapCaseStudyRowsToDomain,
+  mapWorkflowRowToPublicListing,
+  type PublicWorkflowRowFields,
+} from "@/lib/repositories/mappers";
+import type { PublicWorkflowListing } from "@/lib/repositories/site-content";
 import type {
   CaseStudyMediaRow,
   CaseStudyRow,
@@ -15,6 +21,7 @@ import type {
 } from "@/lib/supabase/database.types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import type { WorkflowCanvas } from "@/lib/workflow-canvas/types";
 
 async function fetchPublishedCaseStudyFromSupabase(
   slug: string,
@@ -124,29 +131,64 @@ export async function getPublishedCaseStudyBySlug(
   return getSeedBySlug(slug) ?? null;
 }
 
+/**
+ * The canvas that stands in for a case study on a card: the first related
+ * workflow that actually has a graph. Resolved through
+ * `getPublishedCaseStudyWorkflows`, so it inherits that function's seed
+ * fallback and its "return nothing rather than throw" behaviour — a study with
+ * no links (or a database without the join table yet) simply yields `null` and
+ * the card falls back to its image, then to its preview label.
+ */
+async function primaryWorkflowCanvas(
+  slug: string,
+): Promise<WorkflowCanvas | null> {
+  try {
+    const related = await getPublishedCaseStudyWorkflows(slug);
+    const primary = related.find(
+      (workflow) => workflow.canvas && workflow.canvas.nodes.length > 0,
+    );
+    return primary?.canvas ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function withPreviewCanvas<T extends { slug: string }>(
+  cards: T[],
+): Promise<(T & { previewCanvas: WorkflowCanvas | null })[]> {
+  return Promise.all(
+    cards.map(async (card) => ({
+      ...card,
+      previewCanvas: await primaryWorkflowCanvas(card.slug),
+    })),
+  );
+}
+
 export async function getPublishedCaseStudyCards() {
   if (!isSupabaseConfigured()) {
-    return getSeedCards();
+    return withPreviewCanvas(getSeedCards());
   }
 
   try {
     const studies = await listPublishedCaseStudiesFromSupabase();
     if (studies && studies.length > 0) {
-      return studies.map((study) => ({
-        slug: study.slug,
-        title: study.title,
-        summary: study.summary,
-        tools: study.tools.map((tool) => tool.name),
-        accent: study.accent,
-        previewLabel: study.previewLabel,
-        featuredImageUrl: study.featuredImageUrl ?? null,
-      }));
+      return withPreviewCanvas(
+        studies.map((study) => ({
+          slug: study.slug,
+          title: study.title,
+          summary: study.summary,
+          tools: study.tools.map((tool) => tool.name),
+          accent: study.accent,
+          previewLabel: study.previewLabel,
+          featuredImageUrl: study.featuredImageUrl ?? null,
+        })),
+      );
     }
   } catch {
     // Fall through.
   }
 
-  return getSeedCards();
+  return withPreviewCanvas(getSeedCards());
 }
 
 export async function getPublishedAdjacentCaseStudies(slug: string) {
@@ -167,4 +209,89 @@ export async function getPublishedAdjacentCaseStudies(slug: string) {
   } catch {
     return getAdjacentSeed(slug);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Related workflows
+// ---------------------------------------------------------------------------
+
+/**
+ * The workflow columns a public read is allowed to select. Explicit rather than
+ * `*` so canvas_source — the raw n8n paste, which is admin-only editor state
+ * and may name internal systems — can never reach a public response.
+ */
+const PUBLIC_WORKFLOW_COLUMNS =
+  "slug, title, summary, image_url, image_alt, canvas_json, outcome_tags, is_active, workflow_groups (category)";
+
+type RelatedWorkflowJoinRow = {
+  display_order: number;
+  workflows:
+    | (PublicWorkflowRowFields & { workflow_groups: { category: string } | null })
+    | null;
+};
+
+async function fetchRelatedWorkflowsFromSupabase(
+  caseStudyId: string,
+): Promise<PublicWorkflowListing[] | null> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("case_study_workflows")
+    .select(`display_order, workflows (${PUBLIC_WORKFLOW_COLUMNS})`)
+    .eq("case_study_id", caseStudyId)
+    .order("display_order", { ascending: true });
+
+  if (error || !data) return null;
+
+  // RLS already hides links to unpublished workflows, but the embedded row can
+  // also come back null for an admin session, which sees everything.
+  return (data as unknown as RelatedWorkflowJoinRow[])
+    .map((link) => link.workflows)
+    .filter((row): row is NonNullable<RelatedWorkflowJoinRow["workflows"]> =>
+      row !== null,
+    )
+    .map((row) =>
+      mapWorkflowRowToPublicListing(row, row.workflow_groups?.category ?? ""),
+    );
+}
+
+/**
+ * Workflow canvases to preview on a published case study's page, in the order
+ * an admin arranged them. Falls back to the seed catalog so the page keeps
+ * rendering with no Supabase project configured, and returns an empty list
+ * whenever a case study has no links — the section is simply not shown.
+ */
+export async function getPublishedCaseStudyWorkflows(
+  slug: string,
+): Promise<PublicWorkflowListing[]> {
+  const seedFallback = () => {
+    const study = getSeedBySlug(slug);
+    return study ? getSeedRelatedWorkflows(study) : [];
+  };
+
+  if (!isSupabaseConfigured()) return seedFallback();
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    if (!supabase) return seedFallback();
+
+    const { data: study, error } = await supabase
+      .from("case_studies")
+      .select("id")
+      .eq("slug", slug)
+      .eq("status", "published")
+      .maybeSingle();
+
+    if (error || !study) return seedFallback();
+
+    const related = await fetchRelatedWorkflowsFromSupabase(
+      (study as { id: string }).id,
+    );
+    if (related) return related;
+  } catch {
+    // Fall through to seed.
+  }
+
+  return seedFallback();
 }

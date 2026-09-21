@@ -2,6 +2,7 @@ import { ArchitectureDiagram } from "@/components/work/architecture-diagram";
 import { CaseStudyCta } from "@/components/work/case-study-cta";
 import { CaseStudyHero } from "@/components/work/case-study-hero";
 import { CaseStudyNav } from "@/components/work/case-study-nav";
+import { CaseStudyWorkflows } from "@/components/work/case-study-workflows";
 import { MediaGallery } from "@/components/work/media-gallery";
 import { PipelineSteps } from "@/components/work/pipeline-steps";
 import { ProblemSection } from "@/components/work/problem-section";
@@ -9,19 +10,28 @@ import { ReliabilitySection } from "@/components/work/reliability-section";
 import { ResultSection } from "@/components/work/result-section";
 import { ToolsContribution } from "@/components/work/tools-contribution";
 import type { CaseStudy } from "@/lib/content/types";
+import type { PublicWorkflowListing } from "@/lib/repositories/site-content";
 
 type CaseStudyViewProps = {
   study: CaseStudy;
   previous: CaseStudy | null;
   next: CaseStudy | null;
+  /** Empty for a study with no linked workflows — the section then vanishes. */
+  relatedWorkflows?: PublicWorkflowListing[];
 };
 
 /**
  * Reading order is a narrative: opener and featured visual, the problem, the
- * system, how it runs, how it is kept safe, my role, media, the outcome.
+ * system, the real canvases that implement it, how it runs, how it is kept
+ * safe, my role, media, the outcome.
  * Prose sits in the narrow measure; diagrams, galleries and figures break out.
  */
-export function CaseStudyView({ study, previous, next }: CaseStudyViewProps) {
+export function CaseStudyView({
+  study,
+  previous,
+  next,
+  relatedWorkflows = [],
+}: CaseStudyViewProps) {
   return (
     <article>
       <CaseStudyHero study={study} />
@@ -32,6 +42,7 @@ export function CaseStudyView({ study, previous, next }: CaseStudyViewProps) {
         steps={study.steps}
         tools={study.tools}
       />
+      <CaseStudyWorkflows workflows={relatedWorkflows} />
       <PipelineSteps study={study} />
       <ReliabilitySection study={study} />
       <ToolsContribution study={study} />

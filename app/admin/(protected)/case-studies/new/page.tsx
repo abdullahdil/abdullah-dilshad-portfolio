@@ -1,9 +1,12 @@
 import { CaseStudyForm } from "@/components/admin/case-study-form";
 import { emptyCaseStudyInput } from "@/lib/admin/case-study-defaults";
+import { listAdminWorkflowOptions } from "@/lib/repositories/admin/case-studies";
 
 export const metadata = { title: "New Case Study" };
 
-export default function NewCaseStudyPage() {
+export default async function NewCaseStudyPage() {
+  const workflowOptions = await listAdminWorkflowOptions().catch(() => null);
+
   return (
     <div className="space-y-6">
       <div>
@@ -12,7 +15,17 @@ export default function NewCaseStudyPage() {
           Nested workflow fields use JSON. Keep content aligned with CONTENT_TRUTH.md.
         </p>
       </div>
-      <CaseStudyForm mode="create" initial={emptyCaseStudyInput} />
+      <CaseStudyForm
+        mode="create"
+        initial={emptyCaseStudyInput}
+        workflowOptions={workflowOptions ?? []}
+        workflowOptionsLoaded={workflowOptions !== null}
+        workflowOptionsError={
+          workflowOptions
+            ? null
+            : "Workflow list could not be loaded. No workflows will be linked by this save."
+        }
+      />
     </div>
   );
 }

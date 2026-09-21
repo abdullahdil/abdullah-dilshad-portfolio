@@ -20,12 +20,14 @@ import { requireAuthorizedAdmin } from "@/lib/auth/session";
 import {
   createAdminCaseStudy,
   deleteAdminCaseStudy,
+  replaceAdminCaseStudyWorkflows,
   updateAdminCaseStudy,
   updateAdminCaseStudyStatus,
 } from "@/lib/repositories/admin/case-studies";
 import {
   architectureNodeSchema,
   caseStudySchema,
+  caseStudyWorkflowLinksSchema,
   caseStudyStepSchema,
   caseStudyToolSchema,
   galleryImageSchema,
@@ -83,6 +85,23 @@ function parseCaseStudyForm(formData: FormData) {
     );
   }
 
+  // Related workflows arrive as an ordered JSON id array from the picker;
+  // array position IS display order (see caseStudyWorkflowLinksSchema).
+  const workflowLinks = parseJsonField(
+    formString(formData, "relatedWorkflowIdsJson") || "[]",
+    caseStudyWorkflowLinksSchema.shape.workflowIds,
+    "Related workflows",
+  );
+  if (!workflowLinks.ok) return workflowLinks;
+
+  // The picker sets this to "1" only when both the workflow options and the
+  // case study's current links actually loaded. When a read failed the picker
+  // renders empty, so an otherwise unrelated save would otherwise submit `[]`
+  // and wipe curated links. False here means "skip the replace entirely" —
+  // distinct from a loaded picker submitting an empty array, which is a
+  // deliberate clear and must still be written.
+  const workflowsLoaded = formBool(formData, "relatedWorkflowsLoaded");
+
   const parsed = caseStudySchema.safeParse({
     title,
     slug,
@@ -116,6 +135,8 @@ function parseCaseStudyForm(formData: FormData) {
   return {
     ok: true as const,
     data: parsed.data,
+    workflowIds: workflowLinks.data,
+    workflowsLoaded,
     displayOrder: formInt(formData, "displayOrder", 0),
     isFeatured: formBool(formData, "isFeatured"),
   };
@@ -142,10 +163,31 @@ export async function createCaseStudyAction(
     };
   }
 
+  // The row has to exist before the join table can reference it, so the links
+  // are written after the insert. If that second write fails the case study is
+  // already created — never silently swallow it, and never send the admin back
+  // to a create form they would resubmit into a duplicate. Redirect to the new
+  // record's editor and surface the failure there instead.
+  let linkFailed = false;
+  if (parsed.workflowsLoaded) {
+    try {
+      await replaceAdminCaseStudyWorkflows(id, parsed.workflowIds);
+    } catch {
+      linkFailed = true;
+    }
+  }
+
   revalidatePath("/");
-  revalidatePath("/work");
+  revalidatePath(`/work/${parsed.data.slug}`);
+  revalidatePath("/work/[slug]", "page");
   revalidatePath("/admin/case-studies");
-  redirect(`/admin/case-studies/${id}/edit?saved=1`);
+  revalidatePath(`/admin/case-studies/${id}/edit`);
+  const createdQuery = linkFailed
+    ? "?saved=1&linkError=1"
+    : parsed.workflowsLoaded
+      ? "?saved=1"
+      : "?saved=1&linksSkipped=1";
+  redirect(`/admin/case-studies/${id}/edit${createdQuery}`);
 }
 
 export async function updateCaseStudyAction(
@@ -173,6 +215,10 @@ export async function updateCaseStudyAction(
       isFeatured: parsed.isFeatured,
     });
 
+    if (parsed.workflowsLoaded) {
+      await replaceAdminCaseStudyWorkflows(id, parsed.workflowIds);
+    }
+
     const imagesAfter = await listCaseStudyImageUrls(id).catch(() => imagesBefore);
     await cleanUpRemovedImages(imagesBefore, imagesAfter);
 
@@ -181,7 +227,13 @@ export async function updateCaseStudyAction(
     revalidatePath("/work/[slug]", "page");
     revalidatePath("/admin/case-studies");
     revalidatePath(`/admin/case-studies/${id}/edit`);
-    return { ok: true, message: "Case study saved.", id };
+    return {
+      ok: true,
+      message: parsed.workflowsLoaded
+        ? "Case study saved."
+        : "Case study saved. Related workflow links were left unchanged because they could not be loaded.",
+      id,
+    };
   } catch (error) {
     return {
       ok: false,

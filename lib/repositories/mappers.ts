@@ -1,11 +1,16 @@
 import type { CaseStudy, CaseStudyGalleryItem } from "@/lib/content/types";
+import type { PublicWorkflowListing } from "@/lib/repositories/site-content";
 import type {
   CaseStudyMediaRow,
   CaseStudyRow,
   CaseStudyStepRow,
   CaseStudyToolRow,
+  Json,
   ReliabilityControlRow,
+  WorkflowRow,
 } from "@/lib/supabase/database.types";
+import { workflowCanvasSchema } from "@/lib/validations/workflow-canvas";
+import type { WorkflowCanvas } from "@/lib/workflow-canvas/types";
 
 function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -99,5 +104,56 @@ export function mapCaseStudyRowsToDomain(input: {
           ? ["Screenshot placeholder", "Workflow detail placeholder", "Outcome placeholder"]
           : [],
     demoVideoLabel: study.demo_video_url ? "Watch demo" : "Demo video coming soon",
+  };
+}
+
+/**
+ * The stored jsonb is only as trustworthy as the version of the parser that
+ * wrote it, so it is re-validated on every read. A legacy, hand-edited or
+ * malformed payload degrades to no canvas instead of crashing the page.
+ */
+export function coerceWorkflowCanvas(value: Json | null): WorkflowCanvas | null {
+  if (value === null || value === undefined) return null;
+  const parsed = workflowCanvasSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
+/**
+ * The workflow columns a public read may select. Narrower than `WorkflowRow` on
+ * purpose: canvas_source (the raw n8n paste, admin-only editor state) is not in
+ * it, so a public mapper cannot pass it through even by accident.
+ */
+export type PublicWorkflowRowFields = Pick<
+  WorkflowRow,
+  | "slug"
+  | "title"
+  | "summary"
+  | "image_url"
+  | "image_alt"
+  | "canvas_json"
+  | "outcome_tags"
+  | "is_active"
+>;
+
+/**
+ * Workflow row -> the shape the public catalog components render.
+ * `id` carries the slug, not the uuid: it is the identifier the public site
+ * addresses a workflow by (access requests, anchors), and the uuid is never
+ * exposed. `category` is passed in because it lives on the parent group row.
+ */
+export function mapWorkflowRowToPublicListing(
+  row: PublicWorkflowRowFields,
+  category: string,
+): PublicWorkflowListing {
+  return {
+    id: row.slug,
+    title: row.title,
+    summary: row.summary,
+    category,
+    imageUrl: row.image_url,
+    imageAlt: row.image_alt || row.title,
+    canvas: coerceWorkflowCanvas(row.canvas_json),
+    outcomeTags: row.outcome_tags ?? [],
+    active: row.is_active,
   };
 }

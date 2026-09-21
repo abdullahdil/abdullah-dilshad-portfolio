@@ -77,6 +77,26 @@ export type CaseStudyMediaRow = {
   created_at: string;
 };
 
+export type CaseStudyWorkflowRow = {
+  id: string;
+  case_study_id: string;
+  workflow_id: string;
+  display_order: number;
+  created_at: string;
+};
+
+/** Insert shape for a link row; the database fills id and created_at. */
+export type CaseStudyWorkflowInsert = {
+  case_study_id: string;
+  workflow_id: string;
+  display_order: number;
+};
+
+/** Only display_order is ever re-written in place; the pair identifies the row. */
+export type CaseStudyWorkflowUpdate = {
+  display_order?: number;
+};
+
 export type ProfileRow = {
   id: string;
   full_name: string;
@@ -163,17 +183,6 @@ export type ProofPointRow = {
   updated_at: string;
 };
 
-export type HeroWorkflowStepRow = {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  display_order: number;
-  is_published: boolean;
-  created_at: string;
-  updated_at: string;
-};
-
 export type NavLinkRow = {
   id: string;
   href: string;
@@ -202,6 +211,10 @@ export type WorkflowRow = {
   summary: string;
   image_url: string | null;
   image_alt: string;
+  /** Parsed, render-ready `WorkflowCanvas`; null when no canvas was pasted. */
+  canvas_json: Json | null;
+  /** The original n8n JSON paste, kept verbatim so the editor can re-open it. */
+  canvas_source: string | null;
   outcome_tags: string[];
   is_active: boolean;
   display_order: number;

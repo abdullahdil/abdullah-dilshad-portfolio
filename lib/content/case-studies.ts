@@ -1,4 +1,6 @@
 import type { CaseStudy } from "@/lib/content/types";
+import { workflowGroups } from "@/lib/content/workflows";
+import type { PublicWorkflowListing } from "@/lib/repositories/site-content";
 
 /**
  * Verified case-study narratives only.
@@ -518,4 +520,38 @@ export function getCaseStudyCards() {
     previewLabel: study.previewLabel,
     featuredImageUrl: study.featuredImageUrl ?? null,
   }));
+}
+
+/**
+ * Resolves a case study's `relatedWorkflowIds` against the seed workflow
+ * catalog, preserving the authored order and dropping ids that no longer
+ * exist. This is the no-Supabase fallback for the related-workflows section:
+ * the public repository uses it whenever the database is unavailable.
+ */
+export function getSeedRelatedWorkflows(
+  study: Pick<CaseStudy, "relatedWorkflowIds">,
+): PublicWorkflowListing[] {
+  const ids = study.relatedWorkflowIds ?? [];
+  if (ids.length === 0) return [];
+
+  const byId = new Map<string, PublicWorkflowListing>();
+  for (const group of workflowGroups) {
+    for (const item of group.items) {
+      byId.set(item.id, {
+        id: item.id,
+        title: item.title,
+        summary: item.summary,
+        category: item.category,
+        imageUrl: null,
+        imageAlt: "",
+        canvas: item.canvas ?? null,
+        outcomeTags: [...(item.outcomeTags ?? [])],
+        active: item.active ?? true,
+      });
+    }
+  }
+
+  return ids
+    .map((id) => byId.get(id))
+    .filter((item): item is PublicWorkflowListing => item !== undefined);
 }

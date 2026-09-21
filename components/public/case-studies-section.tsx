@@ -5,7 +5,9 @@ import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ToolChip } from "@/components/ui/tool-chip";
+import { WorkflowCanvasThumbnail } from "@/components/public/workflow-canvas-thumbnail";
 import { getPublishedCaseStudyCards } from "@/lib/repositories/case-studies";
+import { cn } from "@/lib/utils";
 
 const MAX_VISIBLE_TOOLS = 4;
 
@@ -77,8 +79,31 @@ export async function CaseStudiesSection() {
                     </div>
 
                     <div className="md:col-span-4">
-                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-outline-variant bg-surface-high">
-                        {study.featuredImageUrl ? (
+                      {/* Preview, in falling order of truth: the primary related
+                          workflow's real canvas, then a featured image, then the
+                          label placeholder. The canvas well uses `surface-lowest`
+                          — the same ground the thumbnail paints on and the same
+                          ground the workflow catalog cards use — so a case-study
+                          preview and a catalog preview read as one surface in
+                          both themes. */}
+                      <div
+                        className={cn(
+                          "relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-outline-variant",
+                          study.previewCanvas
+                            ? "bg-surface-lowest"
+                            : "bg-surface-high",
+                        )}
+                      >
+                        {study.previewCanvas ? (
+                          <>
+                            <WorkflowCanvasThumbnail
+                              canvas={study.previewCanvas}
+                            />
+                            <span className="font-label absolute bottom-2 right-2 rounded-md border border-outline-variant bg-surface-container/85 px-2 py-1 text-on-surface-variant backdrop-blur-sm">
+                              Workflow canvas
+                            </span>
+                          </>
+                        ) : study.featuredImageUrl ? (
                           <Image
                             src={study.featuredImageUrl}
                             alt={study.title}

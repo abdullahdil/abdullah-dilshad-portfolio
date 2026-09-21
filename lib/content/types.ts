@@ -51,6 +51,13 @@ export type CaseStudy = {
   resultMetrics?: CaseStudyMetric[];
   featuredImageUrl?: string | null;
   demoVideoUrl?: string | null;
+  /**
+   * Ids of workflow listings (`WorkflowListing.id`, the same value as the
+   * database `workflows.slug`) whose canvases illustrate this case study.
+   * Optional so every existing seed entry stays valid unchanged and the
+   * no-Supabase path renders with the section simply absent.
+   */
+  relatedWorkflowIds?: string[];
   galleryImages: CaseStudyGalleryItem[];
   galleryPlaceholders: string[];
   demoVideoLabel: string;

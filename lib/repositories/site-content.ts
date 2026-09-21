@@ -1,7 +1,7 @@
-import { heroWorkflowSeed, navLinks, proofStripSeed } from "@/lib/content/seed";
+import { navLinks, proofStripSeed } from "@/lib/content/seed";
 import { workflowGroups as workflowGroupsSeed } from "@/lib/content/workflows";
+import { mapWorkflowRowToPublicListing } from "@/lib/repositories/mappers";
 import type {
-  HeroWorkflowStepRow,
   NavLinkRow,
   ProofPointRow,
   WorkflowGroupRow,
@@ -9,18 +9,12 @@ import type {
 } from "@/lib/supabase/database.types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { heroWorkflowIcons } from "@/lib/validations/site-content";
+import type { WorkflowCanvas } from "@/lib/workflow-canvas/types";
 
 export type PublicProofPoint = {
   value: string;
   label: string;
   featured: boolean;
-};
-
-export type PublicHeroWorkflowStep = {
-  title: string;
-  description: string;
-  icon: (typeof heroWorkflowIcons)[number];
 };
 
 export type PublicNavLink = {
@@ -35,6 +29,8 @@ export type PublicWorkflowListing = {
   category: string;
   imageUrl: string | null;
   imageAlt: string;
+  /** Parsed n8n canvas, or null when none is stored / the stored one is stale. */
+  canvas: WorkflowCanvas | null;
   outcomeTags: string[];
   active: boolean;
 };
@@ -79,52 +75,6 @@ export async function listPublishedProofPoints(): Promise<PublicProofPoint[]> {
     }));
   } catch {
     return seedProofPoints();
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Hero workflow steps
-// ---------------------------------------------------------------------------
-
-function seedHeroWorkflowSteps(): PublicHeroWorkflowStep[] {
-  return heroWorkflowSeed.map((step) => ({
-    title: step.title,
-    description: step.description,
-    icon: step.icon,
-  }));
-}
-
-/** Unknown icon names fall back to a safe default rather than crashing render. */
-function coerceIcon(icon: string): PublicHeroWorkflowStep["icon"] {
-  return (heroWorkflowIcons as readonly string[]).includes(icon)
-    ? (icon as PublicHeroWorkflowStep["icon"])
-    : "Workflow";
-}
-
-export async function listPublishedHeroWorkflowSteps(): Promise<
-  PublicHeroWorkflowStep[]
-> {
-  if (!isSupabaseConfigured()) return seedHeroWorkflowSteps();
-
-  try {
-    const supabase = await createServerSupabaseClient();
-    if (!supabase) return seedHeroWorkflowSteps();
-
-    const { data, error } = await supabase
-      .from("hero_workflow_steps")
-      .select("*")
-      .eq("is_published", true)
-      .order("display_order", { ascending: true });
-
-    if (error || !data || data.length === 0) return seedHeroWorkflowSteps();
-
-    return (data as HeroWorkflowStepRow[]).map((row) => ({
-      title: row.title,
-      description: row.description,
-      icon: coerceIcon(row.icon),
-    }));
-  } catch {
-    return seedHeroWorkflowSteps();
   }
 }
 
@@ -175,6 +125,7 @@ function seedWorkflowGroups(): PublicWorkflowGroup[] {
       category: item.category,
       imageUrl: null,
       imageAlt: "",
+      canvas: item.canvas ?? null,
       outcomeTags: [...(item.outcomeTags ?? [])],
       active: item.active ?? true,
     })),
@@ -218,16 +169,7 @@ export async function listPublishedWorkflowGroups(): Promise<
       const bucket = byGroup.get(row.group_id);
       if (!bucket) continue;
       const group = groups.find((candidate) => candidate.id === row.group_id);
-      bucket.push({
-        id: row.slug,
-        title: row.title,
-        summary: row.summary,
-        category: group?.category ?? "",
-        imageUrl: row.image_url,
-        imageAlt: row.image_alt || row.title,
-        outcomeTags: row.outcome_tags ?? [],
-        active: row.is_active,
-      });
+      bucket.push(mapWorkflowRowToPublicListing(row, group?.category ?? ""));
     }
 
     const mapped = groups

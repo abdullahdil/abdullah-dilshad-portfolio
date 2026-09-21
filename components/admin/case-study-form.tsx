@@ -7,10 +7,12 @@ import {
 } from "@/lib/admin/actions/case-studies";
 import { arrayToLines } from "@/lib/admin/form-utils";
 import type { ActionResult } from "@/lib/admin/types";
+import type { AdminWorkflowOption } from "@/lib/repositories/admin/case-studies";
 import type { CaseStudyInput } from "@/lib/validations/case-study";
 import { FormResult } from "@/components/admin/form-result";
 import { GalleryMediaEditor } from "@/components/admin/gallery-media-editor";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
+import { RelatedWorkflowsPicker } from "@/components/admin/related-workflows-picker";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/form-controls";
 
@@ -21,9 +23,25 @@ type CaseStudyFormProps = {
     displayOrder?: number;
     isFeatured?: boolean;
   };
+  /** Every linkable workflow, already grouped-ordered by the admin repository. */
+  workflowOptions?: AdminWorkflowOption[];
+  /** Currently linked workflow ids, in display order. */
+  initialWorkflowIds?: string[];
+  /** Populated when the workflow options could not be read. */
+  workflowOptionsError?: string | null;
+  /** False when the picker's data could not be read; the action then skips the write. */
+  workflowOptionsLoaded?: boolean;
 };
 
-export function CaseStudyForm({ mode, id, initial }: CaseStudyFormProps) {
+export function CaseStudyForm({
+  mode,
+  id,
+  initial,
+  workflowOptions = [],
+  initialWorkflowIds = [],
+  workflowOptionsError = null,
+  workflowOptionsLoaded = true,
+}: CaseStudyFormProps) {
   const action = mode === "create" ? createCaseStudyAction : updateCaseStudyAction;
   const [state, formAction, pending] = useActionState<ActionResult | null, FormData>(
     action,
@@ -191,6 +209,15 @@ export function CaseStudyForm({ mode, id, initial }: CaseStudyFormProps) {
                   alt: caption,
                 }))
           }
+        />
+      </section>
+
+      <section className="space-y-4">
+        <RelatedWorkflowsPicker
+          options={workflowOptions}
+          initialSelectedIds={initialWorkflowIds}
+          loadError={workflowOptionsError}
+          loaded={workflowOptionsLoaded}
         />
       </section>
 
