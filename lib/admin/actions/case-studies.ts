@@ -26,6 +26,7 @@ import {
 } from "@/lib/repositories/admin/case-studies";
 import {
   architectureNodeSchema,
+  caseStudyNarrativeSchema,
   caseStudySchema,
   caseStudyWorkflowLinksSchema,
   caseStudyStepSchema,
@@ -69,6 +70,15 @@ function parseCaseStudyForm(formData: FormData) {
   );
   if (!controls.ok) return controls;
 
+  // The story. Optional: an empty textarea means "no narrative yet" and the
+  // page falls back to its existing prose fields, so an empty box must not be
+  // a validation error.
+  const narrativeRaw = formString(formData, "narrativeJson").trim();
+  const narrative = narrativeRaw
+    ? parseJsonField(narrativeRaw, caseStudyNarrativeSchema, "Narrative")
+    : ({ ok: true as const, data: [] as z.infer<typeof caseStudyNarrativeSchema> });
+  if (!narrative.ok) return narrative;
+
   const galleryRaw = formString(formData, "galleryImagesJson");
   let galleryImages: z.infer<typeof galleryImageSchema>[] = [];
   if (galleryRaw.trim()) {
@@ -106,6 +116,7 @@ function parseCaseStudyForm(formData: FormData) {
     title,
     slug,
     summary: formString(formData, "summary"),
+    narrative: narrative.data,
     businessProblem: formString(formData, "businessProblem"),
     beforeState: formString(formData, "beforeState"),
     beforeIssues: linesToArray(formString(formData, "beforeIssues")),

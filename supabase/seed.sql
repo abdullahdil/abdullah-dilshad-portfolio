@@ -15,7 +15,8 @@ truncate table public.site_settings cascade;
 
 insert into public.profile (
   full_name, professional_title, hero_headline, hero_description, short_bio, long_bio,
-  location, availability_status, availability_label, email, linkedin_url, github_url,
+  location, availability_status, availability_label, email, linkedin_url,
+  instagram_url, x_url, github_url,
   n8n_profile_url, credential_url, cv_url, portrait_url
 ) values (
   'Abdullah Dilshad',
@@ -33,6 +34,8 @@ insert into public.profile (
   'Available for Remote Work',
   'abdullahdilshad111@gmail.com',
   'https://www.linkedin.com/in/abdullah-dilshad',
+  'https://www.instagram.com/abdullahdilshaad',
+  'https://x.com/Abdullahdilsha7',
   null,
   'https://n8n.io/creators/abdullahmil/',
   'https://community.n8n.io/badges/105/completed-n8n-course-level-2?username=abdullahmil',

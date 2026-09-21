@@ -21,6 +21,8 @@ Stitch is **not** a factual content source.
 | Location | Islamabad, Pakistan |
 | Email | abdullahdilshad111@gmail.com |
 | LinkedIn | https://www.linkedin.com/in/abdullah-dilshad |
+| X (Twitter) | https://x.com/Abdullahdilsha7 |
+| Instagram | https://www.instagram.com/abdullahdilshaad |
 | n8n Creator | https://n8n.io/creators/abdullahmil/ |
 | n8n Level 2 | https://community.n8n.io/badges/105/completed-n8n-course-level-2?username=abdullahmil |
 | Education | BS Computer Science, FAST-NUCES, graduated September 2025 |
@@ -151,7 +153,7 @@ Wording below owner-verified 2026-09-11; derived from already-verified facts and
 capabilities, with no new factual claims.
 
 - Headline: I build AI automation systems that replace manual work.
-- Description: I build and run production automation that connects AI models, APIs, and business systems across lead generation, internal operations, inbox management, customer support, reporting, and content operations. Every workflow is engineered to keep running: validation before anything moves, error handling with bounded retries and fallbacks, duplicate prevention, and human approval before anything irreversible.
+- Description: I build and run production automation that connects AI models, APIs, and business systems across lead generation, internal operations, inbox management, customer support, reporting, and content operations. Every workflow is engineered to keep running: validation before anything moves, guard conditions and coded fallback paths when a step fails, duplicate prevention, and human approval before anything irreversible.
 - Short bio: AI Automation Engineer based in Islamabad, building production automation systems that connect AI models, APIs, and business tools — engineered for reliability and traceability, with human approval on the steps that matter.
 - CTAs: View Case Studies | Download CV
 - Metadata: Islamabad, Pakistan | Remote availability

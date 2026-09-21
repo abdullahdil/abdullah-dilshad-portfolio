@@ -25,7 +25,7 @@ export const caseStudies: CaseStudy[] = [
       "Reply handling and CRM updates relied on ad hoc follow-up instead of a consistent process.",
     ],
     architectureDescription:
-      "Prospects move through discovery, enrichment, normalization, AI-assisted qualification, personalization, optional human review, Gmail outreach, reply detection, and a write-back to CRM or Google Sheets. Each stage is a separate step with its own validation and bounded retries, orchestrated in n8n.",
+      "Prospects move through discovery, enrichment, normalization, AI-assisted qualification, personalization, optional human review, Gmail outreach, reply detection, and a write-back to CRM or Google Sheets. Each stage is a separate step with its own validation and guard conditions, orchestrated in n8n.",
     architectureNodes: [
       { label: "Trigger", detail: "Scheduled or manual start" },
       { label: "Apify", detail: "Prospect discovery" },

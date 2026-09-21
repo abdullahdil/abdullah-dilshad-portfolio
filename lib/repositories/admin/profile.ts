@@ -39,6 +39,8 @@ export async function upsertAdminProfile(input: ProfileInput): Promise<void> {
     availability_label: input.availabilityLabel,
     email: input.email,
     linkedin_url: input.linkedinUrl || null,
+    instagram_url: input.instagramUrl || null,
+    x_url: input.xUrl || null,
     github_url: input.githubUrl || null,
     n8n_profile_url: input.n8nProfileUrl || null,
     credential_url: input.credentialUrl || null,

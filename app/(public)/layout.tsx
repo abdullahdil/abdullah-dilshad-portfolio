@@ -20,6 +20,9 @@ export default async function PublicLayout({
         fullName={profile.fullName}
         availabilityLabel={profile.availabilityLabel}
         cvUrl={profile.cvUrl ?? "/resume"}
+        linkedinUrl={profile.linkedinUrl}
+        instagramUrl={profile.instagramUrl}
+        xUrl={profile.xUrl}
       />
       <div className="flex-1">{children}</div>
       <SiteFooter />

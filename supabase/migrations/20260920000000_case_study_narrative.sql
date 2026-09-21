@@ -1,0 +1,46 @@
+-- ---------------------------------------------------------------------------
+-- Lets a case study carry its story as long-form prose.
+--
+-- The case-study page used to be assembled out of list fields (before issues,
+-- pipeline steps, tools, reliability controls). That reads as a spec sheet,
+-- not as the story of what was built, how it was built and what it saved, so
+-- the page is now narrative-led and this column holds that narrative.
+--
+-- Shape (see CaseStudyNarrativeSection in lib/content/types.ts, validated on
+-- write by caseStudyNarrativeSchema in lib/validations/case-study.ts and
+-- re-validated on read by asNarrative() in lib/repositories/mappers.ts):
+--
+--   [
+--     {
+--       "id": "optional-anchor",
+--       "heading": "Optional sub-heading",
+--       "body": ["Paragraph one.", "Paragraph two."],
+--       "showWorkflowsAfter": true
+--     }
+--   ]
+--
+-- `body` is paragraphs of prose — deliberately never bullets.
+-- `showWorkflowsAfter` lets the story place the real n8n canvases mid-read.
+--
+-- Nullable with no backfill: when narrative is null the page falls back to the
+-- prose the row already has (business_problem, before_state,
+-- architecture_description, result), so existing rows need no migration and
+-- nothing renders as an empty void. The old list columns and child tables are
+-- intentionally left in place — the content still exists and may be rendered
+-- again later; it is simply no longer part of the reading order.
+--
+-- No new RLS policy is required. The column lives on public.case_studies,
+-- whose policies from 20260803000000_init.sql (lines 308-330) are row-scoped,
+-- not column-scoped:
+--   * "Public can read published case studies" grants select to
+--     anon/authenticated using (status = 'published' or
+--     public.is_authorized_admin()) — the narrative is therefore public
+--     exactly when the rest of that case-study row already is, which is the
+--     intent: it is the page's main body copy.
+--   * "Admins can insert/update/delete case studies" each require
+--     public.is_authorized_admin() — so writes stay admin-only.
+-- Adding a column to the table inherits both automatically.
+-- ---------------------------------------------------------------------------
+
+alter table public.case_studies
+  add column if not exists narrative jsonb;

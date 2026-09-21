@@ -1,14 +1,11 @@
-import { ArchitectureDiagram } from "@/components/work/architecture-diagram";
 import { CaseStudyCta } from "@/components/work/case-study-cta";
 import { CaseStudyHero } from "@/components/work/case-study-hero";
+import {
+  CaseStudyNarrative,
+  resolveCaseStudyNarrative,
+} from "@/components/work/case-study-narrative";
 import { CaseStudyNav } from "@/components/work/case-study-nav";
 import { CaseStudyWorkflows } from "@/components/work/case-study-workflows";
-import { MediaGallery } from "@/components/work/media-gallery";
-import { PipelineSteps } from "@/components/work/pipeline-steps";
-import { ProblemSection } from "@/components/work/problem-section";
-import { ReliabilitySection } from "@/components/work/reliability-section";
-import { ResultSection } from "@/components/work/result-section";
-import { ToolsContribution } from "@/components/work/tools-contribution";
 import type { CaseStudy } from "@/lib/content/types";
 import type { PublicWorkflowListing } from "@/lib/repositories/site-content";
 
@@ -21,10 +18,20 @@ type CaseStudyViewProps = {
 };
 
 /**
- * Reading order is a narrative: opener and featured visual, the problem, the
- * system, the real canvases that implement it, how it runs, how it is kept
- * safe, my role, media, the outcome.
- * Prose sits in the narrow measure; diagrams, galleries and figures break out.
+ * A case study is a story, not a spec sheet: the opener and its cover, then
+ * the prose — what the business was dealing with, what was built, how it was
+ * built and what it gave back — with the real n8n canvases dropped in at the
+ * moment the story describes the system, then the next study and the CTA.
+ *
+ * Where the canvases land is the narrative's own call: the first section that
+ * sets `showWorkflowsAfter` splits the prose and the canvases sit in the seam,
+ * so the reader sees the build while it is being described rather than as an
+ * appendix. With no such marker the canvases simply follow the whole story.
+ *
+ * The earlier list sections (problem/before, architecture diagram, pipeline
+ * steps, reliability controls, tools and contribution, media gallery, result
+ * metrics) are no longer in the reading order. Their data is untouched on the
+ * record and in the CMS — only the rendering is gone.
  */
 export function CaseStudyView({
   study,
@@ -32,22 +39,19 @@ export function CaseStudyView({
   next,
   relatedWorkflows = [],
 }: CaseStudyViewProps) {
+  const narrative = resolveCaseStudyNarrative(study);
+  const splitIndex = narrative.findIndex((section) => section.showWorkflowsAfter);
+  const hasSplit = splitIndex !== -1;
+
+  const opening = hasSplit ? narrative.slice(0, splitIndex + 1) : narrative;
+  const continuation = hasSplit ? narrative.slice(splitIndex + 1) : [];
+
   return (
     <article>
       <CaseStudyHero study={study} />
-      <ProblemSection study={study} />
-      <ArchitectureDiagram
-        nodes={study.architectureNodes}
-        description={study.architectureDescription}
-        steps={study.steps}
-        tools={study.tools}
-      />
+      <CaseStudyNarrative sections={opening} />
       <CaseStudyWorkflows workflows={relatedWorkflows} />
-      <PipelineSteps study={study} />
-      <ReliabilitySection study={study} />
-      <ToolsContribution study={study} />
-      <MediaGallery study={study} />
-      <ResultSection study={study} />
+      <CaseStudyNarrative sections={continuation} lead={false} />
       <CaseStudyNav previous={previous} next={next} />
       <CaseStudyCta />
     </article>

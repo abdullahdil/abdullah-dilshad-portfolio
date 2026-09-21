@@ -9,6 +9,7 @@ import type {
   ReliabilityControlRow,
   WorkflowRow,
 } from "@/lib/supabase/database.types";
+import { caseStudyNarrativeSchema } from "@/lib/validations/case-study";
 import { workflowCanvasSchema } from "@/lib/validations/workflow-canvas";
 import type { WorkflowCanvas } from "@/lib/workflow-canvas/types";
 
@@ -29,6 +30,19 @@ function asArchitectureNodes(value: unknown): CaseStudy["architectureNodes"] {
       return { label: node.label, detail: node.detail };
     })
     .filter((item): item is CaseStudy["architectureNodes"][number] => item !== null);
+}
+
+/**
+ * The stored jsonb is only as trustworthy as whatever wrote it, so it is
+ * re-validated on every read. A legacy, hand-edited or malformed payload
+ * degrades to no narrative — the page then falls back to its existing prose
+ * fields — instead of crashing the route.
+ */
+function asNarrative(value: unknown): CaseStudy["narrative"] {
+  if (value === null || value === undefined) return undefined;
+  const parsed = caseStudyNarrativeSchema.safeParse(value);
+  if (!parsed.success || parsed.data.length === 0) return undefined;
+  return parsed.data;
 }
 
 function mediaUrl(item: CaseStudyMediaRow): string | undefined {
@@ -68,6 +82,7 @@ export function mapCaseStudyRowsToDomain(input: {
     summary: study.summary,
     accent: study.accent,
     previewLabel: study.preview_label,
+    narrative: asNarrative(study.narrative),
     businessProblem: study.business_problem,
     beforeState: study.before_state,
     beforeIssues: asStringArray(study.before_issues),

@@ -29,6 +29,8 @@ export async function updateProfileAction(
     availabilityLabel: formString(formData, "availabilityLabel"),
     email: formString(formData, "email"),
     linkedinUrl: formString(formData, "linkedinUrl"),
+    instagramUrl: formString(formData, "instagramUrl"),
+    xUrl: formString(formData, "xUrl"),
     githubUrl: formString(formData, "githubUrl"),
     n8nProfileUrl: formString(formData, "n8nProfileUrl"),
     credentialUrl: formString(formData, "credentialUrl"),

@@ -19,6 +19,8 @@ export const profileSchema = z.object({
   availabilityLabel: z.string().trim().min(1).max(80),
   email: emailSchema,
   linkedinUrl: urlSchema,
+  instagramUrl: urlSchema,
+  xUrl: urlSchema,
   githubUrl: urlSchema,
   n8nProfileUrl: urlSchema,
   credentialUrl: urlSchema,

@@ -66,6 +66,7 @@ export default async function EditCaseStudyPage({
           title: study.title,
           slug: study.slug,
           summary: study.summary,
+          narrative: study.narrative ?? [],
           businessProblem: study.businessProblem,
           beforeState: study.beforeState,
           beforeIssues: study.beforeIssues,

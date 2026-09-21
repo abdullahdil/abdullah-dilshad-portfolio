@@ -24,6 +24,8 @@ export type CaseStudyRow = {
   before_issues: Json;
   architecture_description: string;
   architecture_nodes: Json;
+  /** CaseStudyNarrativeSection[] — see 20260920000000_case_study_narrative.sql. */
+  narrative: Json | null;
   contribution: Json;
   result: string;
   accent: AccentTone;
@@ -110,6 +112,10 @@ export type ProfileRow = {
   availability_label: string;
   email: string;
   linkedin_url: string | null;
+  // Optional because 20260921000000_profile_social_links.sql may not have been
+  // applied yet: select("*") then returns a row with these keys absent.
+  instagram_url?: string | null;
+  x_url?: string | null;
   github_url: string | null;
   n8n_profile_url: string | null;
   credential_url: string | null;

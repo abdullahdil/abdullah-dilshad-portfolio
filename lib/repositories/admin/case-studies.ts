@@ -192,6 +192,9 @@ function toCaseStudyRow(
     before_issues: input.beforeIssues,
     architecture_description: input.architectureDescription,
     architecture_nodes: input.architectureNodes,
+    // Null rather than [] when empty, so "no narrative yet" is one value the
+    // read path can test, and the page's prose fallback engages.
+    narrative: input.narrative.length > 0 ? input.narrative : null,
     contribution: input.contribution,
     result: input.result,
     accent: input.accent,

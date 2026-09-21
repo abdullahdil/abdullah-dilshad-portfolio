@@ -69,6 +69,8 @@ async function main() {
       availability_label: profileSeed.availabilityLabel,
       email: profileSeed.email,
       linkedin_url: profileSeed.linkedinUrl,
+      instagram_url: profileSeed.instagramUrl,
+      x_url: profileSeed.xUrl,
       github_url: profileSeed.githubUrl,
       n8n_profile_url: profileSeed.n8nProfileUrl,
       credential_url: profileSeed.credentialUrl,

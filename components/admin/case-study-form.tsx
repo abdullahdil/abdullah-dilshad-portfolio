@@ -16,6 +16,20 @@ import { RelatedWorkflowsPicker } from "@/components/admin/related-workflows-pic
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/form-controls";
 
+/** Shape hint only — no copy, so nothing here can be saved by accident. */
+const NARRATIVE_PLACEHOLDER = `[
+  {
+    "id": "the-problem",
+    "heading": "…",
+    "body": ["…", "…"]
+  },
+  {
+    "heading": "…",
+    "body": ["…"],
+    "showWorkflowsAfter": true
+  }
+]`;
+
 type CaseStudyFormProps = {
   mode: "create" | "edit";
   id?: string;
@@ -225,6 +239,35 @@ export function CaseStudyForm({
         <p className="font-label text-xs uppercase tracking-widest text-on-surface-variant">
           Nested JSON fields
         </p>
+        <div className="space-y-1.5">
+          <Label htmlFor="narrativeJson">
+            Narrative JSON — the story rendered on the public page
+          </Label>
+          <Textarea
+            id="narrativeJson"
+            name="narrativeJson"
+            rows={14}
+            className="font-mono text-xs"
+            defaultValue={
+              initial.narrative.length > 0
+                ? JSON.stringify(initial.narrative, null, 2)
+                : ""
+            }
+            placeholder={NARRATIVE_PLACEHOLDER}
+          />
+          <p className="text-xs text-on-surface-variant">
+            An ordered list of{" "}
+            <code className="font-mono">
+              {"{ id?, heading?, body: string[], showWorkflowsAfter? }"}
+            </code>
+            . <span className="font-mono">body</span> is paragraphs of prose —
+            not bullets. Set{" "}
+            <span className="font-mono">showWorkflowsAfter</span> on one section
+            to place the workflow canvases directly after it. Leave the box
+            empty and the page falls back to the Business problem, Before state,
+            Architecture description and Result fields above.
+          </p>
+        </div>
         <div className="space-y-1.5">
           <Label htmlFor="architectureNodesJson">Architecture nodes JSON</Label>
           <Textarea

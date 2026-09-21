@@ -111,6 +111,18 @@ export function ProfileForm({ profile }: { profile: ProfileRow | null }) {
           <Input id="linkedinUrl" name="linkedinUrl" defaultValue={profile?.linkedin_url ?? ""} />
         </div>
         <div className="space-y-1.5">
+          <Label htmlFor="instagramUrl">Instagram URL</Label>
+          <Input
+            id="instagramUrl"
+            name="instagramUrl"
+            defaultValue={profile?.instagram_url ?? ""}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="xUrl">X (Twitter) URL</Label>
+          <Input id="xUrl" name="xUrl" defaultValue={profile?.x_url ?? ""} />
+        </div>
+        <div className="space-y-1.5">
           <Label htmlFor="githubUrl">GitHub URL</Label>
           <Input id="githubUrl" name="githubUrl" defaultValue={profile?.github_url ?? ""} />
         </div>
