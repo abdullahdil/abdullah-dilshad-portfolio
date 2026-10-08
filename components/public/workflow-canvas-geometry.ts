@@ -260,3 +260,192 @@ export function roundedRectPath(
     "Z",
   ].join(" ");
 }
+
+// ---------------------------------------------------------------------------
+// Node kinds — the colour language shared by thumbnails, facts and legends
+// ---------------------------------------------------------------------------
+
+/**
+ * What a node *does*, coarsely. Derived from the parser's `typeKey` / `shape`,
+ * never authored, so it can only ever describe the graph that is stored.
+ */
+export type NodeKind = "trigger" | "ai" | "logic" | "integration";
+
+const AI_KEYS = new Set([
+  "agent",
+  "openai",
+  "anthropic",
+  "chainllm",
+  "chainsummarization",
+  "informationextractor",
+  "textclassifier",
+  "sentimentanalysis",
+  "outputparserstructured",
+  "outputparserautofixing",
+  "googlegemini",
+]);
+const AI_PREFIXES = ["lmchat", "lm", "embeddings", "vectorstore", "memory", "tool", "outputparser"];
+
+const LOGIC_KEYS = new Set([
+  "code",
+  "function",
+  "functionitem",
+  "set",
+  "if",
+  "switch",
+  "merge",
+  "filter",
+  "splitinbatches",
+  "splitout",
+  "aggregate",
+  "itemlists",
+  "wait",
+  "noop",
+  "stopanderror",
+  "executeworkflow",
+  "respondtowebhook",
+  "datetime",
+  "dateandtime",
+  "sort",
+  "limit",
+  "removeduplicates",
+  "comparedatasets",
+  "renamekeys",
+  "summarize",
+  "html",
+  "xml",
+  "markdown",
+  "crypto",
+  "form",
+]);
+
+export function classifyNode(node: Pick<CanvasNode, "typeKey" | "shape">): NodeKind {
+  if (node.shape === "trigger") return "trigger";
+  const key = node.typeKey.toLowerCase();
+  if (key.endsWith("trigger")) return "trigger";
+  if (AI_KEYS.has(key) || AI_PREFIXES.some((prefix) => key.startsWith(prefix))) {
+    return "ai";
+  }
+  if (LOGIC_KEYS.has(key)) return "logic";
+  return "integration";
+}
+
+/**
+ * One hue per kind, mixed into transparency (like the sticky palette) so the
+ * same value reads on the paper and the near-black ground. `logic` is the
+ * neutral text colour on purpose: glue code should recede behind the steps
+ * that touch the outside world.
+ */
+const KIND_HUES: Readonly<Record<NodeKind, string>> = {
+  trigger: "#d97706",
+  ai: "#8b5cf6",
+  logic: "var(--on-surface)",
+  integration: "#0ea5e9",
+};
+
+export function nodeKindStroke(kind: NodeKind): string {
+  return kind === "logic"
+    ? "color-mix(in oklab, var(--on-surface) 55%, transparent)"
+    : KIND_HUES[kind];
+}
+
+export function nodeKindFill(kind: NodeKind): string {
+  return `color-mix(in oklab, ${KIND_HUES[kind]} ${kind === "logic" ? 10 : 22}%, var(--surface-bright))`;
+}
+
+export const NODE_KIND_LABELS: Readonly<Record<NodeKind, string>> = {
+  trigger: "Trigger",
+  ai: "AI step",
+  logic: "Logic",
+  integration: "Integration",
+};
+
+/**
+ * Tight frame around the nodes only (stickies ignored). Thumbnails crop to
+ * this so a card shows the graph, not acres of annotation panel.
+ */
+export function graphFrame(canvas: WorkflowCanvas): WorldFrame {
+  if (canvas.nodes.length === 0) {
+    const { minX, minY, maxX, maxY } = canvas.bounds;
+    return { x: minX, y: minY, width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
+  }
+  let x0 = Infinity;
+  let y0 = Infinity;
+  let x1 = -Infinity;
+  let y1 = -Infinity;
+  for (const node of canvas.nodes) {
+    x0 = Math.min(x0, node.x);
+    y0 = Math.min(y0, node.y);
+    x1 = Math.max(x1, node.x + node.width);
+    y1 = Math.max(y1, node.y + node.height);
+  }
+  return { x: x0, y: y0, width: Math.max(1, x1 - x0), height: Math.max(1, y1 - y0) };
+}
+
+// ---------------------------------------------------------------------------
+// Fit-to-view
+// ---------------------------------------------------------------------------
+
+/** Below this scale node captions (11px at k=1) stop being readable. */
+export const MIN_LEGIBLE_SCALE = 0.45;
+/** Never blow a two-node graph up past life size. */
+export const MAX_FIT_SCALE = 1.1;
+/** Upper bound for the "legible" view of a graph too wide to fit whole. */
+export const MAX_PAN_FIT_SCALE = 0.8;
+
+export type FitMode = "overview" | "legible";
+
+export type FitResult = {
+  k: number;
+  x: number;
+  y: number;
+  /** The content is wider / taller than the viewport at this scale. */
+  overflowX: boolean;
+  overflowY: boolean;
+};
+
+/**
+ * Pure fit maths, in screen px. `overview` frames the whole graph whatever the
+ * scale (the "fit" button). `legible` does the same unless that would drop
+ * below `MIN_LEGIBLE_SCALE` — then it fits the height (clamped to a readable
+ * range), anchors the graph's *start* (left edge) in view and reports the
+ * overflow so the caller can show a pan hint. Never fails on a zero-size box.
+ */
+export function computeFit(
+  content: WorldFrame,
+  viewportWidth: number,
+  viewportHeight: number,
+  mode: FitMode,
+  padding: number,
+): FitResult {
+  const vw = Math.max(1, viewportWidth);
+  const vh = Math.max(1, viewportHeight);
+  const pad = Math.max(0, padding);
+  const fitW = Math.max(vw - pad * 2, 1) / content.width;
+  const fitH = Math.max(vh - pad * 2, 1) / content.height;
+  const whole = Math.min(fitW, fitH, MAX_FIT_SCALE);
+
+  const centred = (k: number): FitResult => ({
+    k,
+    x: (vw - content.width * k) / 2 - content.x * k,
+    y: (vh - content.height * k) / 2 - content.y * k,
+    overflowX: false,
+    overflowY: false,
+  });
+
+  if (mode === "overview" || whole >= MIN_LEGIBLE_SCALE) return centred(whole);
+
+  const k = Math.min(MAX_PAN_FIT_SCALE, Math.max(MIN_LEGIBLE_SCALE, fitH));
+  const drawnW = content.width * k;
+  const drawnH = content.height * k;
+  const overflowX = drawnW > vw - pad * 2 + 0.5;
+  const overflowY = drawnH > vh - pad * 2 + 0.5;
+
+  return {
+    k,
+    x: overflowX ? pad - content.x * k : (vw - drawnW) / 2 - content.x * k,
+    y: overflowY ? pad - content.y * k : (vh - drawnH) / 2 - content.y * k,
+    overflowX,
+    overflowY,
+  };
+}

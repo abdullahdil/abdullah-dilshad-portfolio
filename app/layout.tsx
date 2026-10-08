@@ -1,7 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
-import { SiteJsonLd } from "@/components/seo/json-ld";
-import { profileSeed } from "@/lib/content/seed";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo/metadata";
 import { getSiteUrl, siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -25,53 +24,44 @@ const inter = Inter({
 
 const siteUrl = getSiteUrl();
 
+/**
+ * Site-wide defaults only. No canonical and no robots here: both would be
+ * inherited by every route (404s, admin) — each public page sets its own
+ * canonical through buildPageMetadata, and admin is noindex in its layout.
+ */
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: siteConfig.title,
-    template: "%s | Abdullah Dilshad",
+    template: `%s | ${siteConfig.name}`,
   },
-  description: siteConfig.description,
+  description: siteConfig.seoDescription,
   applicationName: siteConfig.name,
   authors: [{ name: siteConfig.name, url: siteUrl }],
   creator: siteConfig.name,
-  keywords: [
-    "AI Automation Engineer",
-    "n8n",
-    "LLM workflows",
-    "REST APIs",
-    "Abdullah Dilshad",
-    "Islamabad",
-  ],
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
-    url: siteUrl,
     siteName: siteConfig.name,
     title: siteConfig.title,
-    description: siteConfig.description,
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: `${siteConfig.name} — ${profileSeed.professionalTitle}`,
-      },
-    ],
+    description: siteConfig.seoDescription,
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
+    creator: siteConfig.twitterHandle,
     title: siteConfig.title,
-    description: siteConfig.description,
-    images: ["/og-image.png"],
+    description: siteConfig.seoDescription,
+    images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+};
+
+/** Browser chrome colour — matches --surface in app/globals.css. */
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fbfbfa" },
+    { media: "(prefers-color-scheme: dark)", color: "#07080c" },
+  ],
 };
 
 export default function RootLayout({
@@ -94,7 +84,6 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full bg-surface font-sans text-on-surface">
-        <SiteJsonLd />
         {children}
       </body>
     </html>

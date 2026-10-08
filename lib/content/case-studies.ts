@@ -1,5 +1,6 @@
 import type { CaseStudy } from "@/lib/content/types";
 import { workflowGroups } from "@/lib/content/workflows";
+import { mapSeedWorkflowToPublicListing } from "@/lib/repositories/mappers";
 import type { PublicWorkflowListing } from "@/lib/repositories/site-content";
 
 /**
@@ -341,147 +342,180 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: "rag-customer-support-workflow",
-    title: "RAG Customer Support Workflow",
+    title: "AI Complaint Triage and Routing",
     summary:
-      "A knowledge-grounded support workflow: retrieval from a vector knowledge base, answers constrained to the retrieved passages, a confidence check on every draft, and escalation to a person when that check fails.",
+      "An intake pipeline that reads an inbound message, judges tone and urgency against an explicit rubric, and routes it — with the model bound to a declared schema so every downstream branch is deterministic.",
     accent: "tertiary",
-    previewLabel: "RAG System Schematic",
+    previewLabel: "Intake and routing",
+    narrative: [
+      {
+        id: "the-inbox",
+        body: [
+          "An inbound support inbox has no natural ordering. A note saying the packaging was slightly dented and a message from someone threatening to post a one-star review and demand a refund land in the same place, in the same format, looking identical in a list.",
+          "The work of triage is reading each one and deciding three things: what is this about, how angry is this person, and does it need an answer in the next hour or by Friday. It takes maybe thirty seconds per message and it is genuinely skilled — it needs comprehension, not keyword matching. 'This is the third time I've had to write to you' contains no urgent words and is extremely urgent.",
+          "It's also done worst exactly when it matters most. On a quiet morning every message gets read properly. On the day something goes wrong and forty complaints arrive at once, triage collapses into skimming, and the one message that needed an immediate response is the one that waits until Thursday.",
+          "These two workflows are demonstrations of a pattern for that problem — teaching builds rather than client deployments, and worth presenting as such. What they show is how to let a model do the reading while keeping the system around it predictable.",
+        ],
+        heading: "Everything arrives looking the same",
+      },
+      {
+        id: "the-problem-with-models",
+        body: [
+          "The tempting version of this is simple: send the message to a model, ask 'is this urgent?', act on the answer. That falls apart immediately in production.",
+          "A model asked an open question replies with a sentence. Sometimes 'Yes, this appears urgent.' Sometimes 'This is high urgency.' Sometimes a paragraph of reasoning with the answer in the middle. Sometimes 'HIGH'. You end up writing string matching against natural language, and every model update reshuffles the phrasing.",
+          "That isn't a prompt problem. It's a contract problem. The system needs a value it can switch on, and free text is not that.",
+        ],
+        heading: "Why you cannot branch on a sentence",
+        showWorkflowsAfter: true,
+      },
+      {
+        id: "structured",
+        body: [
+          "So the complaint router takes a submission from a public form and passes it to a classification agent that is bound to a declared output schema. The agent does not return prose. It returns an object with named fields: a summary of the complaint, a category, the customer's emotional state, an urgency level, and a recommended action.",
+          "That schema is the entire design. Once the model must answer in a fixed shape, everything downstream becomes ordinary software — the fuzzy step is contained to exactly one node, and every node after it is deterministic and testable.",
+          "The classification rubric is written explicitly into the prompt rather than left to the model's judgement. Anger, threatened bad reviews, refund demands and long waits are high urgency. Genuine but non-critical problems are medium. Simple feedback is low. Writing the rubric down makes the behaviour reviewable by the person who owns the inbox — they can read the rule and disagree with it, which they could never do with a vibe.",
+          "Even with a schema, the code doesn't fully trust the output. A normalisation step coerces the urgency into exactly three permitted values and defaults to the middle one if anything unexpected arrives. Defaulting to medium is a deliberate choice: an unexpected value should degrade to 'handle it normally', never to 'ignore it'.",
+          "The same step merges the original form submission back into the data, so nothing downstream can lose the customer's actual words while carrying the model's interpretation of them. And both routing branches end at a confirmation page, so there is no path where someone submits a complaint and sees nothing happen.",
+        ],
+        heading: "Binding the model to a schema",
+      },
+      {
+        id: "guidance",
+        body: [
+          "The second workflow is a guidance agent. A student submits a profile — background, current skills, interests, goal, time available — and receives a tailored recommendation.",
+          "Here the output is meant to be prose, so the control moves entirely into prompt design. The model is required to recommend exactly one skill rather than hedging across three, and to produce a fixed six-part structure. A preparation step normalises the incoming field names before the prompt sees them, so the prompt isn't quietly coupled to the form's internal naming.",
+          "It is worth being accurate about what this one is not. It has no branching, no retry logic, no persistence, and no error path. It is a clean demonstration of prompt-level control over an open-ended answer, and nothing more. The complaint router is the one that shows the full pattern; this one shows the narrower half of it.",
+        ],
+        heading: "The same idea with a looser grip",
+      },
+      {
+        id: "result",
+        body: [
+          "The idea worth taking from these is narrow and reusable: when a model's output has to drive a decision, bind it to a schema, normalise the result before you branch on it, choose a safe default for the unexpected case, and make sure every branch ends somewhere a person can see.",
+          "Do that, and the model handles the part that genuinely needs reading comprehension — tone, intent, urgency, the complaint that never uses an urgent word — while everything around it stays inspectable. When something goes wrong you can point at exactly one step and ask whether it judged correctly, instead of debugging a paragraph.",
+          "That containment is what makes model output safe to build on. It's the difference between a demo that works when you try it and a system somebody else can run.",
+        ],
+        heading: "The transferable part",
+      },
+    ],
     businessProblem:
-      "Common support questions required repeated manual knowledge lookup and response preparation.",
+      "Inbound complaints arrive undifferentiated, so an urgent message can wait behind a trivial one — and manual triage degrades exactly when volume spikes.",
     beforeState:
-      "Messages were reviewed manually, answers were searched from internal content, and difficult cases were escalated inconsistently.",
+      "Every message had to be read by a person to decide what it was about, how upset the sender was, and how quickly it needed an answer.",
     beforeIssues: [
-      "Agents spent time re-finding the same internal knowledge for recurring questions.",
-      "Response quality depended on who happened to handle the ticket.",
-      "Escalation decisions were inconsistent when confidence was low.",
+      "Urgent and trivial complaints looked identical in the inbox.",
+      "Urgency often had to be read from tone, not keywords, so simple filters missed it.",
+      "Under load, triage collapsed into skimming and the messages that mattered most waited longest.",
     ],
     architectureDescription:
-      "An incoming support message is normalized, matched against a vector knowledge base, and answered only from the passages that come back. A confidence and rule check then decides whether the draft continues or is handed to a person over Slack or email, and every run is logged with its retrieved context, decision path, and outcome. n8n carries the orchestration.",
+      "A public form submission goes to a classification agent bound to a declared output schema, using an explicit urgency rubric written into the prompt. A normalisation step coerces the urgency into three permitted values, defaulting to medium, and merges the original submission back in. A single branch on urgency then sends the matching email, and both paths end at a confirmation page. n8n carries the orchestration.",
     architectureNodes: [
-      { label: "Query", detail: "Customer message in" },
-      { label: "Normalize", detail: "Clean and structure input" },
-      { label: "Retrieve", detail: "Knowledge lookup" },
-      { label: "n8n", detail: "Orchestration hub" },
-      { label: "LLM API", detail: "Draft grounded reply" },
-      { label: "Route", detail: "Respond or escalate" },
-      { label: "Notify / Log", detail: "Slack, email, records" },
+      { label: "Form", detail: "Complaint submitted" },
+      { label: "Classify", detail: "Schema-bound AI agent" },
+      { label: "Normalise", detail: "Coerce urgency, keep original" },
+      { label: "Route", detail: "High urgency or normal" },
+      { label: "Notify", detail: "Urgent or normal email" },
+      { label: "Confirm", detail: "Success page for the sender" },
     ],
     steps: [
       {
         stepNumber: 1,
-        title: "Customer query received",
+        title: "Complaint submitted",
         description:
-          "A support message enters the workflow through the connected intake channel or webhook.",
+          "A customer submits a complaint through a public form, which starts the workflow.",
       },
       {
         stepNumber: 2,
-        title: "Query normalization",
+        title: "Schema-bound classification",
         description:
-          "The message is cleaned and structured so retrieval and routing operate on consistent input.",
+          "An AI agent bound to a structured output schema returns a summary, category, emotional state, urgency level, and recommended action.",
       },
       {
         stepNumber: 3,
-        title: "Knowledge retrieval",
+        title: "Explicit urgency rubric",
         description:
-          "Relevant passages are retrieved from the vector knowledge base for the current question.",
+          "The prompt spells out the rubric: anger, threatened bad reviews, refund demands and long waits are high; genuine non-critical problems are medium; simple feedback is low.",
       },
       {
         stepNumber: 4,
-        title: "Context assembly",
+        title: "Normalisation",
         description:
-          "Retrieved material is assembled into a grounded context package for the language model.",
+          "A code step coerces urgency into exactly three permitted values, defaults to medium on anything unexpected, and merges the original submission back in.",
       },
       {
         stepNumber: 5,
-        title: "LLM response generation",
+        title: "Urgency routing",
         description:
-          "The LLM API drafts a response constrained to the retrieved context and support instructions.",
+          "A single deterministic branch separates high-urgency complaints from everything else.",
       },
       {
         stepNumber: 6,
-        title: "Confidence or rule evaluation",
+        title: "Email on the matching path",
         description:
-          "Routing rules or confidence checks decide whether the draft can continue or should escalate.",
+          "The urgent path and the normal path each send their own email.",
       },
       {
         stepNumber: 7,
-        title: "Response or human escalation",
+        title: "Confirmation",
         description:
-          "High-confidence answers continue toward response paths; uncertain cases move to a human queue.",
-      },
-      {
-        stepNumber: 8,
-        title: "Slack or email notification",
-        description:
-          "Operators are notified when escalation or review is required, with the relevant context attached.",
-      },
-      {
-        stepNumber: 9,
-        title: "Interaction logging",
-        description:
-          "The query, retrieved context summary, decision path, and outcome are logged for later review.",
+          "Both branches end at a confirmation page, so no submission disappears without a response.",
       },
     ],
     tools: [
       { name: "n8n", category: "Automation" },
-      { name: "LLM API", category: "AI" },
-      { name: "Vector knowledge base", category: "Retrieval" },
-      { name: "Slack", category: "Collaboration" },
-      { name: "Email", category: "Delivery" },
-      { name: "Webhooks", category: "Integration" },
+      { name: "OpenAI API", category: "AI" },
+      { name: "Structured outputs", category: "AI" },
+      { name: "Gmail API", category: "Delivery" },
     ],
     contribution: [
-      "Architecture",
-      "Knowledge-ingestion workflow",
-      "Retrieval orchestration",
-      "Prompt design",
+      "Workflow design",
+      "Prompt and rubric design",
+      "Output schema design",
+      "Normalisation logic",
       "Routing logic",
-      "Escalation workflow",
       "Testing",
-      "Deployment",
     ],
     reliabilityControls: [
       {
-        name: "Grounded-context requirement",
+        name: "Schema-bound output",
         description:
-          "Responses are only drafted when relevant retrieved context is available.",
+          "The model must answer in a declared shape, so no branch ever parses free text.",
       },
       {
-        name: "Missing-context fallback",
+        name: "Explicit rubric",
         description:
-          "If retrieval returns insufficient material, the workflow falls back instead of inventing an answer.",
+          "Urgency rules are written into the prompt, so the person who owns the inbox can review and change them.",
       },
       {
-        name: "Low-confidence escalation",
+        name: "Safe default",
         description:
-          "Uncertain cases are routed to humans instead of being auto-sent.",
+          "An unexpected urgency value degrades to medium — handle it normally — never to ignore it.",
       },
       {
-        name: "Error routes",
+        name: "Original input preserved",
         description:
-          "Integration or model failures follow a defined error branch with operator visibility.",
+          "The customer's own words travel alongside the model's interpretation through every downstream step.",
       },
       {
-        name: "Human review",
+        name: "Visible outcome on every path",
         description:
-          "Escalated tickets preserve enough context for a person to finish the response safely.",
-      },
-      {
-        name: "Interaction logging",
-        description:
-          "Each run stores enough detail to inspect quality, routing, and failure modes later.",
+          "Both routing branches end at a confirmation page, so a submission never vanishes silently.",
       },
     ],
     result:
-      "Created a repeatable support workflow that automates knowledge retrieval and response preparation while preserving human control for uncertain cases.",
+      "Two teaching builds that demonstrate a reusable pattern: contain the model to one schema-bound step, normalise its output before branching, default safely, and end every branch somewhere a person can see.",
     resultMetrics: [],
     featuredImageUrl: null,
     demoVideoUrl: null,
+    relatedWorkflowIds: [
+      "smart-complaint-routing-demo",
+      "career-guidance-agent-demo",
+    ],
     galleryImages: [],
     galleryPlaceholders: [
-      "Query intake and retrieval",
-      "Grounded draft generation",
-      "Escalation and logging path",
+      "Complaint intake form",
+      "Schema-bound classification",
+      "Urgency routing and confirmation",
     ],
     demoVideoLabel: "Demo video coming soon",
   },
@@ -537,17 +571,7 @@ export function getSeedRelatedWorkflows(
   const byId = new Map<string, PublicWorkflowListing>();
   for (const group of workflowGroups) {
     for (const item of group.items) {
-      byId.set(item.id, {
-        id: item.id,
-        title: item.title,
-        summary: item.summary,
-        category: item.category,
-        imageUrl: null,
-        imageAlt: "",
-        canvas: item.canvas ?? null,
-        outcomeTags: [...(item.outcomeTags ?? [])],
-        active: item.active ?? true,
-      });
+      byId.set(item.id, mapSeedWorkflowToPublicListing(item));
     }
   }
 

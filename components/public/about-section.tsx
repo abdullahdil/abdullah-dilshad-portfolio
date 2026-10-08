@@ -1,6 +1,8 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
-import { getPublicProfile } from "@/lib/repositories/profile";
+import type { PublicProfile } from "@/lib/repositories/profile";
 
 type RailFact = {
   term: string;
@@ -8,47 +10,53 @@ type RailFact = {
   href?: string;
 };
 
-export async function AboutSection() {
-  const profile = await getPublicProfile();
+/**
+ * Home keeps About short: the opening paragraph of the CMS long bio plus its
+ * closing paragraph (education + availability). The full bio lives on /resume.
+ */
+export function AboutSection({ profile }: { profile: PublicProfile }) {
+  const bio = profile.longBio.filter(Boolean);
+  const paragraphs =
+    bio.length > 1 ? [bio[0], bio[bio.length - 1]] : bio.slice(0, 1);
 
   const facts: RailFact[] = [
     { term: "Location", value: profile.location },
     { term: "Availability", value: profile.availabilityLabel },
     { term: "Education", value: "BS Computer Science, FAST-NUCES" },
-    {
-      term: "Credential",
-      value: "n8n Level 2",
-      href: profile.credentialUrl ?? undefined,
-    },
   ];
 
-  if (profile.n8nProfileUrl) {
-    facts.push({
-      term: "n8n Profile",
-      value: "n8n.io/creators",
-      href: profile.n8nProfileUrl,
-    });
-  }
-
   return (
-    <Section id="about" tone="low" className="section-veil">
+    <Section id="about" divider aria-labelledby="about-title">
       <Container>
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
-          {/* Editorial column: narrow measure, magazine-set prose. */}
           <div className="lg:col-span-8">
             <p className="section-eyebrow mb-3">About</p>
-            <h2 className="font-heading text-headline-xl text-balance text-on-surface">
+            <h2
+              id="about-title"
+              className="font-heading text-headline-xl text-balance text-on-surface"
+            >
               I build automations that know when to stop and ask
             </h2>
 
-            <div className="mt-8 max-w-[68ch] space-y-6 text-body-lg text-pretty text-on-surface-variant">
-              {profile.longBio.map((paragraph) => (
+            <div className="mt-7 max-w-[66ch] space-y-5 text-body-lg text-pretty text-on-surface-variant">
+              {paragraphs.map((paragraph) => (
                 <p key={paragraph.slice(0, 32)}>{paragraph}</p>
               ))}
             </div>
+
+            <Link
+              href="/resume"
+              className="group mt-7 inline-flex items-center gap-1.5 text-body-sm font-medium text-on-surface transition-colors hover:text-accent"
+            >
+              <span className="link-underline">Full background and CV</span>
+              <ArrowRight
+                className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transform-none"
+                strokeWidth={2}
+                aria-hidden
+              />
+            </Link>
           </div>
 
-          {/* Quiet rail: hairline-separated facts. */}
           <aside className="lg:col-span-4 lg:pt-2">
             <dl className="border-t border-outline-variant">
               {facts.map((fact) => (
@@ -60,18 +68,7 @@ export async function AboutSection() {
                     {fact.term}
                   </dt>
                   <dd className="text-body-sm text-right text-on-surface">
-                    {fact.href ? (
-                      <a
-                        href={fact.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="link-underline text-on-surface hover:text-accent"
-                      >
-                        {fact.value}
-                      </a>
-                    ) : (
-                      fact.value
-                    )}
+                    {fact.value}
                   </dd>
                 </div>
               ))}

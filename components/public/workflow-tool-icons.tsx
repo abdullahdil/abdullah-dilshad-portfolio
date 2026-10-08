@@ -3,7 +3,7 @@
  * with a `+N` overflow chip once the row runs out of room.
  */
 
-import { iconForTypeKey } from "@/lib/workflow-canvas/icons";
+import { NodeTypeIcon, nodeTypeLabel } from "@/components/public/workflow-node-icon";
 import { cn } from "@/lib/utils";
 
 type WorkflowToolIconsProps = {
@@ -27,15 +27,15 @@ export function WorkflowToolIcons({
   return (
     <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
       {shown.map((key) => {
-        const icon = iconForTypeKey(key);
+        const label = nodeTypeLabel(key);
         return (
           <span
             key={key}
-            title={icon.label}
-            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-outline-variant bg-surface-bright text-[0.8125rem] leading-none"
+            title={label}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-outline-variant bg-surface-bright text-on-surface-variant"
           >
-            <span aria-hidden>{icon.glyph}</span>
-            <span className="sr-only">{icon.label}</span>
+            <NodeTypeIcon typeKey={key} className="h-3.5 w-3.5" />
+            <span className="sr-only">{label}</span>
           </span>
         );
       })}

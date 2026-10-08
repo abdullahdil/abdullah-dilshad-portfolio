@@ -6,6 +6,8 @@ type SectionHeadingProps = {
   description?: string;
   align?: "left" | "center";
   className?: string;
+  /** id for the h2, so the enclosing section can be `aria-labelledby` it. */
+  titleId?: string;
   /** Optional right-aligned slot (a "view all" link, a count). */
   action?: React.ReactNode;
 };
@@ -16,6 +18,7 @@ export function SectionHeading({
   description,
   align = "left",
   className,
+  titleId,
   action,
 }: SectionHeadingProps) {
   return (
@@ -30,7 +33,7 @@ export function SectionHeading({
         {eyebrow ? (
           <span className="section-eyebrow mb-3 block">{eyebrow}</span>
         ) : null}
-        <h2 className="font-heading text-headline-xl text-balance text-on-surface">
+        <h2 id={titleId} className="font-heading text-headline-xl text-balance text-on-surface">
           {title}
         </h2>
         {description ? (

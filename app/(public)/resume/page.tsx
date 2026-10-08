@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { getPublicProfile } from "@/lib/repositories/profile";
 import { listPublishedExperience } from "@/lib/repositories/experience";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Resume",
-  description: "Download or request Abdullah Dilshad’s CV.",
-  alternates: { canonical: "/resume" },
-};
+  description:
+    "Resume of Abdullah Dilshad, AI Automation Engineer: experience and a downloadable CV.",
+  path: "/resume",
+});
 
 export default async function ResumePage() {
   const [profile, experience] = await Promise.all([

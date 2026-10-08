@@ -1,7 +1,7 @@
 import { capabilitiesSeed } from "@/lib/content/seed";
 import type { CapabilityRow } from "@/lib/supabase/database.types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 
 export type PublicCapabilityGroup = {
   category: string;
@@ -12,7 +12,10 @@ export type PublicCapabilityGroup = {
 
 const categoryMeta: Record<
   string,
-  { icon: PublicCapabilityGroup["icon"]; accent: PublicCapabilityGroup["accent"] }
+  {
+    icon: PublicCapabilityGroup["icon"];
+    accent: PublicCapabilityGroup["accent"];
+  }
 > = {
   "Automation Engineering": { icon: "Workflow", accent: "primary" },
   "AI and LLM Engineering": { icon: "Brain", accent: "secondary" },
@@ -33,13 +36,15 @@ function seedCapabilities(): PublicCapabilityGroup[] {
   }));
 }
 
-export async function listPublishedCapabilities(): Promise<PublicCapabilityGroup[]> {
+export async function listPublishedCapabilities(): Promise<
+  PublicCapabilityGroup[]
+> {
   if (!isSupabaseConfigured()) {
     return seedCapabilities();
   }
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return seedCapabilities();
 
     const { data, error } = await supabase

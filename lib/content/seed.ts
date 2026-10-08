@@ -67,10 +67,9 @@ export const contactOpportunityTypes = [
 ] as const;
 
 export const navLinks = [
-  { href: "/#work", label: "Work" },
-  { href: "/#workflows", label: "Workflows" },
+  { href: "/work", label: "Work" },
+  { href: "/work#catalog", label: "Systems" },
   { href: "/#experience", label: "Experience" },
-  { href: "/#capabilities", label: "Capabilities" },
   { href: "/#about", label: "About" },
   { href: "/#contact", label: "Contact" },
 ] as const;

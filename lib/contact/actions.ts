@@ -3,6 +3,10 @@
 import { formString } from "@/lib/admin/form-utils";
 import type { ActionResult } from "@/lib/admin/types";
 import { getRequestClientKey } from "@/lib/contact/client-meta";
+import {
+  isContactEmailConfigured,
+  sendContactNotification,
+} from "@/lib/contact/notify-email";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { createServiceRoleSupabaseClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
@@ -65,22 +69,6 @@ export async function submitContactAction(
     };
   }
 
-  if (!isSupabaseConfigured()) {
-    return {
-      ok: false,
-      error:
-        "Contact storage is not configured yet. Please email me directly using the address on this page.",
-    };
-  }
-
-  const supabase = createServiceRoleSupabaseClient();
-  if (!supabase) {
-    return {
-      ok: false,
-      error: "Contact storage is unavailable. Please email me directly.",
-    };
-  }
-
   const row = {
     name: parsed.data.name,
     email: parsed.data.email,
@@ -90,24 +78,91 @@ export async function submitContactAction(
     status: "unread" as const,
   };
 
-  const { data, error } = await supabase
-    .from("contact_submissions")
-    .insert(row)
-    .select("id")
-    .single();
+  const storageConfigured = isSupabaseConfigured();
+  const emailConfigured = isContactEmailConfigured();
+  if (!storageConfigured && !emailConfigured) {
+    return {
+      ok: false,
+      error:
+        "Contact storage is not configured yet. Please email me directly using the address on this page.",
+    };
+  }
 
-  if (error) {
+  // Two independent delivery channels run concurrently: the admin inbox
+  // (Supabase) and an email to the owner (Resend). Either one landing is
+  // enough — a Supabase outage still reaches the mailbox, an email outage
+  // still lands in /admin/messages.
+  const stored = storageConfigured
+    ? storeSubmission(row)
+    : Promise.resolve<StoreResult>({ ok: false });
+
+  const emailed = emailConfigured
+    ? sendContactNotification({
+        name: row.name,
+        email: row.email,
+        company: row.company,
+        opportunityType: row.opportunity_type,
+        message: row.message,
+        submittedAt: new Date(),
+      })
+    : Promise.resolve({ ok: false, error: "not configured" });
+
+  // The webhook carries the stored id, so it follows the insert (as before),
+  // while the email is already in flight.
+  const webhooked = stored.then((result) =>
+    result.ok
+      ? notifyWebhook({ id: result.id, ...row, source: "portfolio-contact" })
+      : undefined,
+  );
+
+  const [storeResult, emailResult] = await Promise.all([
+    stored,
+    emailed,
+    webhooked,
+  ]);
+
+  if (!storeResult.ok && !emailResult.ok) {
     return {
       ok: false,
       error: "Could not send your message. Please try again or email me directly.",
     };
   }
 
-  await notifyWebhook({
-    id: data.id,
-    ...row,
-    source: "portfolio-contact",
-  });
-
   return { ok: true, message: "Thanks — I will follow up shortly." };
+}
+
+type ContactRow = {
+  name: string;
+  email: string;
+  company: string | null;
+  opportunity_type: string;
+  message: string;
+  status: "unread";
+};
+
+type StoreResult = { ok: true; id: string } | { ok: false };
+
+async function storeSubmission(row: ContactRow): Promise<StoreResult> {
+  try {
+    const supabase = createServiceRoleSupabaseClient();
+    if (!supabase) return { ok: false };
+
+    const { data, error } = await supabase
+      .from("contact_submissions")
+      .insert(row)
+      .select("id")
+      .single();
+
+    if (error || !data) {
+      console.warn(
+        `[contact] insert failed: ${error?.code ?? "no data"}`,
+      );
+      return { ok: false };
+    }
+    return { ok: true, id: data.id };
+  } catch {
+    // e.g. service-role key missing — let the email channel carry it.
+    console.warn("[contact] insert failed: storage client unavailable");
+    return { ok: false };
+  }
 }

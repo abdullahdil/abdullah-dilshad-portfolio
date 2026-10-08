@@ -36,10 +36,30 @@ describe("case study content helpers", () => {
 
   it("returns a study for a known slug", () => {
     const study = getCaseStudyBySlug("rag-customer-support-workflow");
-    expect(study?.title).toBe("RAG Customer Support Workflow");
-    expect(study?.tools.map((tool) => tool.name)).toContain(
-      "Vector knowledge base",
-    );
+    expect(study?.title).toBe("AI Complaint Triage and Routing");
+    expect(study?.relatedWorkflowIds).toEqual([
+      "smart-complaint-routing-demo",
+      "career-guidance-agent-demo",
+    ]);
+  });
+
+  it("keeps study 3 free of retrieval / RAG claims (CONTENT_TRUTH 2026-10-08)", () => {
+    const study = getCaseStudyBySlug("rag-customer-support-workflow");
+    // The legacy slug is the only place "rag" may appear.
+    const { slug: _slug, ...rest } = study!;
+    void _slug;
+    const corpus = JSON.stringify(rest).toLowerCase();
+    for (const term of [
+      "vector",
+      "retriev",
+      "rag ",
+      "rag-",
+      "knowledge base",
+      "grounded",
+      "embedding",
+    ]) {
+      expect(corpus).not.toContain(term);
+    }
   });
 
   it("returns undefined for an unknown slug", () => {

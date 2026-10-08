@@ -91,4 +91,10 @@ export type CaseStudy = {
   galleryImages: CaseStudyGalleryItem[];
   galleryPlaceholders: string[];
   demoVideoLabel: string;
+  /**
+   * ISO timestamp of the last edit (`case_studies.updated_at`). Seed content
+   * has none, so it is absent / null on the no-Supabase path. Used for
+   * sitemap `lastModified` and article `dateModified`.
+   */
+  updatedAt?: string | null;
 };

@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { profileSeed } from "@/lib/content/seed";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Privacy",
   description:
     "How contact-form data is collected and used on Abdullah Dilshad’s portfolio.",
-  alternates: { canonical: "/privacy" },
-  robots: { index: true, follow: true },
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

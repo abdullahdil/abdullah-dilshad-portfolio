@@ -84,13 +84,33 @@ framework code. Specific traps already hit in this repo:
 project. Never break this path — it is how local UI work happens. Env gating lives in
 `lib/supabase/env.ts`.
 
+**Public reads are cookie-less.** Public repositories use `createPublicSupabaseClient()`
+(`lib/supabase/public.ts`, anon key, no `cookies()`), so public pages can be static/ISR
+(`export const revalidate = 3600` + `revalidatePath()` on admin saves). Only admin repos and
+auth use the cookie-based `createServerSupabaseClient()` (`lib/supabase/server.ts`). Calling
+`cookies()` from a public read silently makes every public page dynamic again.
+
 **Routes.**
-- `app/(public)/` — `/`, `/resume`, `/privacy`, `/work/[slug]`
+- `app/(public)/` — `/`, `/resume`, `/privacy`, `/work` (hub: case studies + filterable
+  workflow catalog), `/work/[slug]` (case study), `/workflows/[slug]` (one page per published
+  workflow, slug = `workflows.slug`)
 - `app/admin/login` + `app/admin/logout` — public admin routes
 - `app/admin/(protected)/` — case-studies, profile, experience, capabilities, proof-points,
   workflows, navigation, templates, media, messages, settings
-- **There is no `/work` index page by design** — only `/work/[slug]`. `/work` returning 404 is
-  expected, not a regression.
+- Metadata routes: `app/sitemap.ts`, `app/robots.ts`, `app/manifest.ts`, `app/icon.tsx`
+  (`/icon/small`, `/icon/large`), `app/apple-icon.tsx`, `app/llms.txt/route.ts`, and
+  per-route `opengraph-image.tsx` under `work/[slug]` and `workflows/[slug]`.
+
+**SEO.** Every public page builds its metadata with `buildPageMetadata()` (`lib/seo/metadata.ts`)
+— metadata merges *shallowly*, so a hand-rolled `openGraph` drops siteName/locale/images. The
+root layout deliberately sets **no canonical and no robots** (they would leak onto 404s and
+admin); `app/admin/layout.tsx` is `noindex, nofollow`. JSON-LD is per page, never in the root
+layout: build it with `lib/seo/json-ld.ts` and render with `<JsonLd>`
+(`components/seo/json-ld-script.tsx`, escapes `<`). Home renders `profilePageJsonLd(profile)`
+(ProfilePage + Person from the CMS profile). Structured
+data must match visible text, and n8n never leads `knowsAbout`, titles or descriptions.
+Canonical origin: `getSiteUrl()` in `lib/site.ts` (`NEXT_PUBLIC_SITE_URL` →
+`VERCEL_PROJECT_PRODUCTION_URL` → localhost); never use `VERCEL_URL` (per-deploy host).
 
 **Admin auth — three independent layers. Keep all three.**
 1. `proxy.ts` refreshes the Supabase session and redirects unauthenticated `/admin/*`
@@ -183,7 +203,8 @@ same change — a wrong map costs more than no map.
 
 | Need | Path |
 |------|------|
-| Public pages | `app/(public)/` → `/`, `/resume`, `/privacy`, `/work/[slug]` |
+| Public pages | `app/(public)/` → `/`, `/resume`, `/privacy`, `/work`, `/work/[slug]`, `/workflows/[slug]` |
+| SEO helpers | `lib/site.ts` (`getSiteUrl`, `siteConfig`), `lib/seo/` (`metadata.ts`, `json-ld.ts`, `og-card.tsx`, `monogram.tsx`), `components/seo/` |
 | Admin pages | `app/admin/(protected)/` + `app/admin/login`, `app/admin/logout` |
 | Middleware | `proxy.ts` (repo root) — **not** `middleware.ts` |
 | Public reads | `lib/repositories/*.ts` |
@@ -192,8 +213,9 @@ same change — a wrong map costs more than no map.
 | Server actions (all mutations) | `lib/admin/actions/*.ts`, `lib/auth/actions.ts`, `lib/contact/actions.ts` |
 | Zod schemas | `lib/validations/*.ts` |
 | Seed / no-Supabase fallback content | `lib/content/*.ts` |
-| Public components | `components/public/`, `components/work/` |
+| Public components | `components/public/`, `components/work/`, `components/catalog/` |
 | Admin components | `components/admin/` |
+| Supabase clients | `lib/supabase/public.ts` (cookie-less, public reads), `server.ts` (cookie session, admin/auth), `admin.ts` (service role) |
 | Generated DB types | `lib/supabase/database.types.ts` |
 | Migrations | `supabase/migrations/` |
 | Local scratch (gitignored, excluded from tsconfig) | `local/`, `import-canvases.tmp.ts` |
@@ -213,7 +235,8 @@ same change — a wrong map costs more than no map.
   `getPublishedCaseStudyWorkflows`
 - `site-content.ts` — types `PublicProofPoint`, `PublicNavLink`,
   `PublicWorkflowListing`, `PublicWorkflowGroup`; fns `listPublishedProofPoints`,
-  `listPublishedNavLinks`, `listPublishedWorkflowGroups`
+  `listPublishedNavLinks`, `listPublishedWorkflowGroups`, `listPublishedWorkflowListings`
+  (flat), `getPublishedWorkflowBySlug`
 - `mappers.ts` — `mapCaseStudyRowsToDomain`, `coerceWorkflowCanvas`,
   `mapWorkflowRowToPublicListing`, type `PublicWorkflowRowFields`
 - `capabilities.ts` · `experience.ts` · `profile.ts` · `templates.ts` · `db-health.ts` — one

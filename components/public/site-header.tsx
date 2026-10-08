@@ -9,6 +9,7 @@ import { Container } from "@/components/ui/container";
 import { StatusIndicator } from "@/components/ui/status-indicator";
 import { SocialLinks } from "@/components/public/social-links";
 import { ThemeToggle } from "@/components/public/theme-toggle";
+import { isNavLinkActive } from "@/components/public/nav-links";
 import type { PublicNavLink } from "@/lib/repositories/site-content";
 import { cn } from "@/lib/utils";
 
@@ -97,14 +98,16 @@ export function SiteHeader({
           </Link>
 
           <nav
-            className="ml-auto hidden items-center gap-7 md:flex"
+            className="ml-auto hidden items-center gap-5 md:flex lg:gap-7"
             aria-label="Primary"
           >
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                aria-current={pathname === link.href ? "page" : undefined}
+                aria-current={
+                  isNavLinkActive(link.href, pathname) ? "page" : undefined
+                }
                 className="link-underline text-body-sm text-on-surface-variant transition-colors hover:text-on-surface aria-[current=page]:text-on-surface"
               >
                 {link.label}
@@ -117,15 +120,15 @@ export function SiteHeader({
               linkedinUrl={linkedinUrl}
               instagramUrl={instagramUrl}
               xUrl={xUrl}
-              className="hidden sm:flex sm:-mr-1"
+              className="hidden lg:flex lg:-mr-1"
             />
-            <span className="hidden sm:flex sm:h-5 sm:w-px sm:bg-outline-variant" aria-hidden />
+            <span className="hidden lg:flex lg:h-5 lg:w-px lg:bg-outline-variant" aria-hidden />
             <span className="hidden sm:flex">
               <ThemeToggle />
             </span>
-            <span className="hidden lg:flex">
+            <span className="hidden md:flex">
               <Button href={cvUrl} download variant="secondary" size="sm">
-                Download CV
+                CV
                 <Download className="h-3.5 w-3.5" aria-hidden strokeWidth={2} />
               </Button>
             </span>
@@ -177,6 +180,9 @@ export function SiteHeader({
                   key={link.href}
                   href={link.href}
                   onClick={closeMenu}
+                  aria-current={
+                    isNavLinkActive(link.href, pathname) ? "page" : undefined
+                  }
                   className="flex items-baseline gap-4 border-b border-outline-variant py-4 text-on-surface"
                 >
                   <span className="font-label text-on-surface-faint tabular">
