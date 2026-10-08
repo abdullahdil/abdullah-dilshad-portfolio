@@ -23,6 +23,7 @@ function workflowRow(
     canvas_json: null,
     outcome_tags: ["Lead gen"],
     is_active: true,
+    updated_at: "2026-09-17T10:14:45.579863+00:00",
     ...overrides,
   };
 }

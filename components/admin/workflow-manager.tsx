@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/form-controls";
 import { WorkflowCanvasView } from "@/components/public/workflow-canvas";
+import { NodeTypeIcon } from "@/components/public/workflow-node-icon";
 import { MAX_WORKFLOW_CANVAS_CHARS } from "@/lib/validations/workflow-canvas";
 import { iconForTypeKey } from "@/lib/workflow-canvas/icons";
 import { parseN8nWorkflowJson } from "@/lib/workflow-canvas/parse";
@@ -518,7 +519,7 @@ function WorkflowCanvasEditor({
                     key={toolKey}
                     className="inline-flex items-center gap-1 rounded-full border border-outline-variant/30 bg-surface-low px-2 py-0.5 text-xs text-on-surface-variant"
                   >
-                    <span aria-hidden="true">{icon.glyph}</span>
+                    <NodeTypeIcon typeKey={toolKey} className="h-3.5 w-3.5" />
                     {icon.label}
                   </span>
                 );

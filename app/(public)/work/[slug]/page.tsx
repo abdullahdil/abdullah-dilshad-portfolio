@@ -1,21 +1,27 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/seo/json-ld-script";
 import { CaseStudyView } from "@/components/work/case-study-view";
-import { caseStudies } from "@/lib/content/case-studies";
 import {
   getPublishedAdjacentCaseStudies,
   getPublishedCaseStudyBySlug,
   getPublishedCaseStudyWorkflows,
+  listPublishedCaseStudies,
 } from "@/lib/repositories/case-studies";
+import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 type WorkPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+/** ISR: admin saves also call revalidatePath() for an immediate refresh. */
+export const revalidate = 3600;
 export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return caseStudies.map((study) => ({ slug: study.slug }));
+export async function generateStaticParams() {
+  const studies = await listPublishedCaseStudies();
+  return studies.map((study) => ({ slug: study.slug }));
 }
 
 export async function generateMetadata({
@@ -25,30 +31,17 @@ export async function generateMetadata({
   const study = await getPublishedCaseStudyBySlug(slug);
 
   if (!study) {
-    return { title: "Case Study Not Found" };
+    return { title: "Case Study Not Found", robots: { index: false } };
   }
 
-  const path = `/work/${study.slug}`;
-  const image = study.featuredImageUrl || "/og-image.png";
-
-  return {
+  return buildPageMetadata({
     title: study.title,
     description: study.summary,
-    alternates: { canonical: path },
-    openGraph: {
-      type: "article",
-      title: study.title,
-      description: study.summary,
-      url: path,
-      images: [{ url: image, alt: study.title }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: study.title,
-      description: study.summary,
-      images: [image],
-    },
-  };
+    path: `/work/${study.slug}`,
+    type: "article",
+    // ./opengraph-image.tsx renders the per-study card (file-based wins).
+    image: null,
+  });
 }
 
 export default async function WorkPage({ params }: WorkPageProps) {
@@ -64,6 +57,16 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
   return (
     <main id="main-content">
+      <JsonLd
+        data={[
+          articleJsonLd(study),
+          breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Work", path: "/work" },
+            { name: study.title, path: `/work/${study.slug}` },
+          ]),
+        ]}
+      />
       <CaseStudyView
         study={study}
         previous={previous}

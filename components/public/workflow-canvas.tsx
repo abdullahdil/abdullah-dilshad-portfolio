@@ -16,26 +16,33 @@
  * zero React re-renders — the node subtree is rendered once per canvas.
  */
 
-import { useCallback, useEffect, useId, useMemo, useRef } from "react";
-import { Maximize, Minus, Plus, RotateCcw } from "lucide-react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { Maximize, Minus, MoveHorizontal, Plus, RotateCcw } from "lucide-react";
 import { iconForTypeKey } from "@/lib/workflow-canvas/icons";
+import { NodeTypeIcon } from "@/components/public/workflow-node-icon";
 import { StickyMarkdown } from "@/components/public/workflow-canvas-markdown";
 import {
   ATTACHMENT_SCALE,
   buildEdgePaths,
   CANVAS_GROUND,
+  classifyNode,
+  computeFit,
   contentFrame,
   edgeStroke,
+  nodeKindFill,
+  nodeKindStroke,
   stickyFill,
   stickyStroke,
   worldFrame,
   WORLD_MARGIN,
 } from "@/components/public/workflow-canvas-geometry";
 import { cn } from "@/lib/utils";
-import type { Point } from "@/components/public/workflow-canvas-geometry";
+import type { FitMode, Point } from "@/components/public/workflow-canvas-geometry";
 import type { CanvasNode, WorkflowCanvas } from "@/lib/workflow-canvas/types";
 
 const MIN_SCALE = 0.2;
+/** How long the very first framing waits before transitions come back on. */
+const SETTLE_MS = 60;
 const MAX_SCALE = 2.5;
 /**
  * Breathing room, in screen px, left around the graph by fit-to-view. Capped at
@@ -78,12 +85,22 @@ export type WorkflowCanvasViewProps = {
   /** Accessible name for the canvas region. Defaults to the workflow name. */
   label?: string;
   className?: string;
+  /**
+   * `always` (default): the wheel zooms — right for a modal, where there is no
+   * page to scroll. `modifier`: for a canvas embedded in a scrolling page, a
+   * plain vertical wheel scrolls the page, Ctrl/Cmd + wheel (and trackpad
+   * pinch, which arrives as ctrl+wheel) zooms, horizontal wheel pans.
+   */
+  wheelZoom?: "always" | "modifier";
 };
+
+type PanHint = "x" | "y" | "xy" | null;
 
 export function WorkflowCanvasView({
   canvas,
   label,
   className,
+  wheelZoom = "always",
 }: WorkflowCanvasViewProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);
@@ -94,7 +111,13 @@ export function WorkflowCanvasView({
   const pointersRef = useRef(new Map<number, Point>());
   const dragRef = useRef<Point | null>(null);
   const pinchRef = useRef<{ dist: number; k: number } | null>(null);
-  const fittedRef = useRef(false);
+  /**
+   * Until the visitor moves the view themselves, every resize re-frames the
+   * graph (dialogs and fluid layouts settle over several frames). The first
+   * pan / zoom / key press hands control over for good.
+   */
+  const interactedRef = useRef(false);
+  const [panHint, setPanHint] = useState<PanHint>(null);
   /**
    * Zoom floor. Normally `MIN_SCALE`, but a big graph in a small viewport has to
    * fit *below* it — otherwise fit-to-view clamps and the outer nodes sit
@@ -192,46 +215,70 @@ export function WorkflowCanvasView({
   );
 
   /**
-   * Fit-to-view: scale so the authored `bounds` (plus padding) fit inside the
-   * viewport, then centre them. Runs on first layout, so a workflow lands framed
-   * whatever its absolute n8n coordinates happen to be.
+   * Frame the graph. `legible` (initial view, reset, `0`) keeps labels
+   * readable — a graph too wide for that is fitted to the height and anchored
+   * at its start, with a pan hint. `overview` (the fit button) shows the whole
+   * graph at whatever scale that takes. Maths lives in `computeFit`.
    */
-  const fitToView = useCallback(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-    const { clientWidth: vw, clientHeight: vh } = viewport;
-    if (vw === 0 || vh === 0) return;
+  const fitToView = useCallback(
+    (mode: FitMode = "legible", animate = true) => {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+      const { clientWidth: vw, clientHeight: vh } = viewport;
+      if (vw === 0 || vh === 0) return;
 
-    const pad = Math.min(FIT_PADDING, vw * FIT_PADDING_RATIO, vh * FIT_PADDING_RATIO);
-    const { x: cx, y: cy, width: gw, height: gh } = content;
-    const k = Math.min(
-      Math.max(vw - pad * 2, 1) / gw,
-      Math.max(vh - pad * 2, 1) / gh,
-      // Never blow a two-node graph up past life size.
-      1.1,
-    );
+      const pad = Math.min(FIT_PADDING, vw * FIT_PADDING_RATIO, vh * FIT_PADDING_RATIO);
+      const fit = computeFit(content, vw, vh, mode, pad);
 
-    // A graph too big for MIN_SCALE still has to fit, so the floor gives way.
-    minScaleRef.current = Math.min(MIN_SCALE, k);
+      // A graph too big for MIN_SCALE still has to fit, so the floor gives way.
+      minScaleRef.current = Math.min(MIN_SCALE, fit.k);
 
-    setView({
-      k,
-      x: (vw - gw * k) / 2 - cx * k,
-      y: (vh - gh * k) / 2 - cy * k,
-    });
-  }, [content, setView]);
+      const layer = layerRef.current;
+      if (!animate && layer) layer.style.transition = "none";
+      setView({ k: fit.k, x: fit.x, y: fit.y });
+      if (!animate && layer) {
+        // Restore the button-zoom transition once the jump has painted.
+        window.setTimeout(() => {
+          if (layerRef.current) layerRef.current.style.transition = "";
+        }, SETTLE_MS);
+      }
 
-  // Fit once the viewport actually has a size (dialogs mount at 0x0).
+      setPanHint(
+        fit.overflowX && fit.overflowY
+          ? "xy"
+          : fit.overflowX
+            ? "x"
+            : fit.overflowY
+              ? "y"
+              : null,
+      );
+    },
+    [content, setView],
+  );
+
+  /** The visitor took the wheel: stop auto-framing and drop the hint. */
+  const markInteracted = useCallback(() => {
+    if (interactedRef.current) return;
+    interactedRef.current = true;
+    setPanHint(null);
+  }, []);
+
+  // Frame on first layout (dialogs mount at 0x0) and on every resize until
+  // the visitor interacts. Jumps rather than animates, so the first paint the
+  // visitor sees is already framed — no 150ms zoom-out from scale(1) that
+  // leaves the graph hanging off the right edge mid-transition.
   useEffect(() => {
-    fittedRef.current = false;
+    interactedRef.current = false;
     const viewport = viewportRef.current;
     if (!viewport) return;
 
+    let last = "";
     const observer = new ResizeObserver(() => {
-      if (fittedRef.current) return;
-      if (viewport.clientWidth === 0 || viewport.clientHeight === 0) return;
-      fittedRef.current = true;
-      fitToView();
+      if (interactedRef.current) return;
+      const size = `${viewport.clientWidth}x${viewport.clientHeight}`;
+      if (size === last || viewport.clientWidth === 0 || viewport.clientHeight === 0) return;
+      last = size;
+      fitToView("legible", false);
     });
     observer.observe(viewport);
     return () => observer.disconnect();
@@ -253,16 +300,31 @@ export function WorkflowCanvasView({
     if (!viewport) return;
 
     function onWheel(event: WheelEvent) {
-      event.preventDefault();
       // deltaMode 1 is lines, 2 is pages — normalise to something pixel-ish.
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 100 : 1;
+      const zoomGesture = wheelZoom === "always" || event.ctrlKey || event.metaKey;
+
+      if (!zoomGesture) {
+        // Embedded mode: horizontal intent pans the graph, vertical scrolls
+        // the page (no preventDefault, so the page keeps its wheel).
+        const dx = event.shiftKey ? event.deltaY : event.deltaX;
+        if (Math.abs(dx) <= Math.abs(event.shiftKey ? 0 : event.deltaY)) return;
+        event.preventDefault();
+        markInteracted();
+        const { k, x, y } = viewRef.current;
+        setView({ k, x: x - dx * unit, y });
+        return;
+      }
+
+      event.preventDefault();
+      markInteracted();
       const factor = Math.exp((-event.deltaY * unit) / 420);
       zoomAt(factor, event.clientX, event.clientY);
     }
 
     viewport.addEventListener("wheel", onWheel, { passive: false });
     return () => viewport.removeEventListener("wheel", onWheel);
-  }, [zoomAt]);
+  }, [zoomAt, wheelZoom, markInteracted, setView]);
 
   // --- pointer -------------------------------------------------------------
 
@@ -283,6 +345,7 @@ export function WorkflowCanvasView({
       return;
     }
 
+    markInteracted();
     pointersRef.current.set(event.pointerId, {
       x: event.clientX,
       y: event.clientY,
@@ -371,16 +434,23 @@ export function WorkflowCanvasView({
         zoomCenter(1 / ZOOM_STEP);
         break;
       case "0":
-        fitToView();
+        fitToView("legible");
+        break;
+      case "f":
+      case "F":
+        fitToView("overview");
         break;
       default:
         return;
     }
 
+    markInteracted();
     event.preventDefault();
   }
 
   const title = label ?? canvas.name ?? "Workflow canvas";
+  const wheelHelp =
+    wheelZoom === "always" ? "scroll to zoom" : "Ctrl or ⌘ + scroll to zoom";
 
   return (
     <div className={cn("relative h-full w-full overflow-hidden", className)}>
@@ -388,7 +458,7 @@ export function WorkflowCanvasView({
         ref={viewportRef}
         role="application"
         aria-roledescription="Workflow canvas"
-        aria-label={`${title} — drag to pan, scroll to zoom`}
+        aria-label={`${title} — drag to pan, ${wheelHelp}`}
         aria-describedby={describedById}
         tabIndex={0}
         onPointerDown={onPointerDown}
@@ -481,19 +551,52 @@ export function WorkflowCanvasView({
         </div>
       </div>
 
+      {/* The graph runs on past the frame: fade the cut edge and say so. */}
+      {panHint === "x" || panHint === "xy" ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 w-16"
+          style={{
+            background: `linear-gradient(to right, transparent, ${CANVAS_GROUND})`,
+          }}
+        />
+      ) : null}
+      {panHint ? (
+        <div
+          aria-hidden
+          className="font-label pointer-events-none absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-outline-variant bg-surface-container/95 px-2.5 py-1 text-on-surface-variant shadow-sm backdrop-blur-sm"
+        >
+          <MoveHorizontal className="h-3.5 w-3.5" aria-hidden />
+          {panHint === "y" ? "Drag to see the rest" : "Drag to follow the flow"}
+        </div>
+      ) : null}
+
       <CanvasControls
         zoomLabelRef={zoomLabelRef}
-        onFit={fitToView}
-        onZoomIn={() => zoomCenter(ZOOM_STEP)}
-        onZoomOut={() => zoomCenter(1 / ZOOM_STEP)}
-        onReset={fitToView}
+        onFit={() => {
+          markInteracted();
+          fitToView("overview");
+        }}
+        onZoomIn={() => {
+          markInteracted();
+          zoomCenter(ZOOM_STEP);
+        }}
+        onZoomOut={() => {
+          markInteracted();
+          zoomCenter(1 / ZOOM_STEP);
+        }}
+        onReset={() => {
+          // Reset re-arms auto-framing: the view is the default one again.
+          interactedRef.current = false;
+          fitToView("legible");
+        }}
       />
 
       {/* Screen-reader fallback: the graph as a readable outline, so the canvas
           is never an opaque blob to assistive tech. */}
       <div id={describedById} className="sr-only">
         <p>
-          {`${title}: ${canvas.nodes.length} nodes, ${canvas.edges.length} connections. Pan with the arrow keys, zoom with plus and minus, press 0 to fit.`}
+          {`${title}: ${canvas.nodes.length} nodes, ${canvas.edges.length} connections. Pan with the arrow keys, zoom with plus and minus, press 0 to reset the view or F to fit the whole graph.`}
         </p>
         <ul>
           {canvas.nodes.map((node) => {
@@ -523,6 +626,11 @@ export function WorkflowCanvasView({
 
 function CanvasNodeChip({ node }: { node: CanvasNode }) {
   const icon = iconForTypeKey(node.typeKey);
+  // Same kind colours as the thumbnails, so card and canvas read alike.
+  const kind = classifyNode(node);
+  const kindStyle = node.disabled
+    ? undefined
+    : { backgroundColor: nodeKindFill(kind), borderColor: nodeKindStroke(kind) };
 
   if (node.shape === "attachment") {
     // Sub-node: the small circle that hangs beneath an agent.
@@ -539,11 +647,11 @@ function CanvasNodeChip({ node }: { node: CanvasNode }) {
         }}
       >
         <div
-          className="flex items-center justify-center rounded-full border border-outline bg-surface-bright text-[13px] shadow-xs"
-          style={{ width: size, height: size }}
+          className="flex items-center justify-center rounded-full border border-outline bg-surface-bright text-on-surface shadow-xs"
+          style={{ width: size, height: size, ...kindStyle }}
           title={icon.label}
         >
-          <span aria-hidden>{icon.glyph}</span>
+          <NodeTypeIcon typeKey={node.typeKey} className="h-[18px] w-[18px]" />
         </div>
         <NodeCaption node={node} />
       </div>
@@ -568,7 +676,7 @@ function CanvasNodeChip({ node }: { node: CanvasNode }) {
           `CANVAS_GROUND` in the dark one. */}
       <div
         className={cn(
-          "flex h-full w-full items-center justify-center border bg-surface-bright text-[20px] shadow-sm",
+          "flex h-full w-full items-center justify-center border bg-surface-bright text-on-surface shadow-sm",
           node.disabled ? "border-outline-variant" : "border-outline",
         )}
         style={{
@@ -576,10 +684,11 @@ function CanvasNodeChip({ node }: { node: CanvasNode }) {
           borderRadius: isTrigger
             ? `${node.height / 2}px 10px 10px ${node.height / 2}px`
             : "10px",
+          ...kindStyle,
         }}
         title={icon.label}
       >
-        <span aria-hidden>{icon.glyph}</span>
+        <NodeTypeIcon typeKey={node.typeKey} className="h-9 w-9" strokeWidth={1.5} />
       </div>
       <NodeCaption node={node} />
     </div>
@@ -620,7 +729,7 @@ function CanvasControls({
       data-no-pan
       className="absolute bottom-3 left-3 flex items-center gap-1 rounded-lg border border-outline-variant bg-surface-container/95 p-1 shadow-md backdrop-blur-sm"
     >
-      <ControlButton label="Fit to screen" onClick={onFit}>
+      <ControlButton label="Fit whole graph" onClick={onFit}>
         <Maximize className="h-3.5 w-3.5" aria-hidden />
       </ControlButton>
       <ControlButton label="Zoom in" onClick={onZoomIn}>

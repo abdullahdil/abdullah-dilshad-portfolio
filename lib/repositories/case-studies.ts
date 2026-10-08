@@ -20,13 +20,13 @@ import type {
   ReliabilityControlRow,
 } from "@/lib/supabase/database.types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import type { WorkflowCanvas } from "@/lib/workflow-canvas/types";
 
 async function fetchPublishedCaseStudyFromSupabase(
   slug: string,
 ): Promise<CaseStudy | null> {
-  const supabase = await createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   if (!supabase) return null;
 
   const { data: study, error } = await supabase
@@ -74,8 +74,10 @@ async function fetchPublishedCaseStudyFromSupabase(
   });
 }
 
-async function listPublishedCaseStudiesFromSupabase(): Promise<CaseStudy[] | null> {
-  const supabase = await createServerSupabaseClient();
+async function listPublishedCaseStudiesFromSupabase(): Promise<
+  CaseStudy[] | null
+> {
+  const supabase = createPublicSupabaseClient();
   if (!supabase) return null;
 
   const { data, error } = await supabase
@@ -88,14 +90,14 @@ async function listPublishedCaseStudiesFromSupabase(): Promise<CaseStudy[] | nul
     return null;
   }
 
-  const studies: CaseStudy[] = [];
-  for (const row of data) {
-    const study = await fetchPublishedCaseStudyFromSupabase(
-      (row as { slug: string }).slug,
-    );
-    if (study) studies.push(study);
-  }
-  return studies;
+  // Fetch every study in parallel (was sequential): one round-trip of
+  // latency instead of N, while preserving display order.
+  const studies = await Promise.all(
+    data.map((row) =>
+      fetchPublishedCaseStudyFromSupabase((row as { slug: string }).slug),
+    ),
+  );
+  return studies.filter((study): study is CaseStudy => study !== null);
 }
 
 export async function listPublishedCaseStudies(): Promise<CaseStudy[]> {
@@ -221,19 +223,21 @@ export async function getPublishedAdjacentCaseStudies(slug: string) {
  * and may name internal systems — can never reach a public response.
  */
 const PUBLIC_WORKFLOW_COLUMNS =
-  "slug, title, summary, image_url, image_alt, canvas_json, outcome_tags, is_active, workflow_groups (category)";
+  "slug, title, summary, image_url, image_alt, canvas_json, outcome_tags, is_active, updated_at, workflow_groups (category)";
 
 type RelatedWorkflowJoinRow = {
   display_order: number;
   workflows:
-    | (PublicWorkflowRowFields & { workflow_groups: { category: string } | null })
+    | (PublicWorkflowRowFields & {
+        workflow_groups: { category: string } | null;
+      })
     | null;
 };
 
 async function fetchRelatedWorkflowsFromSupabase(
   caseStudyId: string,
 ): Promise<PublicWorkflowListing[] | null> {
-  const supabase = await createServerSupabaseClient();
+  const supabase = createPublicSupabaseClient();
   if (!supabase) return null;
 
   const { data, error } = await supabase
@@ -248,8 +252,9 @@ async function fetchRelatedWorkflowsFromSupabase(
   // also come back null for an admin session, which sees everything.
   return (data as unknown as RelatedWorkflowJoinRow[])
     .map((link) => link.workflows)
-    .filter((row): row is NonNullable<RelatedWorkflowJoinRow["workflows"]> =>
-      row !== null,
+    .filter(
+      (row): row is NonNullable<RelatedWorkflowJoinRow["workflows"]> =>
+        row !== null,
     )
     .map((row) =>
       mapWorkflowRowToPublicListing(row, row.workflow_groups?.category ?? ""),
@@ -273,7 +278,7 @@ export async function getPublishedCaseStudyWorkflows(
   if (!isSupabaseConfigured()) return seedFallback();
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return seedFallback();
 
     const { data: study, error } = await supabase
@@ -294,4 +299,61 @@ export async function getPublishedCaseStudyWorkflows(
   }
 
   return seedFallback();
+}
+
+// ---------------------------------------------------------------------------
+// Reverse lookup: workflow -> case studies
+// ---------------------------------------------------------------------------
+
+export type PublicCaseStudyRef = { slug: string; title: string };
+
+type WorkflowCaseStudyJoinRow = {
+  case_studies: { slug: string; title: string; display_order: number } | null;
+};
+
+function seedCaseStudiesForWorkflow(workflowId: string): PublicCaseStudyRef[] {
+  return seedCaseStudies
+    .filter((study) => study.relatedWorkflowIds?.includes(workflowId))
+    .map((study) => ({ slug: study.slug, title: study.title }));
+}
+
+/**
+ * Published case studies that feature a workflow, in case-study display order.
+ * `workflowId` is the public workflow id (`PublicWorkflowListing.slug`), never
+ * the uuid. Returns [] rather than throwing; falls back to the seed
+ * `relatedWorkflowIds` with no Supabase project.
+ */
+export async function getPublishedCaseStudiesForWorkflow(
+  workflowId: string,
+): Promise<PublicCaseStudyRef[]> {
+  if (!isSupabaseConfigured()) return seedCaseStudiesForWorkflow(workflowId);
+
+  try {
+    const supabase = createPublicSupabaseClient();
+    if (!supabase) return seedCaseStudiesForWorkflow(workflowId);
+
+    const { data, error } = await supabase
+      .from("case_study_workflows")
+      .select(
+        "case_studies!inner (slug, title, display_order, status), workflows!inner (slug)",
+      )
+      .eq("workflows.slug", workflowId)
+      .eq("case_studies.status", "published");
+
+    if (error || !data) return seedCaseStudiesForWorkflow(workflowId);
+
+    const seen = new Set<string>();
+    return (data as unknown as WorkflowCaseStudyJoinRow[])
+      .map((row) => row.case_studies)
+      .filter((study): study is NonNullable<typeof study> => study !== null)
+      .sort((a, b) => a.display_order - b.display_order)
+      .filter((study) => {
+        if (seen.has(study.slug)) return false;
+        seen.add(study.slug);
+        return true;
+      })
+      .map((study) => ({ slug: study.slug, title: study.title }));
+  } catch {
+    return seedCaseStudiesForWorkflow(workflowId);
+  }
 }

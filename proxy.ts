@@ -35,7 +35,10 @@ export const config = {
   matcher: [
     /*
      * Refresh auth cookies site-wide; gate /admin/* (except login) when unauthenticated.
+     * Skipped: Next internals, metadata routes (sitemap, robots, manifest, icons,
+     * llms.txt, opengraph/twitter images) and static assets — none of them read
+     * the session, and none live under /admin, so admin gating is unaffected.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico|sitemap\\.xml|robots\\.txt|manifest\\.webmanifest|llms\\.txt|icon(?:/|$)|apple-icon|.*(?:opengraph|twitter)-image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff2?|ttf|otf)$).*)",
   ],
 };

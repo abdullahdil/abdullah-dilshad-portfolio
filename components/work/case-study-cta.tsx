@@ -1,11 +1,16 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 
-export function CaseStudyCta() {
+type CaseStudyCtaProps = {
+  /** Direct CV download (profile `cvUrl`). Falls back to the résumé page. */
+  cvUrl?: string | null;
+};
+
+export function CaseStudyCta({ cvUrl }: CaseStudyCtaProps = {}) {
   return (
-    <Section tone="low" space="tight" className="section-veil" aria-labelledby="case-cta-heading">
+    <Section tone="low" space="tight" className="section-veil page-end-wash" aria-labelledby="case-cta-heading">
       <Container size="narrow">
         <p className="section-eyebrow">Next step</p>
         <h2 id="case-cta-heading" className="mt-3 max-w-[24ch] font-heading text-headline-lg text-balance text-on-surface">
@@ -20,8 +25,18 @@ export function CaseStudyCta() {
             Get in touch
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Button>
-          <Button href="/#work" variant="ghost">
-            View other projects
+          {cvUrl ? (
+            <Button href={cvUrl} variant="secondary" target="_blank" rel="noopener noreferrer">
+              Download CV
+              <Download className="h-4 w-4" aria-hidden />
+            </Button>
+          ) : (
+            <Button href="/resume" variant="secondary">
+              View résumé
+            </Button>
+          )}
+          <Button href="/work" variant="ghost">
+            All work
           </Button>
         </div>
       </Container>

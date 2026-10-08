@@ -18,8 +18,25 @@ Set these in **Project → Settings → Environment Variables** (Production + Pr
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Anon/public key |
 | `SUPABASE_SERVICE_ROLE_KEY` | **No** | Server-only; contact inserts + privileged ops |
+| `RESEND_API_KEY` | **No** | Server-only; emails each contact submission to the owner |
+| `CONTACT_NOTIFY_EMAIL` | **No** | Recipient (default: profile email `abdullahdilshad111@gmail.com`) |
+| `CONTACT_FROM_EMAIL` | **No** | Sender (default `Portfolio Contact <onboarding@resend.dev>`) |
 | `N8N_CONTACT_WEBHOOK_URL` | **No** | Optional contact webhook |
 | `SUPABASE_DB_PASSWORD` | **No** | Not required at runtime; only for local/ops `db:setup` |
+
+### Contact email
+
+Contact submissions are delivered on two channels at once: the Supabase
+`contact_submissions` table (admin inbox) and an email via Resend. The form
+reports success if either lands; it fails only if both do.
+
+1. Sign up at [resend.com](https://resend.com) **with the notify address**
+   (`abdullahdilshad111@gmail.com`) and create an API key → `RESEND_API_KEY`.
+2. With the default `onboarding@resend.dev` sender, Resend only delivers to the
+   account owner's own address, so the notify address must match the account.
+3. For a custom sender (e.g. `contact@yourdomain.com`) or a different
+   recipient, verify the domain in Resend and set `CONTACT_FROM_EMAIL`.
+4. Replies go straight to the visitor (`reply_to` is their address).
 
 ## 3. Deploy
 
@@ -41,7 +58,7 @@ After the first production deploy:
 
 - [ ] Homepage renders verified content
 - [ ] Case study pages resolve; unknown slug → 404
-- [ ] Contact form submits (appears in `/admin/messages`)
+- [ ] Contact form submits (appears in `/admin/messages` and arrives by email)
 - [ ] Unauthenticated `/admin` redirects to `/admin/login`
 - [ ] Authorized admin can edit content and upload media
 - [ ] `/resume` shows CV download when a PDF is linked

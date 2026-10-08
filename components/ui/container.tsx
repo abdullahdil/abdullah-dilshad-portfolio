@@ -4,7 +4,7 @@ type ContainerProps = {
   children: React.ReactNode;
   className?: string;
   as?: "div" | "section" | "header" | "footer" | "main" | "nav";
-  /** Measure width. `default` is the 1120px page measure. */
+  /** Measure width. `default` is the 1280px page measure; prose keeps its own ch caps. */
   size?: "narrow" | "default" | "wide" | "full";
 };
 

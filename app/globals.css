@@ -89,9 +89,9 @@
   --panel-bg: rgba(255, 255, 255, 0.72);
 
   /* --- geometry: centered measure is the core sleekness lever --- */
-  --container-max: 1120px;
+  --container-max: 1280px;
   --container-narrow: 760px;
-  --container-wide: 1320px;
+  --container-wide: 1520px;
   --gutter: 24px;
   --margin-mobile: 20px;
   --margin-desktop: 32px;
@@ -473,6 +473,15 @@
   .text-display-lg {
     font-size: clamp(2.25rem, 5.5vw, 3.75rem);
     line-height: 1.02;
+    letter-spacing: -0.038em;
+    font-weight: 560;
+  }
+
+  /* Hero h1: same voice as display-lg on mobile, capped lower on desktop so
+     the approved headline sets in 2–3 lines inside a 7/12 column. */
+  .text-display-hero {
+    font-size: clamp(2.25rem, 3.6vw + 0.5rem, 3.25rem);
+    line-height: 1.03;
     letter-spacing: -0.038em;
     font-weight: 560;
   }

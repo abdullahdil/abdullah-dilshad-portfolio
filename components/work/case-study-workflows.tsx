@@ -1,6 +1,8 @@
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
-import { WorkflowCard } from "@/components/public/workflow-card";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { WorkflowCanvasThumbnail } from "@/components/public/workflow-canvas-thumbnail";
+import { ToolChip } from "@/components/ui/tool-chip";
+import { cn } from "@/lib/utils";
 import type { PublicWorkflowListing } from "@/lib/repositories/site-content";
 
 type CaseStudyWorkflowsProps = {
@@ -12,50 +14,85 @@ type CaseStudyWorkflowsProps = {
   workflows: PublicWorkflowListing[];
 };
 
+/** `/workflows/[slug]` — the listing id is the workflow slug. */
+export function workflowHref(workflow: Pick<PublicWorkflowListing, "id">): string {
+  return `/workflows/${encodeURIComponent(workflow.id)}`;
+}
+
 /**
- * The real n8n canvases behind a case study, in the admin's order.
+ * The real workflows behind a case study, each linking to its own page where
+ * the full canvas can be explored. Server-rendered: the thumbnail is a static
+ * SVG, so this grid ships no client JavaScript.
  *
- * Reuses the homepage catalog's `WorkflowCard` verbatim: same thumbnail, same
- * pan/zoom dialog, same "Request access" button, so a workflow looks and
- * behaves identically wherever it appears.
+ * The grid is sized to the count so it never strands an orphan card: one
+ * card is centred at a readable width, two sit side by side and centred,
+ * three or more flow into three columns.
  *
- * Renders nothing at all when a study has no links — no heading, no empty
- * grid, no gap in the page rhythm. That is the common case today (a study may
- * declare no related workflows, and the join table may not exist yet), so it
- * is the path that must stay boring.
+ * Renders nothing when a study has no linked workflows.
  */
 export function CaseStudyWorkflows({ workflows }: CaseStudyWorkflowsProps) {
-  if (workflows.length === 0) {
-    return null;
-  }
+  if (workflows.length === 0) return null;
+
+  const count = workflows.length;
+  const layout =
+    count === 1
+      ? "mx-auto max-w-xl"
+      : count === 2
+        ? "mx-auto max-w-4xl sm:grid-cols-2"
+        : count === 4
+          ? "sm:grid-cols-2"
+          : "sm:grid-cols-2 lg:grid-cols-3";
 
   return (
-    <Section divider aria-labelledby="related-workflows-heading">
-      <Container size="narrow">
-        <p className="section-eyebrow">Workflows</p>
-        <h2
-          id="related-workflows-heading"
-          className="mt-3 font-heading text-headline-lg text-balance text-on-surface"
-        >
-          The workflows behind it
-        </h2>
-        <p className="mt-6 text-lead text-pretty">
-          The production canvases this system runs on. Open one to pan and zoom
-          the graph, or request access to the full build.
-        </p>
-      </Container>
-
-      <Container size="wide" className="mt-12 md:mt-16">
-        <ol className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {workflows.map((workflow, index) => (
-            <WorkflowCard
-              key={workflow.id}
-              workflow={workflow}
-              position={index + 1}
-            />
-          ))}
-        </ol>
-      </Container>
-    </Section>
+    <ul className={cn("grid grid-cols-1 gap-5", layout)}>
+      {workflows.map((workflow) => {
+        const canvas =
+          workflow.canvas && workflow.canvas.nodes.length > 0 ? workflow.canvas : null;
+        return (
+          <li key={workflow.id} className="min-w-0">
+            <Link
+              href={workflowHref(workflow)}
+              className="group panel panel-depth lift flex h-full flex-col overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-outline-variant bg-surface-lowest text-accent">
+                {canvas ? (
+                  <WorkflowCanvasThumbnail canvas={canvas} />
+                ) : (
+                  <div
+                    aria-hidden
+                    className="h-full w-full"
+                    style={{
+                      backgroundImage:
+                        "repeating-linear-gradient(45deg, var(--outline-variant) 0 1px, transparent 1px 9px)",
+                    }}
+                  />
+                )}
+              </div>
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="flex items-start justify-between gap-3 font-heading text-headline-sm text-balance text-on-surface">
+                  {workflow.title}
+                  <ArrowUpRight
+                    aria-hidden
+                    className="mt-0.5 h-4 w-4 shrink-0 text-on-surface-faint transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent motion-reduce:transition-none"
+                  />
+                </h3>
+                {workflow.summary ? (
+                  <p className="mt-2 line-clamp-3 text-body-sm text-pretty text-on-surface-variant">
+                    {workflow.summary}
+                  </p>
+                ) : null}
+                {workflow.outcomeTags.length > 0 ? (
+                  <div className="mt-auto flex flex-wrap gap-1.5 pt-4">
+                    {workflow.outcomeTags.slice(0, 3).map((tag) => (
+                      <ToolChip key={tag}>{tag}</ToolChip>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

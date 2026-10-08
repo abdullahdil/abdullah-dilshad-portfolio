@@ -1,3 +1,4 @@
+import { normalizeNavLinks } from "@/components/public/nav-links";
 import { SiteFooter } from "@/components/public/site-footer";
 import { SiteHeader } from "@/components/public/site-header";
 import { getPublicProfile } from "@/lib/repositories/profile";
@@ -16,7 +17,7 @@ export default async function PublicLayout({
   return (
     <div className="flex min-h-dvh flex-col bg-surface text-on-surface">
       <SiteHeader
-        links={links}
+        links={normalizeNavLinks(links)}
         fullName={profile.fullName}
         availabilityLabel={profile.availabilityLabel}
         cvUrl={profile.cvUrl ?? "/resume"}

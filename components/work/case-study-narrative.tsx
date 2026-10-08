@@ -1,89 +1,111 @@
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { narrativeSectionId } from "@/components/work/case-study-content";
+import { CaseStudyToc } from "@/components/work/case-study-toc";
 import type { CaseStudy, CaseStudyNarrativeSection } from "@/lib/content/types";
+
+/** Anchor of the long-form story region — the summary rail links here. */
+export const FULL_STORY_ID = "full-story";
 
 type CaseStudyNarrativeProps = {
   /** Already resolved by `resolveCaseStudyNarrative`. */
   sections: CaseStudyNarrativeSection[];
-  /**
-   * True for the opening run of the story: it carries the section eyebrow and
-   * sets its very first paragraph as a lead. A continuation run (the part that
-   * follows the canvases) passes false so the page does not restate itself.
-   */
-  lead?: boolean;
 };
 
 /**
- * The prose the page is now built around: what was built, how it was built,
- * and what it saved — told as a story rather than as a spec sheet.
+ * "The full story": the long-form prose, kept intact for readers who want it,
+ * below the scannable summary. Long-form reading, so the rules are
+ * typographic — one measure held at ~68ch, a real paragraph rhythm, headings
+ * only where the story turns, colour from the theme tokens only.
  *
- * Long-form reading, so the rules are typographic: one narrow measure held at
- * ~68ch, a real paragraph rhythm instead of stacked cards, headings only where
- * the story actually turns, and colour drawn entirely from the existing theme
- * tokens so it reads the same in light and dark.
+ * From `lg` up a sticky contents rail with a reading-progress line sits
+ * beside the prose (only when the story has at least two headed sections).
  *
  * Renders nothing when there is no prose to show.
  */
-export function CaseStudyNarrative({
-  sections,
-  lead = true,
-}: CaseStudyNarrativeProps) {
+export function CaseStudyNarrative({ sections }: CaseStudyNarrativeProps) {
   const usable = sections.filter((section) => section.body.length > 0);
   if (usable.length === 0) {
     return null;
   }
 
-  // Stable heading ids so each run of prose can name its own region, and so a
-  // section with an authored `id` stays deep-linkable.
-  const headingId = (section: CaseStudyNarrativeSection, index: number) =>
-    section.heading
-      ? `${section.id ?? `${lead ? "story" : "story-more"}-${index}`}-heading`
-      : undefined;
+  const toc = usable
+    .map((section, index) => ({
+      id: narrativeSectionId(section, index),
+      label: section.heading ?? "",
+    }))
+    .filter((entry) => entry.label);
+  const showToc = toc.length >= 2;
 
   return (
-    <Section divider aria-labelledby={headingId(usable[0], 0)}>
-      <Container size="narrow">
-        {lead ? <p className="section-eyebrow">The story</p> : null}
+    <Section divider id={FULL_STORY_ID} aria-labelledby="full-story-heading" className="scroll-mt-16">
+      <Container>
+        <div
+          className={
+            showToc
+              ? "lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-16"
+              : undefined
+          }
+        >
+          {showToc ? (
+            <aside className="hidden lg:block">
+              <CaseStudyToc entries={toc} />
+            </aside>
+          ) : null}
 
-        <div className={lead ? "mt-8" : undefined}>
-          {usable.map((section, sectionIndex) => (
-            <section
-              key={section.id ?? section.heading ?? section.body[0].slice(0, 48)}
-              id={section.id}
-              className={
-                sectionIndex === 0 ? "scroll-mt-24" : "mt-14 scroll-mt-24 md:mt-20"
-              }
+          <div className="min-w-0" data-story-body>
+            <p className="section-eyebrow">Read in depth</p>
+            <h2
+              id="full-story-heading"
+              className="mt-3 font-heading text-headline-xl text-balance text-on-surface"
             >
-              {section.heading ? (
-                <h2
-                  id={headingId(section, sectionIndex)}
-                  className="font-heading text-headline-lg text-balance text-on-surface"
-                >
-                  {section.heading}
-                </h2>
-              ) : null}
+              The full story
+            </h2>
 
-              <div
-                className={[
-                  "max-w-[68ch] space-y-6 text-pretty",
-                  section.heading ? "mt-6" : "",
-                  // The opening paragraph of the whole story is set as a lead;
-                  // everything after it settles into the body measure.
-                  lead && sectionIndex === 0
-                    ? "text-lead"
-                    : "text-body-lg text-on-surface-variant",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {section.body.map((paragraph, paragraphIndex) => (
-                  <p key={`${paragraphIndex}-${paragraph.slice(0, 32)}`}>
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </section>
-          ))}
+            <div className="mt-10 md:mt-12">
+              {usable.map((section, sectionIndex) => (
+                <section
+                  key={narrativeSectionId(section, sectionIndex)}
+                  id={narrativeSectionId(section, sectionIndex)}
+                  aria-labelledby={
+                    section.heading
+                      ? `${narrativeSectionId(section, sectionIndex)}-heading`
+                      : undefined
+                  }
+                  className={
+                    sectionIndex === 0 ? "scroll-mt-24" : "mt-14 scroll-mt-24 md:mt-16"
+                  }
+                >
+                  {section.heading ? (
+                    <h3
+                      id={`${narrativeSectionId(section, sectionIndex)}-heading`}
+                      className="font-heading text-headline-lg text-balance text-on-surface"
+                    >
+                      {section.heading}
+                    </h3>
+                  ) : null}
+
+                  <div
+                    className={[
+                      "max-w-[68ch] space-y-6 text-pretty",
+                      section.heading ? "mt-6" : "",
+                      sectionIndex === 0
+                        ? "text-lead"
+                        : "text-body-lg text-on-surface-variant",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                  >
+                    {section.body.map((paragraph, paragraphIndex) => (
+                      <p key={`${paragraphIndex}-${paragraph.slice(0, 32)}`}>
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </div>
         </div>
       </Container>
     </Section>
@@ -121,9 +143,6 @@ export function resolveCaseStudyNarrative(
       id: "what-we-built",
       heading: "What we built",
       body: [study.architectureDescription],
-      // Put the real canvases right after the description of the system they
-      // implement, rather than stranding them at the end of the page.
-      showWorkflowsAfter: true,
     },
     {
       id: "what-changed",

@@ -1,7 +1,7 @@
 import { profileSeed } from "@/lib/content/seed";
 import type { ProfileRow } from "@/lib/supabase/database.types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 
 export type PublicProfile = {
   fullName: string;
@@ -43,7 +43,9 @@ function mapProfile(row: ProfileRow): PublicProfile {
     // "no column" and falls back to the verified seed so the links still
     // render; an explicit null means an admin cleared the field and is kept.
     instagramUrl:
-      row.instagram_url === undefined ? profileSeed.instagramUrl : row.instagram_url,
+      row.instagram_url === undefined
+        ? profileSeed.instagramUrl
+        : row.instagram_url,
     xUrl: row.x_url === undefined ? profileSeed.xUrl : row.x_url,
     githubUrl: row.github_url,
     n8nProfileUrl: row.n8n_profile_url,
@@ -82,7 +84,7 @@ export async function getPublicProfile(): Promise<PublicProfile> {
   }
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return seedProfile();
 
     const { data, error } = await supabase

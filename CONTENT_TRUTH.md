@@ -75,12 +75,20 @@ Stitch is **not** a factual content source.
 - Not employee onboarding / asset provisioning
 - Result (qualitative only): Converted disconnected team handoffs into a consistent event-driven process with clearer ownership, approval states, and faster system updates.
 
-### 3. RAG Customer Support Workflow
+### 3. AI Complaint Triage and Routing
 
-- Slug: `rag-customer-support-workflow`
-- Tools allowed: n8n, LLM API, Vector knowledge base, Slack, Email, Webhooks
+_Updated 2026-10-08 (owner decision): this study is complaint triage and routing, **not RAG**._
+
+- Slug: `rag-customer-support-workflow` (legacy slug kept for now; a rename is a separate, later step)
+- Basis: two teaching builds (Smart Complaint Routing Demo, Career Guidance Agent Demo) — present them as demonstrations of a pattern, not client deployments
+- Tools allowed: n8n, OpenAI API, Structured outputs, Gmail API (as shown in the real canvases)
+- Do **not** claim retrieval, a vector store / "Vector knowledge base", knowledge grounding, or any RAG behaviour for this study
 - Do **not** name Pinecone, LangChain, specific embedding models, or fixed Claude version strings unless later verified
-- Result (qualitative only): Created a repeatable support workflow that automates knowledge retrieval and response preparation while preserving human control for uncertain cases.
+- Result (qualitative only): Two teaching builds that demonstrate a reusable pattern: contain the model to one schema-bound step, normalise its output before branching, default safely, and end every branch somewhere a person can see.
+
+### Reliability controls — retries
+
+_Confirmed by the owner 2026-10-08:_ retry / bounded-retry controls described in the case studies are real and may be shown. This does not extend to study 3's Career Guidance demo, which has no retry logic.
 
 ## About (approved copy)
 

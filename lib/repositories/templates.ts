@@ -1,7 +1,7 @@
 import { templatesSeed } from "@/lib/content/seed";
 import type { PublicTemplateRow } from "@/lib/supabase/database.types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 
 export type PublicTemplate = {
   title: string;
@@ -28,7 +28,7 @@ export async function listPublishedTemplates(): Promise<PublicTemplate[]> {
   }
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return seedTemplates();
 
     const { data, error } = await supabase

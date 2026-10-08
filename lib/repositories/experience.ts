@@ -1,7 +1,7 @@
 import { experienceSeed } from "@/lib/content/seed";
 import type { ExperienceRow } from "@/lib/supabase/database.types";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 
 export type PublicExperience = {
   organization: string;
@@ -12,7 +12,11 @@ export type PublicExperience = {
   description: string;
 };
 
-function formatPeriod(start: string, end: string | null, isCurrent: boolean): string {
+function formatPeriod(
+  start: string,
+  end: string | null,
+  isCurrent: boolean,
+): string {
   const startDate = new Date(start);
   const startLabel = startDate.toLocaleString("en-US", {
     month: "long",
@@ -50,7 +54,7 @@ export async function listPublishedExperience(): Promise<PublicExperience[]> {
   }
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     if (!supabase) return seedExperience();
 
     const { data, error } = await supabase
