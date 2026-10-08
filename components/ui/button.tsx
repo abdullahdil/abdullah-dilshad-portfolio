@@ -69,6 +69,15 @@ export function Button({
 
   if ("href" in props && props.href) {
     const { href, target, rel, download, onClick } = props;
+    // Files (e.g. the CV PDF) and external URLs are not routes: a plain anchor
+    // stops Next from prefetching them as RSC payloads (which 404s).
+    if (download !== undefined || /^(https?:|mailto:|tel:)/.test(href) || /\.[a-z0-9]{2,5}(\?|#|$)/i.test(href)) {
+      return (
+        <a href={href} className={classes} target={target} rel={rel} download={download} onClick={onClick}>
+          {children}
+        </a>
+      );
+    }
     return (
       <Link
         href={href}
